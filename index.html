@@ -3,16 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('./img/main.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: start end;
+        }
+    </style>
     <title>prueba</title>
 </head>
 <body>
     <header> 
-        <h1 class="red-text" class="left"> Titulo </h1>
+        <nav">
+            <div class="d-flex bg-light">
+                <h1 class="text-danger"> HGA </h1>
+                <button class="btn btn-end ms-auto"><h3 class="text-primary text-end"> crear cuenta </h3></button>
+                <button class="btn btn-end"><h3 class="text-success text-end"> iniciar sesion </h3></button>
+            </div>
+        </nav>
     </header>  
     <main>
-        <h2 class="blue-text" class="position-center"> sub titulo </h2>
-        <p class="purple-text" class="position-center"> 
+        <h2 class="text-dark text-center"> un hogar feliz un hogar para todos  </h2>
+        <p class="text-success" class="text-center"> 
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus 
             ipsum quisquam tenetur itaque, animi veritatis? Voluptas mollitia 
             optio quam praesentium fugiat labore debitis, error recusandae 
@@ -20,4 +34,9 @@
         </p>
     </main>
 </body>
+<footer class="bg-light text-center p-3 position-fixed bottom-0 w-100">
+    <p>
+        derechos reservados HGA &copy; 2025
+    </p>
+</footer>
 </html>
