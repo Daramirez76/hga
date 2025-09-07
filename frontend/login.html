@@ -1,12 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="./css/bootstrap.min.css">
-	<title>login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>login</title>
 </head>
-<body>
-	<h1> Login </h1>
-	<p> lorem </p>
+<body class="bg-light">
+    <!-- Encabezado simple con logo -->
+    <header class="container">
+		<a href="index.html"><button class="btn btn-end">
+			<h1 class="text-danger"> HGA </h1>
+		</button></a>
+    </header>
+
+    <!-- Panel de Login -->
+    <main class="container">
+        <div class="position-relative mx-3 mx-sm-4" style="max-width: 1000px;">
+            <!-- Pestaña superior superpuesta -->
+            <div class="position-absolute translate-middle-y bg-primary text-white px-5 py-2 rounded-pill fw-semibold" style="top: 0; left: 110px;">
+                Iniciar Sesion
+            </div>
+
+            <!-- Cuerpo del panel -->
+            <div class="bg-info rounded-5 p-4 p-sm-5" style="background-color: #54e5f1 !important; min-height: 460px;">
+                <div class="mx-auto" style="max-width: 760px;">
+                    <form>
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="usuario">
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password">
+                        </div>
+
+                        <!-- Botón Crear Cuenta (morado) -->
+                        <div class="d-grid col-6 mx-auto mb-3">
+                            <a href="main_page(user).html" class="btn text-white" style="background-color:#343eaf;">Crear Cuenta</a>
+                        </div>
+
+                        <!-- Botón Regresar (rojo) -->
+                        <div class="d-grid col-6 mx-auto">
+                            <a href="index.html" class="btn btn-danger">Regresar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
