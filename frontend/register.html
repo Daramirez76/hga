@@ -9,80 +9,88 @@
 <body class="bg-light">
     <!-- Header con logo -->
     <header class="container">
-        <a href="index.html"><button class="btn btn-end text-danger"><h1>HGA</h1></button></a>
-    </header>
-
-    <main class="container pb-5">
         <!-- Barra superior: pestaña Registrarse + nav simple -->
-        <div class="position-relative d-flex align-items-end mb-2" style="min-height: 56px;">
-            <div class="position-absolute translate-middle-y bg-primary text-white px-5 py-2 rounded-pill fw-semibold" style="top: 0; left: 96px;">Registrarse</div>
-            <ul class="nav ms-auto">
-                <li class="nav-item"><span class="nav-link disabled text-dark">Residentes</span></li>
-                <li class="nav-item"><span class="nav-link disabled text-dark">Citas</span></li>
-                <li class="nav-item"><span class="nav-link disabled text-dark">Actividades Lúdicas</span></li>
+        <div class=" d-flex mb-5">
+            <a href="index.html"><button class="btn text-danger"><h1>HGA</h1></button></a>
+            <ul class="nav mx-5 py-3">
+                <li class="nav-item mx-5"><a href="resident.html"><span class="text-dark"><h4>Residentes</h4></span></li></a>
+                <li class="nav-item mx-5"><a href="date.html"><span class="text-dark"><h4>Citas</h4></span></li></a>
+                <li class="nav-item mx-5"><a href="recreational_activities.html"><span class="text-dark"><h4>Actividades Lúdicas</h4></span></li></a>
             </ul>
         </div>
 
-        <!-- Zona principal: panel (9 col) + botones laterales (3 col) -->
-        <div class="row g-3">
-            <!-- Panel turquesa -->
-            <div class="col-12 col-lg-9">
-                <div class="bg-info rounded-5 p-4 p-sm-5" style="background-color:#54e5f1 !important;">
-                    <div class="mx-auto" style="max-width: 880px;">
-                        <form>
-                            <div class="row g-4">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="nombre">Nombre</label>
-                                    <input id="nombre" type="text" class="form-control">
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="apellido">Apellido</label>
-                                    <input id="apellido" type="text" class="form-control">
-                                </div>
+    </header>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="tipoDoc">Tipo de Documento</label>
-                                    <input id="tipoDoc" type="text" class="form-control">
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="numDoc">No. Documento</label>
-                                    <input id="numDoc" type="text" class="form-control">
-                                </div>
+    <main class="container pb-5">
+        <div class="position-relative mx-3 mx-sm-4 py-4" style="max-width: 1000px;">
+            <div>
+                <div class="position-absolute translate-middle-y bg-primary text-white px-5 py-2 rounded-pill fw-semibold" style="left: 70px;">Registrarse</div>
+            </div>
+            <!-- Zona principal: panel (9 col) + botones laterales (3 col) -->
+            <div class="row g-3">
+                <!-- Panel turquesa -->
+                <div class="col-12 col-lg-9">
+                    <div class="bg-info rounded-5 p-4 p-sm-5" style="background-color:#54e5f1 !important;">
+                        <div class="mx-auto" style="max-width: 880px;">
+                            <form>
+                                <div class="row g-4">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="nombre">Nombre</label>
+                                        <input id="nombre" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="apellido">Apellido</label>
+                                        <input id="apellido" type="text" class="form-control">
+                                    </div>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="direccion">Direccion</label>
-                                    <input id="direccion" type="text" class="form-control">
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="telefono">Telefono</label>
-                                    <input id="telefono" type="text" class="form-control">
-                                </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="tipoDoc">Tipo de Documento</label>
+                                        <input id="tipoDoc" class="form-control">
+                                        <ul>
+                                            <li><p> Cedula de Ciudadania</p></li>
+                                            <li><p> Cedula de Extranjeria</p></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="numDoc">No. Documento</label>
+                                        <input id="numDoc" type="text" class="form-control">
+                                    </div>
 
-                                <div class="col-12">
-                                    <label class="form-label" for="correo">Correo Electronico</label>
-                                    <input id="correo" type="email" class="form-control">
-                                </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="direccion">Direccion</label>
+                                        <input id="direccion" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="telefono">Telefono</label>
+                                        <input id="telefono" type="text" class="form-control">
+                                    </div>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="usuario">Nombre de Usuario</label>
-                                    <input id="usuario" type="text" class="form-control">
+                                    <div class="col-12">
+                                        <label class="form-label" for="correo">Correo Electronico</label>
+                                        <input id="correo" type="email" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="usuario">Nombre de Usuario</label>
+                                        <input id="usuario" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="contrasena">Contraseña</label>
+                                        <input id="contrasena" type="password" class="form-control">
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label" for="contrasena">Contraseña</label>
-                                    <input id="contrasena" type="password" class="form-control">
-                                </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Botones laterales -->
-            <div class="col-12 col-lg-3 d-flex flex-column justify-content-start gap-3">
-                <a href="main_page(user).html" class="btn text-white py-3" style="background:#343eaf;">Crear Cuenta</a>
-                <a href="index.html" class="btn btn-danger py-3">Regresar</a>
+                <!-- Botones laterales -->
+                <div class="col-12 col-lg-3 d-flex flex-column justify-content-start gap-3 my-md-auto">
+                    <a href="main_page(user).html"><button type="button" class="btn btn-primary p-3"><h5 class="text-white">Crear Cuenta</h5></button></a>
+                    <a href="index.html"><button type="button" class="btn btn-danger p-3"><h5 class="text-white">Regresar</h5></button></a>
+                </div>
             </div>
-        </div>
+        </div>    
     </main>
 </body>
 </html>
