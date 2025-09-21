@@ -1,11 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reuniones</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reuniones</title>
+   <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar-custom {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .navbar-brand {
+      background: #6EC1F2;
+      padding: 8px 20px;
+      border-radius: 10px 10px 20px 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #000;
+    }
+    .card-reuniones {
+      background-color: #e0e0e0;
+      border-radius: 40px;
+      padding: 20px;
+    }
+    .mensaje {
+      background-color: #6DE6F8;
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .form-reunion {
+      background-color: #6DE6F8;
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    .btn-confirmar {
+      background-color: #b5f264;
+      font-weight: bold;
+      color: #000;
+      width: 100%;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>HOLA</h1>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-custom px-4">
+    <a class="navbar-brand" href="reuniones.html">Reuniones</a>
+    <div class="collapse navbar-collapse">
+        <a href="#" class="nav-link"><button class="btn btn-end">Informes</button></a>
+        <a href="#" class="nav-link"><button class="btn btn-end">Visitas</button></a>
+        <a href="#" class="nav-link"><button class="btn btn-end">Notificaciones</button> </a>
+    </div>
+    <div class="d-flex gap-3">
+      <i class="bi bi-bell fs-5"></i>
+      <i class="bi bi-person-circle fs-5"></i>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-4">
+    <div class="row">
+      
+      <!-- Lista de Reuniones -->
+      <div class="col-md-8">
+        <div class="card-reuniones">
+          <h4 class="fw-bold mb-4">Reuniones Programadas</h4>
+          
+          <div class="mensaje">Diego tiene una reunión programada para el 13 de enero del 2026 a las 11 de la mañana con su hija Doris</div>
+          <div class="mensaje">Ana tiene una reunión pendiente con su hija Camila el día 3 de enero del 2026 a las 3 de la tarde</div>
+          <div class="mensaje">Juan tiene una reunión programada con su sobrino Stiven para el día 25 de diciembre del 2025 a las 9 de la mañana</div>
+        </div>
+      </div>
+
+      <!-- Formulario Nueva Reunión -->
+      <div class="col-md-4">
+        <a href="#"><button class="btn btn-end"><h6 class="fw-bold">+Registrar Nueva Reunión</h6></button></a>
+        <div class="form-reunion mt-2">
+          <h6 class="text-center fw-bold">Integrantes de la Reunión</h6>
+          <form>
+            <div class="mb-2">
+              <label class="form-label">Residente</label>
+              <input type="text" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Usuario</label>
+              <input type="text" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Fecha</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Hora</label>
+              <input type="time" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-confirmar">Confirmar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
