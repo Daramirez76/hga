@@ -16,7 +16,7 @@
     <header class="container">
         <!-- Barra superior: pestaña Registrarse + nav simple -->
         <div class=" d-flex mb-5">
-            <a href="index.html"><button class="btn text-danger"><h1>HGA</h1></button></a>
+            <a href="main_page_employees.html"><button class="btn text-danger"><h1>HGA</h1></button></a>
             <ul class="nav mx-5 py-3">
                 <li class="nav-item mx-5"><a href="resident.html"><span class="text-dark"><h4>Residentes</h4></span></li></a>
                 <li class="nav-item mx-5"><a href="date.html"><span class="text-dark"><h4>Citas</h4></span></li></a>
@@ -51,10 +51,6 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label" for="tipoDoc">Tipo de Documento</label>
                                         <input id="tipoDoc" class="form-control">
-                                        <ul>
-                                            <li><p> Cedula de Ciudadania</p></li>
-                                            <li><p> Cedula de Extranjeria</p></li>
-                                        </ul>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <label class="form-label" for="numDoc">No. Documento</label>
@@ -70,11 +66,14 @@
                                         <input id="telefono" type="text" class="form-control">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label" for="correo">Correo Electronico</label>
                                         <input id="correo" type="email" class="form-control">
                                     </div>
-
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="cargo">Cargo</label>
+                                        <input id="cargo" type="text" class="form-control">
+                                    </div>
                                     <div class="col-12 col-md-6">
                                         <label class="form-label" for="usuario">Nombre de Usuario</label>
                                         <input id="usuario" type="text" class="form-control">
@@ -92,7 +91,7 @@
                 <!-- Botones laterales -->
                 <div class="col-12 col-lg-3 d-flex flex-column justify-content-start gap-3 my-md-auto">
                     <a href="main_page(user).html"><button type="button" class="btn btn-primary p-3"><h5 class="text-white">Crear Cuenta</h5></button></a>
-                    <a href="index.html"><button type="button" class="btn btn-danger p-3"><h5 class="text-white">Regresar</h5></button></a>
+                    <a href="main_page_employees.html"><button type="button" class="btn btn-danger p-3"><h5 class="text-white">Regresar</h5></button></a>
                 </div>
             </div>
         </div>    
@@ -104,5 +103,5 @@
         <small class="text-muted">derechos reservados HGA &copy; 2025</small>
       </div>
     </footer>
-</body>
+    </body>
 </html>

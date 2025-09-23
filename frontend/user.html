@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Usuario</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+      .sidebar-card {
+        background-color: #9ec2ff66; /* azul claro translúcido */
+      }
+      .avatar {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background-color: #53b791; /* verde */
+      }
+      .btn-wide { min-width: 260px; }
+      .footer { border-top: 1px solid #dee2e6; }
+      .nav-center { flex: 1 1 auto; }
+    </style>
+  </head>
+  <body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Header / Navbar -->
+    <header class="bg-white border-bottom">
+      <div class="container py-2">
+        <div class="d-flex align-items-center gap-2">
+          <!-- Logo / Brand -->
+          <a href="main_page(user).html" class="text-decoration-none">
+            <span class="fw-bold fs-4 text-danger">HGA</span>
+          </a>
+
+          <!-- Centered nav -->
+          <nav class="nav-center d-none d-md-flex justify-content-center">
+            <ul class="nav">
+              <li class="nav-item"><a class="nav-link fw-semibold" href="#">Residentes</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Citas</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Actividades Lúdicas</a></li>
+            </ul>
+          </nav>
+
+          <!-- Right quick actions (simple placeholders) -->
+          <div class="ms-auto d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+            <button class="btn btn-outline-secondary rounded-circle" aria-label="Perfil" title="Perfil">👤</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow-1">
+      <div class="container py-4">
+        <div class="row g-4">
+          <!-- Sidebar usuario -->
+          <div class="col-12 col-md-4 col-lg-3">
+            <div class="p-4 rounded sidebar-card text-center">
+              <div class="d-flex justify-content-center mb-3">
+                <div class="avatar d-flex align-items-center justify-content-center text-dark fw-semibold">
+                  <span class="text-center">Imagen de Usuario</span>
+                </div>
+              </div>
+              <div class="mb-3 fw-semibold">Nombre Usuario</div>
+
+              <div class="d-flex flex-column align-items-center gap-3">
+                <a href="#" class="btn btn-light border btn-wide">Informacion</a>
+                <a href="#" class="btn btn-light border btn-wide">Actualizar datos</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content area placeholder -->
+          <div class="col-12 col-md-8 col-lg-9">
+            <!-- Espacio para contenido futuro -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 footer bg-white">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025</small>
+      </div>
+    </footer>
+  </body>
+  
+</html>

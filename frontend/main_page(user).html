@@ -1,18 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HGA</title>
-</head>
-<body>
-    <header>
-        <div class="d-flex">
-            <a href="main_page(user).html"><button class="btn btn-end">
-                <h1 class="text-danger"> HGA </h1>
-            </button></a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Inicio Usuario</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+      .footer { border-top: 1px solid #dee2e6; }
+      .calendar td,
+      .calendar th { border: 2px solid #212529; }
+      .calendar td { height: 90px; vertical-align: top; padding: .5rem; }
+      .news-card { background-color: #fdecef; }
+    </style>
+  </head>
+  <body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Header / Navbar -->
+    <header class="bg-white border-bottom">
+      <div class="container py-2">
+        <div class="d-flex align-items-center gap-2">
+          <!-- Logo / Brand -->
+          <a href="main_page(user).html" class="text-decoration-none">
+            <span class="fw-bold fs-4 text-danger">HGA</span>
+          </a>
+
+          <!-- Centered nav -->
+          <nav class="flex-grow-1 d-none d-md-flex justify-content-center">
+            <ul class="nav">
+              <li class="nav-item"><a class="nav-link fw-semibold" href="resident.html">Residentes</a></li>
+              <li class="nav-item"><a class="nav-link" href="date.html">Citas</a></li>
+              <li class="nav-item"><a class="nav-link" href="recreational_activities.html">Actividades Lúdicas</a></li>
+              <li class="nav-item"><a class="nav-link" href="reuniones.html">Reuniones</a></li>
+              <li class="nav-item"><a class="nav-link" href="Visitas.html">Visitas</a></li>
+            </ul>
+          </nav>
+
+          <!-- Right profile icon placeholder -->
+          <div class="ms-auto">
+            <a href="user.html" class="btn btn-outline-secondary rounded-circle" aria-label="Perfil" title="Perfil">👤</a>
+          </div>
         </div>
+      </div>
     </header>
-    
-</body>
+
+    <!-- Main content -->
+    <main class="flex-grow-1">
+      <div class="container py-4">
+        <div class="row g-4">
+          <!-- Calendar -->
+          <div class="col-12 col-lg-9">
+            <div class="table-responsive">
+              <table class="table calendar bg-white">
+                <thead>
+                  <tr class="text-center">
+                    <th class="fw-normal">1</th>
+                    <th class="fw-normal">2</th>
+                    <th class="fw-normal">3</th>
+                    <th class="fw-normal">4</th>
+                    <th class="fw-normal">5</th>
+                    <th class="fw-normal">6</th>
+                    <th class="fw-normal">7</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td>29</td><td>30</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sidebar noticias -->
+          <div class="col-12 col-lg-3">
+            <div class="bg-white border rounded p-3">
+              <h6 class="mb-3">Últimas Noticias</h6>
+              <div class="news-card border rounded p-4 mb-3"></div>
+              <div class="news-card border rounded p-4 mb-3"></div>
+              <div class="news-card border rounded p-4 mb-3"></div>
+              <div class="news-card border rounded p-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 footer bg-white">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025</small>
+      </div>
+    </footer>
+  </body>
 </html>
