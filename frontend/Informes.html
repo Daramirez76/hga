@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informes</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #d0f0ff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar-custom {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .navbar-brand {
+      background: #6EC1F2;
+      padding: 8px 20px;
+      border-radius: 20px 20px 20px 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #000;
+    }
+    .contenedor-informes {
+      background-color: #87e3ff;
+      border-radius: 40px;
+      padding: 30px;
+      margin-top: 20px;
+    }
+    .lista-informes {
+      background-color: #d9f9f9;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: -10px;
+    }
+    .search-box input {
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      padding: 5px 15px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-custom px-4">
+   <a class="navbar-brand" href="Informes.html">Informes</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-4">
+        <a href="Notificaciones.html" class="nav-link"><button class="btn btn-end">Notificaciones</button> </a>
+        <a href="#" class="nav-link"><button class="btn btn-end">Reuniones</button></a>
+        <a href="#" class="nav-link"><button class="btn btn-end">Visitas</button></a>
+      </ul>
+    </div>
+    <div class="d-flex gap-3">
+      <i class="bi bi-bell fs-5"></i>
+      <i class="bi bi-person-circle fs-5"></i>
+    </div>
+  </nav>
+
+  <!-- Contenedor Informes -->
+  <div class="container-fluid">
+    <div class="contenedor-informes">
+      <h3 class="fw-bold">Historial de Informes</h3>
+      
+      <!-- Buscador -->
+      <div class="search-box mb-3">
+        <input type="text" placeholder="Buscar...">
+      </div>
+      
+      <!-- Lista de Informes -->
+      <div class="lista-informes">
+        <ul>
+          <li>El residente Diego padece de artritis y se está medicando desde hace ya 2 años y su situación no parece mejorable.</li>
+          <li>La hija de la residente Vanessa canceló su visita para el día 12 de diciembre por problemas de transporte.</li>
+          <li>El Enfermero David no asistió el día viernes 13 de noviembre del 2025 a la institución por problemas domésticos.</li>
+          <li>El residente Diego padece de artritis y se está medicando desde hace ya 2 años y su situación no parece mejorable.</li>
+          <li>La hija de la residente Vanessa canceló su visita para el día 12 de diciembre por problemas de transporte.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</html>
