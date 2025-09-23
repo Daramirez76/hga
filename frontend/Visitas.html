@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitas</title>
+   <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar-custom {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .navbar-brand {
+      background: #6EC1F2;
+      padding: 8px 20px;
+      border-radius: 20px 20px 20px 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #000;
+    }
+    .card-visitas {
+      background-color: #e0e0e0;
+      border-radius: 40px;
+      padding: 20px;
+    }
+    .mensaje {
+      background-color: #6DE6F8;
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .form-visita {
+      background-color: #6DE6F8;
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    .btn-confirmar {
+      background-color: #b5f264;
+      font-weight: bold;
+      color: #000;
+      width: 100%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-custom px-4">
+     <a class="navbar-brand" href="Visitas.html">Visitas</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-4">
+         <a href="#" class="nav-link"><button class="btn btn-end">Notificaciones</button></a>
+         <a href="#" class="nav-link"><button class="btn btn-end">Informes</button></a>
+         <a href="#" class="nav-link"><button class="btn btn-end">Reuniones</button></a>
+      </ul>
+    </div>
+    <div class="d-flex gap-3">
+      <i class="bi bi-bell fs-5"></i>
+      <i class="bi bi-person-circle fs-5"></i>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-4">
+    <div class="row">
+      
+      <!-- Lista de Visitas -->
+      <div class="col-md-8">
+        <div class="card-visitas">
+          <h4 class="fw-bold mb-4"><i class="bi bi-house-door"></i> Visitas Registradas</h4>
+          
+          <div class="mensaje">Diego tiene la visita de su sobrino Erick para el día 15 de diciembre del 2025 a las 11 am</div>
+          <div class="mensaje">Ana recibe la visita de su hermana María este 12 de diciembre del 2025 a las 3 pm</div>
+          <div class="mensaje">Angie tiene una visita programada con su hermano Felipe para el día 11 de diciembre del 2025 a las 12 del medio día</div>
+        </div>
+      </div>
+
+      <!-- Formulario Nueva Visita -->
+      <div class="col-md-4">
+       <a href="#"><button class="btn btn-end"><h6 class="fw-bold">+Registrar Nueva Visita</h6></button></a>
+        <div class="form-visita mt-2">
+          <form>
+            <div class="mb-2">
+              <label class="form-label">Nombre del Visitante</label>
+              <input type="text" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Residente a Visitar</label>
+              <input type="text" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Fecha</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Hora</label>
+              <input type="time" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-confirmar">Confirmar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
