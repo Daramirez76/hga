@@ -17,11 +17,6 @@
         <!-- Barra superior: pestaña Registrarse + nav simple -->
         <div class=" d-flex mb-5">
             <a href="index.html"><button class="btn text-danger"><h1>HGA</h1></button></a>
-            <ul class="nav mx-5 py-3">
-                <li class="nav-item mx-5"><a href="resident.html"><span class="text-dark"><h4>Residentes</h4></span></li></a>
-                <li class="nav-item mx-5"><a href="date.html"><span class="text-dark"><h4>Citas</h4></span></li></a>
-                <li class="nav-item mx-5"><a href="recreational_activities.html"><span class="text-dark"><h4>Actividades Lúdicas</h4></span></li></a>
-            </ul>
         </div>
 
     </header>
@@ -39,49 +34,48 @@
                         <div class="mx-auto" style="max-width: 880px;">
                             <form>
                                 <div class="row g-4">
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="nombre">Nombre</label>
+                                    <div class="col-12 col-md-6" class="label">
+                                        <label for="nombre">Nombre</label>
                                         <input id="nombre" type="text" class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="apellido">Apellido</label>
                                         <input id="apellido" type="text" class="form-control">
                                     </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="tipoDoc">Tipo de Documento</label>
-                                        <input id="tipoDoc" class="form-control">
-                                        <ul>
-                                            <li><p> Cedula de Ciudadania</p></li>
-                                            <li><p> Cedula de Extranjeria</p></li>
-                                        </ul>
+                                    <div class="col-12 col-md-6" class="label">
+                                        <label for="">tipo de Documento</label>
+                                        <select name="tipo-doc" id="tipo_doc">
+                                            <option value="doc1">Cedula de ciudadania</option>
+                                            <option value="doc2">Cedula de Extranjeria</option>
+                                        </select>   
                                     </div>
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="numDoc">No. Documento</label>
-                                        <input id="numDoc" type="text" class="form-control">
+                                        <input id="num_doc" type="text" class="form-control">
                                     </div>
 
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="direccion">Direccion</label>
                                         <input id="direccion" type="text" class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="telefono">Telefono</label>
                                         <input id="telefono" type="text" class="form-control">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-12" class="label">
                                         <label class="form-label" for="correo">Correo Electronico</label>
                                         <input id="correo" type="email" class="form-control">
                                     </div>
 
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="usuario">Nombre de Usuario</label>
                                         <input id="usuario" type="text" class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-6" class="label">
                                         <label class="form-label" for="contrasena">Contraseña</label>
-                                        <input id="contrasena" type="password" class="form-control">
+                                        <input id="contraseña" type="password" class="form-control">
                                     </div>
                                 </div>
                             </form>
@@ -105,4 +99,5 @@
       </div>
     </footer>
 </body>
+<script src="./js/script.js"></script>
 </html>
