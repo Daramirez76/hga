@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Medicamentos</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+      .footer { border-top: 1px solid #dee2e6; }
+      .card-oval {
+        background-color: #ddd;
+        border-radius: 36px;
+        padding: 1.25rem;
+      }
+      .inner-slot {
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        height: 320px;
+      }
+      .btn-gestionar {
+        background-color: #9be15d;
+        border: none;
+        color: #1f2d3d;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: .5rem 1rem;
+      }
+    </style>
+  </head>
+  <body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Header -->
+    <header class="bg-white border-bottom">
+      <div class="container py-2">
+        <div class="d-flex align-items-center gap-2">
+          <a href="main_page(user).html" class="text-decoration-none">
+            <span class="fw-bold fs-4 text-danger">HGA</span>
+          </a>
+          <nav class="flex-grow-1 d-none d-md-flex justify-content-center">
+            <ul class="nav">
+              <li class="nav-item"><a class="nav-link" href="reuniones.html">Reuniones</a></li>
+              <li class="nav-item"><a class="nav-link" href="Visitas.html">Visitas</a></li>
+              <li class="nav-item"><a class="nav-link" href="Informes.html">Informes</a></li>
+            </ul>
+          </nav>
+          <div class="ms-auto d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+            <a href="user.html" class="btn btn-outline-secondary rounded-circle" aria-label="Perfil">👤</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow-1">
+      <div class="container py-4">
+        <div class="d-flex justify-content-end mb-3">
+          <a href="#" class="btn-gestionar btn shadow-sm">Gestionar Medicamentos</a>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-12 col-md-4">
+            <div class="card-oval h-100">
+              <div class="fw-semibold mb-3">Medicamentos</div>
+              <div class="inner-slot"></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card-oval h-100">
+              <div class="fw-semibold mb-3">Entrega Medicamentos</div>
+              <div class="inner-slot"></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card-oval h-100">
+              <div class="fw-semibold mb-3">Novedad Medicamentos</div>
+              <div class="inner-slot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 footer bg-white">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025</small>
+      </div>
+    </footer>
+  </body>
+</html>

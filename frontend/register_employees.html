@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>Registrarse</title>
+    <style>
+        .footer {
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Header con logo -->
+    <header class="container">
+        <!-- Barra superior: pestaña Registrarse + nav simple -->
+        <div class=" d-flex mb-5">
+            <a href="main_page_employees.html"><button class="btn text-danger"><h1>HGA</h1></button></a>
+            <ul class="nav mx-5 py-3">
+                <li class="nav-item mx-5"><a href="resident.html"><span class="text-dark"><h4>Residentes</h4></span></li></a>
+                <li class="nav-item mx-5"><a href="date.html"><span class="text-dark"><h4>Citas</h4></span></li></a>
+                <li class="nav-item mx-5"><a href="recreational_activities.html"><span class="text-dark"><h4>Actividades Lúdicas</h4></span></li></a>
+            </ul>
+        </div>
+
+    </header>
+
+    <main class="container pb-5">
+        <div class="position-relative mx-3 mx-sm-4 py-4" style="max-width: 1000px;">
+            <div>
+                <div class="position-absolute translate-middle-y bg-primary text-white px-5 py-2 rounded-pill fw-semibold" style="left: 70px;">Registrarse</div>
+            </div>
+            <!-- Zona principal: panel (9 col) + botones laterales (3 col) -->
+            <div class="row g-3">
+                <!-- Panel turquesa -->
+                <div class="col-12 col-lg-9">
+                    <div class="bg-info rounded-5 p-4 p-sm-5" style="background-color:#54e5f1 !important;">
+                        <div class="mx-auto" style="max-width: 880px;">
+                            <form>
+                                <div class="row g-4">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="nombre">Nombre</label>
+                                        <input id="nombre" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="apellido">Apellido</label>
+                                        <input id="apellido" type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="tipoDoc">Tipo de Documento</label>
+                                        <input id="tipoDoc" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="numDoc">No. Documento</label>
+                                        <input id="numDoc" type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="direccion">Direccion</label>
+                                        <input id="direccion" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="telefono">Telefono</label>
+                                        <input id="telefono" type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="correo">Correo Electronico</label>
+                                        <input id="correo" type="email" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="cargo">Cargo</label>
+                                        <input id="cargo" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="usuario">Nombre de Usuario</label>
+                                        <input id="usuario" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label" for="contrasena">Contraseña</label>
+                                        <input id="contrasena" type="password" class="form-control">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones laterales -->
+                <div class="col-12 col-lg-3 d-flex flex-column justify-content-start gap-3 my-md-auto">
+                    <a href="main_page(user).html"><button type="button" class="btn btn-primary p-3"><h5 class="text-white">Crear Cuenta</h5></button></a>
+                    <a href="main_page_employees.html"><button type="button" class="btn btn-danger p-3"><h5 class="text-white">Regresar</h5></button></a>
+                </div>
+            </div>
+        </div>    
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 footer">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025</small>
+      </div>
+    </footer>
+    </body>
+</html>
