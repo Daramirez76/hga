@@ -251,7 +251,7 @@
           <a href="#" class="btn btn-gestionar">Gestionar Residentes</a>
         </div>
 
-        <div class="panel-residentes p-4 p-md-5">
+        <form class="panel-residentes p-4 p-md-5" id="formResidentes">
           <div class="tab-residentes mb-4">Residentes</div>
 
           <!-- Residente 01 -->
@@ -261,23 +261,23 @@
               <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Nombre</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="nombre_r1" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Apellido</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="apellido_r1" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Patología</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="patologia_r1" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Edad</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="edad_r1" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">RH</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="rh_r1" placeholder="" />
                 </div>
               </div>
             </div>
@@ -290,28 +290,28 @@
               <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Nombre</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="nombre_r2" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Apellido</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="apellido_r2" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Patología</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="patologia_r2" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">Edad</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="edad_r2" placeholder="" />
                 </div>
                 <div class="col-12 col-md-4">
                   <label class="form-label label-sm">RH</label>
-                  <input type="text" class="form-control" placeholder="" />
+                  <input type="text" class="form-control" name="rh_r2" placeholder="" />
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </main>
 
@@ -322,4 +322,5 @@
       </div>
     </footer>
   </body>
+  <script src="./js/resident_validate.js"></script>
 </html>
