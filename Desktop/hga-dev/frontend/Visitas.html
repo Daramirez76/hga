@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitas</title>
+   <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar-custom {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .navbar-brand {
+      background: #6EC1F2;
+      padding: 8px 20px;
+      border-radius: 20px 20px 20px 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #000;
+    }
+    .card-visitas {
+      background-color: #e0e0e0;
+      border-radius: 40px;
+      padding: 20px;
+    }
+    .mensaje {
+      background-color: #6DE6F8;
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .form-visita {
+      background-color: #6DE6F8;
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    .btn-confirmar {
+      background-color: #b5f264;
+      font-weight: bold;
+      color: #000;
+      width: 100%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-info shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-bold text-dark" href="./main_page(user).html">HGA</a>
+        <a class="navbar-brand fw-bold text-dark" href="#">Actividades Ludicas</a> 
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="./Visitas.html">Visitas</a></li>
+          <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="./resident.html">Residentes</a></li>
+          <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="./Informes.html">Informes</a></li>
+          <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="./date.html">Citas</a></li>
+          <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="./reuniones.html">Reuniones</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="container-fluid mt-4">
+      <div class="row">
+        
+        <!-- Lista de Visitas -->
+        <div class="col-md-8">
+          <div class="card-visitas">
+            <h4 class="fw-bold mb-4"><i class="bi bi-house-door"></i> Visitas Registradas</h4>
+            
+            <div class="mensaje">Diego tiene la visita de su sobrino Erick para el día 15 de diciembre del 2025 a las 11 am</div>
+            <div class="mensaje">Ana recibe la visita de su hermana María este 12 de diciembre del 2025 a las 3 pm</div>
+            <div class="mensaje">Angie tiene una visita programada con su hermano Felipe para el día 11 de diciembre del 2025 a las 12 del medio día</div>
+          </div>
+        </div>
+
+        <!-- Formulario Nueva Visita -->
+        <div class="col-md-4">
+        <a href="#"><button class="btn btn-end"><h6 class="fw-bold">+Registrar Nueva Visita</h6></button></a>
+          <div class="form-visita mt-2">
+            <form>
+              <div class="mb-2">
+                <label class="form-label">Nombre del Visitante</label>
+                <input type="text" class="form-control">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Residente a Visitar</label>
+                <input type="text" class="form-control">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Fecha</label>
+                <input type="date" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Hora</label>
+                <input type="time" class="form-control">
+              </div>
+              <button type="submit" class="btn btn-confirmar">Confirmar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
