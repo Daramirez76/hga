@@ -205,9 +205,63 @@
           </div>
         </div>
       </div>
-    </header>    <!-- Main -->
+    </header>  
+      <!-- Main -->
     <main class="flex-grow-1">
       <div class="container py-5">
+        <!-- KPIs PRINCIPALES -->
+        <section class="kpi-grid" id="kpiGrid">
+          <article class="kpi-card">
+            <div class="kpi-label">Residentes activos</div>
+            <div class="kpi-value" id="kpiResidentes">0</div>
+            <div class="kpi-trend">Capacidad ocupada: <span id="kpiOcupacion">0%</span></div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-label">Medicaciones del día</div>
+            <div class="kpi-value" id="kpiMedicaciones">0</div>
+            <div class="kpi-tag tag-warning">Pendientes: <span id="kpiMedicacionesPendientes">0</span></div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-label">Alertas clínicas</div>
+            <div class="kpi-value" id="kpiAlertas">0</div>
+            <div class="kpi-tag tag-danger">Críticas: <span id="kpiAlertasCriticas">0</span></div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-label">Stock en riesgo</div>
+            <div class="kpi-value" id="kpiStockCritico">0</div>
+            <div class="kpi-tag tag-success">Ítems en rango: <span id="kpiStockOk">0</span></div>
+          </article>
+        </section>
+
+        <!-- TABLA RESIDENTES EN SEGUIMIENTO -->
+        <section class="mt-5">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Residentes en seguimiento</div>
+                <div class="card-subtitle">Top residentes con mayor riesgo o alertas recientes.</div>
+              </div>
+            </div>
+            <div class="card-body table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Residente</th>
+                    <th>Edad</th>
+                    <th>Estado</th>
+                    <th>Alertas 7d</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaResidentes">
+                  <!-- JS -->
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
       </div>
     </main>
 
