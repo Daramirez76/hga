@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>Registrarse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8f5e9 0%, #b2dfdb 50%, #e0f2f1 100%);
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(129, 199, 132, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(77, 182, 172, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(174, 213, 129, 0.1) 0%, transparent 50%);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Header mejorado */
+        header {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: none !important;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #66bb6a, #4db6ac);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Main content */
+        main {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        /* Form container mejorada */
+        .form-card {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(15px);
+            border-radius: 25px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: none !important;
+            padding: 30px !important;
+        }
+
+        /* Inputs mejorados */
+        .form-control {
+            border: 2px solid #c8e6c9 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white !important;
+            color: #333 !important;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #66bb6a !important;
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1) !important;
+        }
+
+        .form-label {
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Botones mejorados */
+        .btn-register {
+            background: linear-gradient(135deg, #66bb6a, #4db6ac);
+            color: white;
+            border: none !important;
+            font-weight: 600;
+            border-radius: 12px !important;
+            padding: 14px 20px !important;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+            color: white;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #f5f5f5, #e8f5e9);
+            color: #2e7d32;
+            border: 2px solid #c8e6c9 !important;
+            font-weight: 600;
+            border-radius: 12px !important;
+            padding: 14px 20px !important;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-color: #66bb6a !important;
+            color: #2e7d32;
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.2);
+        }
+
+        /* Título de registro */
+        .register-title {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 14px;
+            background: linear-gradient(135deg, #66bb6a, #4db6ac);
+            color: white !important;
+            padding: 8px 20px !important;
+            border-radius: 25px !important;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(200, 230, 201, 0.5) !important;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            margin-top: auto;
+        }
+
+        .footer small {
+            color: #2e7d32;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 0 !important;
+            }
+
+            .form-card {
+                padding: 20px !important;
+            }
+
+            .btn-register, .btn-back {
+                font-size: 14px;
+                padding: 12px 16px !important;
+            }
+        }
+
+        /* Flex utilities */
+        .flex-grow-1 { flex-grow: 1; }
+        .nav-center { flex: 1 1 auto; }
+
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Header con logo -->
+    <header class="py-3">
+      <div class="container">
+        <div class="d-flex align-items-center gap-3">
+          <a href="main_page_employees.html" class="navbar-brand text-decoration-none">
+            <div class="logo-icon">LG</div>
+            <span>HGA</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow-1">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <!-- Panel de registro -->
+                <div class="col-12 col-lg-8">
+                    <div class="form-card">
+                        <div class="register-title mb-4">Registrarse</div>
+                        
+                        <form>
+                            <div class="row g-4">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="nombre">Nombre</label>
+                                    <input id="nombre" type="text" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="apellido">Apellido</label>
+                                    <input id="apellido" type="text" class="form-control">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="tipoDoc">Tipo de Documento</label>
+                                    <input id="tipoDoc" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="numDoc">No. Documento</label>
+                                    <input id="numDoc" type="text" class="form-control">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="direccion">Dirección</label>
+                                    <input id="direccion" type="text" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="telefono">Teléfono</label>
+                                    <input id="telefono" type="text" class="form-control">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="correo">Correo Electrónico</label>
+                                    <input id="correo" type="email" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="cargo">Cargo</label>
+                                    <input id="cargo" type="text" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="usuario">Nombre de Usuario</label>
+                                    <input id="usuario" type="text" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="contrasena">Contraseña</label>
+                                    <input id="contrasena" type="password" class="form-control">
+                                </div>
+
+                                <div class="col-12 d-flex gap-3 mt-4">
+                                    <a href="main_page_employees.html" class="flex-grow-1"><button type="button" class="btn btn-back w-100">Regresar</button></a>
+                                    <a href="main_page(user).html" class="flex-grow-1"><button type="button" class="btn btn-register w-100">Crear Cuenta</button></a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-4 footer">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
+      </div>
+    </footer>
+    </body>
+</html>

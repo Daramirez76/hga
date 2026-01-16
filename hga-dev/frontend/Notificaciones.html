@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones</title>
+       <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        .custom-card {
+            background-color: #59E5F7;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .noti-card {
+            background-color: #d0f0f6;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .nav-link {
+            font-weight: bold;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #59E5F7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <a  href="index.html"><button class="btn btn-end"> <h1 class="text-primary" >HGA</h1></button></a>
+                <div class="d-flex">
+                    <a href="#" class="nav-link"><button class="btn btn-end" >Residentes</button></a>
+                    <a href="#" class="nav-link"><button class="btn btn-end" >Actividades Ludicas</button></a>
+                    <a href="#" class="nav-link"> <button class="btn btn-end" >Citas</button></a>
+                    <a href="#" class="nav-link"><button class="btn btn-end" >Notificaciones</button></a>
+                    <a href="#" class="nav-link"><button class="btn btn-end">☰</button></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <h5>Residentes</h5>
+                    <ul>
+                        <li>Jan Carlos Martinez</li>
+                        <li>Diego Alejandro Ortiz</li>
+                        <li>Ana Maria Rojas</li>
+                        <li>Angie Vanessa Lopez</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <h5>Actividades Ludicas</h5>
+                    <ul>
+                        <li>Caminata por el bosque</li>
+                        <li>Toreno de Bingo</li>
+                        <li>Baile y danzas</li>
+                        <li>Juego de adivinanzas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <h5>Citas</h5>
+                    <ul>
+                        <li>Medicina General</li>
+                        <li>Odontología</li>
+                        <li>Oftalmología</li>
+                        <li>Medicina Interna</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card noti-card">
+                    <h5>Notificaciones</h5>
+                    <div class="noti-card">
+                        <p><strong>Juan:</strong> Tiene cita el 3 de diciembre a las 7 am</p>
+                    </div>
+                    <div class="noti-card">
+                        <p><strong>Ana:</strong> Tiene baile y danzas el 5 de diciembre a las 12 del medio día</p>
+                    </div>
+                    <div class="noti-card">
+                        <p><strong>Diego:</strong> Tiene un torneo de bingo el 7 de diciembre a las 7 pm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
