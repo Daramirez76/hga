@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HGA - Actividades Lúdicas</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body con fondo degradado */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8f5e9 0%, #b2dfdb 50%, #e0f2f1 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(129, 199, 132, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(77, 182, 172, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 40% 20%, rgba(174, 213, 129, 0.1) 0%, transparent 50%);
+        filter: blur(60px);
+        z-index: 0;
+        pointer-events: none;
+      }
+
+        /* header */
+        header {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: none;
+        }
+
+        .logo-icon-med {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #66bb6a, #4db6ac);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .text-brand {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        /* Navegación */
+        .nav-link-custom {
+            color: #2e7d32;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link-custom:hover {
+            color: #4db6ac;
+        }
+
+        /* Botones de notificación y perfil */
+        .btn-outline-secondary {
+            color: #2e7d32;
+            border-color: #c8e6c9;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-color: #66bb6a;
+            color: #2e7d32;
+        }
+
+        /* main content */
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Botón nueva actividad */
+        .btn-nueva {
+            background: linear-gradient(135deg, #66bb6a, #4db6ac);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-nueva:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+        }
+
+        /* TARJETAS DE ACTIVIDADES */
+        .card-actividad-oval {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .card-actividad-oval:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Títulos de actividades con colores personalizados */
+        .titulo-actividad {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-azul {
+            color: #4A90E2;
+        }
+
+        .color-rojo {
+            color: #E74C3C;
+        }
+
+        .color-turquesa {
+            color: #1ABC9C;
+        }
+
+        .color-amarillo {
+            color: #F39C12;
+        }
+
+        /* Fecha de la actividad */
+        .fecha-actividad {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Estado de la actividad */
+        .estado-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .estado-finalizada {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .estado-en-curso {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .estado-abierta {
+            background-color: #28a745;
+            color: white;
+        }
+
+        /* Información de participantes */
+        .participantes-info {
+            color: #495057;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            margin-top: 0.5rem;
+        }
+
+        /* Espaciado entre tarjetas */
+        .row.g-4 {
+            row-gap: 1.5rem;
+            column-gap: 1.5rem;
+        }
+
+        /* panel de filtros */
+        .panel-filtros {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 20px;
+        }
+
+        .btn-filtro {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            color: #495057;
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-filtro:hover {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-color: #66bb6a;
+            color: #2e7d32;
+        }
+
+        /* footer */
+        .footer {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(200, 230, 201, 0.5);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .footer small {
+            color: #2e7d32;
+        }
+
+        /* responsive */
+        @media (max-width: 768px) {
+            .card-actividad-oval {
+                padding: 1.25rem;
+            }
+
+            header {
+                padding: 15px 0;
+            }
+
+            .btn-nueva {
+                width: 100%;
+                padding: 14px 20px;
+            }
+
+            .panel-filtros {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="py-3">
+        <div class="container">
+            <div class="d-flex align-items-center gap-3">
+                <a href="main_page(user).html" class="d-flex align-items-center gap-2 text-decoration-none">
+                    <div class="logo-icon-med">LG</div>
+                    <span class="fw-bold fs-5 text-brand">HGA</span>
+                </a>
+                <nav class="flex-grow-1 d-none d-md-flex justify-content-center">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom fw-semibold" href="reuniones.html">Reuniones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="Visitas.html">Visitas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="Informes.html">Informes</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+                    <a href="user.html" class="btn btn-outline-secondary rounded-circle" aria-label="Perfil">👤</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <!-- Botón nueva actividad -->
+        <div class="mb-4">
+            <button class="btn-nueva">+ Nueva Actividad</button>
+        </div>
+
+        <div class="row">
+            <!-- Columna de actividades -->
+            <div class="col-lg-9">
+                <div class="row g-4">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-azul">Actividades físicas</h5>
+                            <p class="fecha-actividad">8 Nov, 09:00</p>
+                            <div class="estado-badge estado-finalizada">Finalizada</div>
+                            <p class="participantes-info">8 participantes</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-rojo">Ejercicios de memoria</h5>
+                            <p class="fecha-actividad">9 Nov, 11:00</p>
+                            <div class="estado-badge estado-en-curso">En curso</div>
+                            <p class="participantes-info">14 participantes</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-turquesa">Pintura</h5>
+                            <p class="fecha-actividad">10 Nov, 09:00</p>
+                            <div class="estado-badge estado-abierta">Abierta</div>
+                            <p class="participantes-info">9 participantes</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-azul">Fisioterapia</h5>
+                            <p class="fecha-actividad">14 Nov, 10:00</p>
+                            <div class="estado-badge estado-abierta">Abierta</div>
+                            <p class="participantes-info">7 participantes</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-amarillo">Bingo</h5>
+                            <p class="fecha-actividad">16 Nov, 14:00</p>
+                            <div class="estado-badge estado-abierta">Abierta</div>
+                            <p class="participantes-info">15 participantes</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-actividad-oval h-100">
+                            <h5 class="titulo-actividad color-azul">Yoga</h5>
+                            <p class="fecha-actividad">18 Nov, 08:00</p>
+                            <div class="estado-badge estado-abierta">Abierta</div>
+                            <p class="participantes-info">12 participantes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna de filtros -->
+            <div class="col-lg-3 mt-4 mt-lg-0">
+                <div class="panel-filtros p-4">
+                    <h6 class="mb-3 fw-bold">Tipo de Actividad</h6>
+                    <button class="btn btn-filtro w-100 mb-2">Artística</button>
+                    <button class="btn btn-filtro w-100 mb-2">Cognitiva</button>
+                    <button class="btn btn-filtro w-100 mb-2">Física</button>
+                    
+                    <label class="mt-4 mb-2 fw-semibold">Fecha</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer py-3 mt-5">
+        <div class="container text-center">
+            <small>&copy; 2025 HGA - Sistema de Gestión de Actividades</small>
+        </div>
+    </footer>
+</body>
+</html>

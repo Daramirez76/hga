@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Usuario</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #e8f5e9 0%, #b2dfdb 50%, #e0f2f1 100%);
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(129, 199, 132, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(77, 182, 172, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 40% 20%, rgba(174, 213, 129, 0.1) 0%, transparent 50%);
+        filter: blur(60px);
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* Header mejorado */
+      header {
+        position: relative;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-bottom: none !important;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #66bb6a, #4db6ac);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .navbar-brand span {
+        color: #2e7d32 !important;
+        font-weight: 600 !important;
+      }
+
+      /* Navegación */
+      .nav-center a {
+        color: #2e7d32 !important;
+        font-weight: 500 !important;
+        transition: color 0.3s;
+        font-size: 15px !important;
+      }
+
+      .nav-center a:hover {
+        color: #4db6ac !important;
+      }
+
+      /* Main content */
+      main {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Sidebar card mejorada */
+      .sidebar-card {
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(15px);
+        border-radius: 25px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: none !important;
+        padding: 30px !important;
+      }
+
+      .sidebar-card h3 {
+        color: #2e7d32;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      /* Avatar mejorado */
+      .avatar {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #66bb6a, #4db6ac);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        box-shadow: 0 8px 25px rgba(102, 187, 106, 0.3);
+        margin-bottom: 20px;
+      }
+
+      .user-name {
+        color: #2e7d32;
+        font-weight: 600;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+
+      .user-role {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+
+      /* Botones mejorados */
+      .btn-wide {
+        min-width: 100%;
+        background: white;
+        color: #2e7d32;
+        border: 2px solid #c8e6c9 !important;
+        font-weight: 600;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        transition: all 0.3s;
+      }
+
+      .btn-wide:hover {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-color: #66bb6a !important;
+        color: #2e7d32;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 187, 106, 0.2);
+      }
+
+      .btn-action {
+        background: linear-gradient(135deg, #66bb6a, #4db6ac);
+        color: white;
+        border: none !important;
+        font-weight: 600;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+      }
+
+      .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+      }
+
+      /* Content card */
+      .content-card {
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(15px);
+        border-radius: 25px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: none !important;
+        padding: 30px !important;
+      }
+
+      .content-card h3 {
+        color: #2e7d32;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      /* Footer */
+      .footer {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(200, 230, 201, 0.5) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .footer small {
+        color: #2e7d32;
+      }
+
+      /* Alertas y notificaciones */
+      .btn-outline-secondary {
+        color: #2e7d32 !important;
+        border-color: #c8e6c9 !important;
+        transition: all 0.3s;
+      }
+
+      .btn-outline-secondary:hover {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
+        border-color: #66bb6a !important;
+        color: #2e7d32 !important;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .sidebar-card {
+          padding: 20px !important;
+        }
+
+        .avatar {
+          width: 140px;
+          height: 140px;
+          font-size: 16px;
+        }
+
+        .btn-wide {
+          min-width: 100%;
+          font-size: 14px;
+        }
+
+        header {
+          padding: 15px 0 !important;
+        }
+      }
+
+      /* Flex utilities */
+      .flex-grow-1 { flex-grow: 1; }
+      .nav-center { flex: 1 1 auto; }
+
+      /* Panel system */
+      .panel {
+        display: none !important;
+      }
+
+      .panel.active {
+        display: block !important;
+      }
+
+      .default_panel {
+        display: block !important;
+      }
+
+      /* Estilos para formularios */
+      .panel form {
+        max-width: 100%;
+      }
+
+      .panel label {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+        color: #2e7d32;
+        font-weight: 500;
+      }
+
+      .panel input {
+        margin-top: 8px;
+        padding: 12px;
+        border: 2px solid #c8e6c9;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s;
+      }
+
+      .panel input:focus {
+        outline: none;
+        border-color: #66bb6a;
+        box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1);
+      }
+
+      .panel button {
+        background: linear-gradient(135deg, #66bb6a, #4db6ac);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+      }
+
+      .panel button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+      }
+
+    </style>
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <!-- Header / Navbar -->
+    <header class="py-3">
+      <div class="container">
+        <div class="d-flex align-items-center gap-3">
+          <!-- Logo / Brand -->
+          <a href="main_page(user).html" class="navbar-brand text-decoration-none">
+            <div class="logo-icon">LG</div>
+            <span>HGA</span>
+          </a>
+
+          <!-- Centered nav -->
+          <nav class="nav-center d-none d-md-flex justify-content-center">
+            <ul class="nav">
+              <li class="nav-item"><a class="nav-link fw-semibold" href="#">Residentes</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Citas</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Actividades Lúdicas</a></li>
+            </ul>
+          </nav>
+
+          <!-- Right quick actions -->
+          <div class="ms-auto d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+            <button class="btn btn-outline-secondary rounded-circle" aria-label="Perfil" title="Perfil">👤</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow-1">
+      <div class="container py-5">
+        <div class="row g-4">
+          <!-- Sidebar usuario -->
+          <div class="col-12 col-md-4 col-lg-3">
+            <div class="sidebar-card text-center">
+              <div class="d-flex justify-content-center">
+                <div class="avatar">
+                  <span>*Foto de Perfil*</span>
+                </div>
+              </div>
+              <div class="user-name">Nombre Usuario</div>
+              <div class="user-role"><strong class="text-success">Rol:</strong> Tutor</div>
+
+              <div class="d-flex flex-column gap-3">
+                <button class="btn btn-wide menu-btn" data-section="welcome">Información</button>
+                <button class="btn btn-wide menu-btn" data-section="edit">Actualizar datos</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content area -->
+          <div class="col-12 col-md-8 col-lg-9">
+            <div class="content-card">
+              <h3>Bienvenido a tu perfil</h3>
+              <p class="text-muted mb-4">Gestiona tu información personal y accede a los servicios del Hogar Geriátrico.</p>
+              
+              <!-- Vista por defecto: Bienvenida -->
+              <div class="panel active" id="welcome">
+                <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="p-3 rounded" style="background: rgba(102, 187, 106, 0.1); border-left: 4px solid #66bb6a;">
+                    <h6 class="text-success mb-2">Próximas Citas</h6>
+                    <p class="text-muted small mb-0">No hay citas programadas</p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="p-3 rounded" style="background: rgba(77, 182, 172, 0.1); border-left: 4px solid #4db6ac;">
+                    <h6 style="color: #4db6ac;" class="mb-2">Actividades</h6>
+                    <p class="text-muted small mb-0">2 actividades disponibles esta semana</p>
+                  </div>
+                </div>
+                </div>
+
+                <hr />
+
+                <!-- Información del usuario combinada en la bienvenida -->
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="p-3 rounded text-center" style="background: rgba(102, 187, 106, 0.06); border: 1px solid rgba(102,187,106,0.12);">
+                      <div style="font-size:14px;color:#2e7d32;font-weight:600;">Nombre</div>
+                      <div class="text-muted small">Juan Pérez</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 rounded text-center" style="background: rgba(77, 182, 172, 0.06); border: 1px solid rgba(77,182,172,0.12);">
+                      <div style="font-size:14px;color:#4db6ac;font-weight:600;">Email</div>
+                      <div class="text-muted small">Jperez42@gmail.com</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 rounded text-center" style="background: rgba(129, 199, 132, 0.06); border: 1px solid rgba(129,199,132,0.12);">
+                      <div style="font-size:14px;color:#2e7d32;font-weight:600;">Telefono</div>
+                      <div class="text-muted small">3001234567</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+               <!-- Vista para actualizar datos -->
+                <div id="edit" class="panel">
+                  <h2>Actualizar datos</h2>
+                  <form action="" method="POST">
+                      <label>Nombre:
+                          <input type="text" name="nombre" value="Juan Pérez">
+                      </label>
+                      <label>Teléfono:
+                          <input type="tel" name="telefono" value="3001234567">
+                      </label>
+                      <label> Email:
+                          <input type="email" name="email" value="Jperez42@gmail.com">
+                      </label>
+                        <button type="submit" style="margin-top: 15px;">Actualizar</button>
+                  </form>
+                    </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-4 footer">
+      <div class="container text-center">
+        <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
+      </div>
+    </footer>
+  </body>
+  <script src="./js/user.js"></script>
+  <script src="./js/user_validate.js"></script>
+</html>
