@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: hga_db
+    environment:
+      MYSQL_ROOT_PASSWORD: 4321
+      MYSQL_DATABASE: hogar_geriatrico
+      MYSQL_USER: hga_user
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/hogar_geriatrico.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - hga_network
+
+  # Backend Django + DRF
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hga_backend
+    environment:
+      DEBUG: "True"
+      DB_ENGINE: django.db.backends.mysql
+      DB_NAME: hogar_geriatrico
+      DB_USER: hga_user
+      DB_PASSWORD: 1234
+      DB_HOST: db
+      DB_PORT: "3306"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - hga_network
+
+  # Frontend Nginx
+  frontend:
+    image: nginx:alpine
+    container_name: hga_frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - hga_network
+
+volumes:
+  db_data:
+
+networks:
+  hga_network:
+    driver: bridge
