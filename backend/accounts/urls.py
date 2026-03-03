@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.urls import path
 
 from .views.register_controller import RegisterController
@@ -14,3 +15,16 @@ urlpatterns = [
 
 
 
+=======
+from django.urls import path
+
+urlpatterns =[
+    path(""),
+    path(""),
+    path("")
+]
+
+
+
+
+>>>>>>> dev

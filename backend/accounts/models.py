@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.db import models
 
 
@@ -38,3 +39,8 @@ class Usuario(models.Model):
 
 
 
+=======
+from django.db import models
+
+# Create your models here.
+>>>>>>> dev
