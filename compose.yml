@@ -6,10 +6,10 @@ services:
     image: mysql:8.0
     container_name: hga_db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: hogar_geriatrico_
+      MYSQL_ROOT_PASSWORD: 4321
+      MYSQL_DATABASE: hogar_geriatrico
       MYSQL_USER: hga_user
-      MYSQL_PASSWORD: hga_password
+      MYSQL_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
@@ -31,9 +31,9 @@ services:
     environment:
       DEBUG: "True"
       DB_ENGINE: django.db.backends.mysql
-      DB_NAME: hogar_geriatrico_
+      DB_NAME: hogar_geriatrico
       DB_USER: hga_user
-      DB_PASSWORD: hga_password
+      DB_PASSWORD: 1234
       DB_HOST: db
       DB_PORT: "3306"
     ports:

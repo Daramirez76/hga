@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+dotenv_path = BASE_DIR.parent / '.env'
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework"
+    "rest_framework",
+    "accounts"
 ]
 
 MIDDLEWARE = [
@@ -81,9 +88,9 @@ if DB_ENGINE == "django.db.backends.mysql":
     DATABASES = {
         "default": {
             "ENGINE": DB_ENGINE,
-            "NAME": os.getenv("DB_NAME", "hogar_geriatrico_"),
+            "NAME": os.getenv("DB_NAME", "hogar_geriatrico"),
             "USER": os.getenv("DB_USER", "hga_user"),
-            "PASSWORD": os.getenv("DB_PASSWORD", "hga_password"),
+            "PASSWORD": os.getenv("DB_PASSWORD", "1234"),
             "HOST": os.getenv("DB_HOST", "localhost"),
             "PORT": os.getenv("DB_PORT", "3306"),
         }
