@@ -1,9 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import SimpleRouter
+from django.urls import path
 
 from .views import ResidenteViewSet
 
-router = SimpleRouter()
-router.register(r"", ResidenteViewSet, basename="residente")
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("", ResidenteViewSet.as_view({"get": "list", "post": "create"}), name="residente-list"),
+    path("<int:pk>/", ResidenteViewSet.as_view({"get": "retrieve", "put": "update", "delete": "destroy"}), name="residente-detail"),
+]
