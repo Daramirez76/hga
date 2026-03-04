@@ -20,7 +20,7 @@ class RegisterRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=100)
     usuario = serializers.CharField(max_length=100)
     contraseña = serializers.CharField(write_only=True, min_length=8, max_length=32)
-    cod_rol = serializers.IntegerField()
+    cod_rol = serializers.IntegerField(required=False)
     edad = serializers.IntegerField()
     parentesco = serializers.CharField(max_length=32, required=False, allow_blank=True)
 

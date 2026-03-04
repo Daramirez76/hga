@@ -191,6 +191,21 @@
             margin-top: 30px;
         }
 
+        .forgot-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #2e7d32;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-link:hover {
+            color: #4db6ac;
+            text-decoration: underline;
+        }
+
         button {
             padding: 16px;
             border: none;
@@ -402,6 +417,7 @@
                     <div class="form-group">
                         <label for="contrasena">Contraseña</label>
                         <input type="password" id="contrasena" name="contrasena" required>
+                        <a href="forgot_password.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <div class="button-group">
@@ -412,9 +428,9 @@
             </div>
         </div>
     </div>
-
     <footer>
         <small>derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
     </footer>
 </body>
+<script src="js/login_validate.js"></script>
 </html>
