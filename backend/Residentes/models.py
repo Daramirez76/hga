@@ -18,5 +18,10 @@ class Residente(models.Model):
     cod_usuario = models.IntegerField()
     cod_rol = models.IntegerField()
 
-    def __str__(self) -> str:
+class Meta:
+        managed = False
+        db_table = 'residentes'
+
+def __str__(self) -> str:
         return f"{self.nombre} {self.apellido}"
+    

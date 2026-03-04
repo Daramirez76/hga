@@ -10,7 +10,9 @@ class RegisterService:
     se filtra en la vista o repositorio.
     """
 
-    def register(self, validated_data: dict):
+    DEFAULT_PUBLIC_ROLE_NAME = "Tutor"
+
+    def register(self, validated_data: dict, force_tutor: bool = False):
         """Registrar un nuevo usuario con toda la información requerida."""
         # Extraer todos los campos de los datos validados
         tipo_doc = validated_data["tipo_doc"]
@@ -22,7 +24,7 @@ class RegisterService:
         email = validated_data["email"]
         usuario = validated_data["usuario"]
         contraseña = validated_data["contraseña"]
-        cod_rol = validated_data["cod_rol"]
+        cod_rol = self._resolve_role_code(validated_data, force_tutor)
         edad = validated_data["edad"]
         parentesco = validated_data.get("parentesco", "")
 
@@ -44,3 +46,15 @@ class RegisterService:
 
         # Aquí se podrían aplicar reglas de negocio adicionales (ej: enviar email de bienvenida)
         return user
+
+    def _resolve_role_code(self, validated_data: dict, force_tutor: bool) -> int:
+        if not force_tutor and "cod_rol" in validated_data:
+            return validated_data["cod_rol"]
+
+        rol = UserRepository.get_role_by_name(self.DEFAULT_PUBLIC_ROLE_NAME)
+        if rol is None:
+            raise ValueError(
+                f"No existe el rol por defecto '{self.DEFAULT_PUBLIC_ROLE_NAME}' para el registro público"
+            )
+
+        return rol.cod_rol

@@ -1,123 +1,182 @@
-// validacionRegistro.js
+const REGISTER_ENDPOINT = "/api/user/register/";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("formRegister");
+    const form = document.getElementById("formRegister");
 
-  if (!form) return; // por si cambia el id
-
-  form.addEventListener("submit", function (e) {
-    // limpiamos estados anteriores
-    limpiarErrores();
-
-    const errores = [];
-
-    const nombre       = document.getElementById("nombre");
-    const apellido     = document.getElementById("apellido");
-    const tipoDoc      = document.getElementById("tipo_doc");
-    const nroDoc       = document.getElementById("num_doc");
-    const direccion    = document.getElementById("direccion");
-    const telefono     = document.getElementById("telefono");
-    const correo       = document.getElementById("correo");
-    const usuario      = document.getElementById("usuario");
-    const contrasena   = document.getElementById("contraseña");
-
-    // --------- Validaciones básicas ----------
-    if (!valor(nombre)) {
-      errores.push("El nombre es obligatorio.");
-      marcarError(nombre);
+    if (!form) {
+        return;
     }
 
-    if (!valor(apellido)) {
-      errores.push("El apellido es obligatorio.");
-      marcarError(apellido);
-    }
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        limpiarErrores();
 
-    if (!valor(tipoDoc)) {
-      errores.push("Debe seleccionar un tipo de documento.");
-      marcarError(tipoDoc);
-    }
+        const campos = obtenerCampos();
+        const errores = validarCampos(campos);
 
-    if (!valor(nroDoc)) {
-      errores.push("El número de documento es obligatorio.");
-      marcarError(nroDoc);
-    } else if (!/^[0-9]{6,15}$/.test(nroDoc.value.trim())) {
-      errores.push("El número de documento debe contener solo números (6 a 15 dígitos).");
-      marcarError(nroDoc);
-    }
+        if (errores.length > 0) {
+            alert("Por favor corrige lo siguiente:\n\n- " + errores.join("\n- "));
+            return;
+        }
 
-    if (!valor(direccion)) {
-      errores.push("La dirección es obligatoria.");
-      marcarError(direccion);
-    }
+        const payload = construirPayload(campos);
 
-    if (!valor(telefono)) {
-      errores.push("El teléfono es obligatorio.");
-      marcarError(telefono);
-    } else if (!/^[0-9]{7,10}$/.test(telefono.value.trim())) {
-      errores.push("El teléfono debe contener solo números (7 a 10 dígitos).");
-      marcarError(telefono);
-    }
+        try {
+            const response = await fetch(REGISTER_ENDPOINT, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Register-Source": "public",
+                },
+                body: JSON.stringify(payload),
+            });
 
-    if (!valor(correo)) {
-      errores.push("El correo electrónico es obligatorio.");
-      marcarError(correo);
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value.trim())) {
-      errores.push("El correo electrónico no tiene un formato válido.");
-      marcarError(correo);
-    }
+            const data = await response.json();
 
-    if (!valor(usuario)) {
-      errores.push("El nombre de usuario es obligatorio.");
-      marcarError(usuario);
-    } else if (usuario.value.trim().length < 4) {
-      errores.push("El nombre de usuario debe tener al menos 4 caracteres.");
-      marcarError(usuario);
-    }
+            if (!response.ok) {
+                mostrarErroresBackend(data, campos);
+                return;
+            }
 
-    if (!valor(contrasena)) {
-      errores.push("La contraseña es obligatoria.");
-      marcarError(contrasena);
-    } else if (contrasena.value.length < 8) {
-      errores.push("La contraseña debe tener mínimo 8 caracteres.");
-      marcarError(contrasena);
-    }
-
-    // Si hay errores, se cancela el envío y se muestran
-    if (errores.length > 0) {
-      e.preventDefault();
-      alert("Por favor corrige lo siguiente:\n\n- " + errores.join("\n- "));
-    }
-  });
-
-  // --------- Helpers ---------
-  function valor(input) {
-    return input && input.value.trim() !== "";
-  }
-
-  function marcarError(input) {
-    if (!input) return;
-    input.classList.add("campo-error");
-  }
-
-  function limpiarErrores() {
-    document
-      .querySelectorAll(".campo-error")
-      .forEach(el => el.classList.remove("campo-error"));
-  }
+            localStorage.setItem("usuario", JSON.stringify(sanitizarUsuario(data)));
+            alert("Cuenta creada correctamente");
+            window.location.href = "login.html";
+        } catch (error) {
+            console.error("Error al registrar usuario:", error);
+            alert("Error al conectar con el servidor");
+        }
+    });
 });
 
+function obtenerCampos() {
+    return {
+        nombre: document.getElementById("nombre"),
+        apellido: document.getElementById("apellido"),
+        tipoDoc: document.getElementById("tipo_doc"),
+        numDoc: document.getElementById("num_doc"),
+        direccion: document.getElementById("direccion"),
+        telefono: document.getElementById("telefono"),
+        edad: document.getElementById("edad"),
+        correo: document.getElementById("correo"),
+        usuario: document.getElementById("usuario"),
+        contrasena: document.getElementById("contraseña"),
+    };
+}
 
+function validarCampos(campos) {
+    const errores = [];
 
+    const requeridos = [
+        { input: campos.nombre, mensaje: "El nombre es obligatorio." },
+        { input: campos.apellido, mensaje: "El apellido es obligatorio." },
+        { input: campos.tipoDoc, mensaje: "Debe seleccionar un tipo de documento." },
+        { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
+        { input: campos.direccion, mensaje: "La direccion es obligatoria." },
+        { input: campos.telefono, mensaje: "El telefono es obligatorio." },
+        { input: campos.edad, mensaje: "La edad es obligatoria." },
+        { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
+        { input: campos.usuario, mensaje: "El nombre de usuario es obligatorio." },
+        { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
+    ];
 
+    requeridos.forEach(({ input, mensaje }) => {
+        if (!valor(input)) {
+            errores.push(mensaje);
+            marcarError(input);
+        }
+    });
 
+    return errores;
+}
 
+function construirPayload(campos) {
+    return {
+        tipo_doc: normalizarTipoDocumento(campos.tipoDoc.value),
+        doc_id: Number(campos.numDoc.value.trim()),
+        nombre: campos.nombre.value.trim(),
+        apellido: campos.apellido.value.trim(),
+        direccion: campos.direccion.value.trim(),
+        telefono: Number(campos.telefono.value.trim()),
+        edad: Number(campos.edad.value.trim()),
+        email: campos.correo.value.trim(),
+        usuario: campos.usuario.value.trim(),
+        contraseña: campos.contrasena.value.trim(),
+        parentesco: "",
+    };
+}
 
+function sanitizarUsuario(data) {
+    if (!data || typeof data !== "object") {
+        return data;
+    }
 
+    const usuarioSanitizado = { ...data };
+    delete usuarioSanitizado.cod_rol;
+    delete usuarioSanitizado.rol;
+    delete usuarioSanitizado.role;
 
+    return usuarioSanitizado;
+}
 
+function normalizarTipoDocumento(valorTipoDoc) {
+    const valorNormalizado = valorTipoDoc.trim().toLowerCase();
 
+    if (valorNormalizado === "doc1" || valorNormalizado.includes("ciudadania")) {
+        return "cc";
+    }
 
+    if (valorNormalizado === "doc2" || valorNormalizado.includes("extranjeria")) {
+        return "ce";
+    }
 
+    return valorNormalizado;
+}
 
+function mostrarErroresBackend(data, campos) {
+    const mensajes = [];
+    const mapaCampos = {
+        tipo_doc: campos.tipoDoc,
+        doc_id: campos.numDoc,
+        nombre: campos.nombre,
+        apellido: campos.apellido,
+        direccion: campos.direccion,
+        telefono: campos.telefono,
+        edad: campos.edad,
+        email: campos.correo,
+        usuario: campos.usuario,
+        contraseña: campos.contrasena,
+    };
 
+    Object.entries(data).forEach(([clave, valor]) => {
+        if (mapaCampos[clave]) {
+            marcarError(mapaCampos[clave]);
+        }
 
+        if (Array.isArray(valor)) {
+            mensajes.push(`${clave}: ${valor.join(", ")}`);
+            return;
+        }
+
+        mensajes.push(`${clave}: ${String(valor)}`);
+    });
+
+    alert("No fue posible crear la cuenta:\n\n- " + mensajes.join("\n- "));
+}
+
+function valor(input) {
+    return input && input.value.trim() !== "";
+}
+
+function marcarError(input) {
+    if (!input) {
+        return;
+    }
+
+    input.classList.add("campo-error");
+}
+
+function limpiarErrores() {
+    document
+        .querySelectorAll(".campo-error")
+        .forEach((elemento) => elemento.classList.remove("campo-error"));
+}

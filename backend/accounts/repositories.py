@@ -49,6 +49,14 @@ class UserRepository:
         return Usuario.objects.filter(doc_id=doc_id).exists()
 
     @staticmethod
+    def get_role_by_name(nombre_rol: str):
+        """Obtener un rol por nombre. Retorna None si no se encuentra."""
+        try:
+            return Rol.objects.get(nombre_rol__iexact=nombre_rol)
+        except Rol.DoesNotExist:
+            return None
+
+    @staticmethod
     def get_by_usuario(usuario: str):
         """Obtener usuario por nombre. Retorna None si no se encuentra."""
         try:

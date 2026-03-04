@@ -15,13 +15,20 @@ class RegisterController(APIView):
     hacer aquí a través de las clases de permisos de DRF.
     """
 
+    PUBLIC_REGISTER_SOURCE = "public"
+
     def post(self, request):
         serializer = RegisterRequestSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         service = RegisterService()
-        user = service.register(serializer.validated_data)
+        force_tutor = request.headers.get("X-Register-Source", "").lower() == self.PUBLIC_REGISTER_SOURCE
+
+        try:
+            user = service.register(serializer.validated_data, force_tutor=force_tutor)
+        except ValueError as error:
+            return Response({"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Retornar el usuario creado con toda la información relevante
         return Response({
@@ -34,6 +41,5 @@ class RegisterController(APIView):
             "telefono": user.telefono,
             "direccion": user.direccion,
             "edad": user.edad,
-            "rol": user.cod_rol.nombre_rol,
             "parentesco": user.parentesco,
         }, status=status.HTTP_201_CREATED)
