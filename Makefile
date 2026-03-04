@@ -1,4 +1,4 @@
-.PHONY: help build up down logs bash migrate createsuperuser collect-static test clean
+.PHONY: help build up down logs bash migrate test clean
 
 help:
 	@echo "Hogar Geriátrico - Comandos disponibles:"
@@ -8,13 +8,13 @@ help:
 	@echo "  make build         - Construir imágenes Docker"
 	@echo ""
 	@echo "Ejecutar:"
-	@echo "  make up            - Iniciar todos los servicios"
+	@echo "  make up            - Iniciar todos los servicios (Laravel + MySQL + Nginx)"
 	@echo "  make down          - Detener todos los servicios"
 	@echo "  make restart       - Reiniciar todos los servicios"
 	@echo ""
 	@echo "Logs:"
 	@echo "  make logs          - Ver logs combinados"
-	@echo "  make logs-backend  - Ver logs del backend"
+	@echo "  make logs-app      - Ver logs del contenedor Laravel"
 	@echo "  make logs-db       - Ver logs de la BD"
 	@echo "  make logs-frontend - Ver logs del frontend"
 	@echo ""
@@ -22,11 +22,9 @@ help:
 	@echo "  make bash          - Acceder al contenedor del backend"
 	@echo "  make shell-db      - Acceder a la consola de MySQL"
 	@echo ""
-	@echo "Django:"
-	@echo "  make migrate       - Ejecutar migraciones"
-	@echo "  make createsuperuser - Crear usuario administrador"
-	@echo "  make collect-static - Recolectar archivos estáticos"
-	@echo "  make test          - Ejecutar pruebas"
+	@echo "Laravel:"
+	@echo "  make migrate       - Ejecutar migraciones (artisan)"
+	@echo "  make test          - Ejecutar pruebas (phpunit)"
 	@echo ""
 	@echo "Limpieza:"
 	@echo "  make clean         - Limpiar contenedores y volúmenes"
@@ -54,8 +52,8 @@ restart: down up
 logs:
 	docker-compose logs -f
 
-logs-backend:
-	docker-compose logs -f backend
+logs-app:
+	docker-compose logs -f app
 
 logs-db:
 	docker-compose logs -f db
@@ -64,22 +62,17 @@ logs-frontend:
 	docker-compose logs -f frontend
 
 bash:
-	docker-compose exec backend bash
+	docker-compose exec app bash
 
 shell-db:
 	docker-compose exec db mysql -u root -p
 
 migrate:
-	docker-compose exec backend python manage.py migrate
+	docker-compose exec app php artisan migrate --force
 
-createsuperuser:
-	docker-compose exec backend python manage.py createsuperuser
-
-collect-static:
-	docker-compose exec backend python manage.py collectstatic --noinput
-
+# Laravel tests (phpunit)
 test:
-	docker-compose exec backend python manage.py test
+	docker-compose exec app php artisan test
 
 clean:
 	docker-compose down
