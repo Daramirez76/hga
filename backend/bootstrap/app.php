@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AuthenticateApi;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
@@ -14,7 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Middleware aliases are configured by Laravel and installed packages.
+        $middleware->alias([
+            'auth.api' => AuthenticateApi::class,
+            'role' => RoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (AuthenticationException $exception, $request) {
