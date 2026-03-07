@@ -213,6 +213,60 @@
         color: #2e7d32 !important;
       }
 
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+
+      .profile-dropdown.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .sidebar-card {
@@ -322,7 +376,13 @@
           <!-- Right quick actions -->
           <div class="ms-auto d-flex align-items-center gap-2">
             <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
-            <button class="btn btn-outline-secondary rounded-circle" aria-label="Perfil" title="Perfil">👤</button>
+            <div class="profile-menu-wrapper">
+              <button class="btn btn-outline-secondary rounded-circle profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">👤</button>
+              <div class="profile-dropdown" id="profileDropdown">
+                <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -340,8 +400,8 @@
                   <span>*Foto de Perfil*</span>
                 </div>
               </div>
-              <div class="user-name">Nombre Usuario</div>
-              <div class="user-role"><strong class="text-success">Rol:</strong> Tutor</div>
+              <div class="user-name" id="sidebarUserName">Nombre Usuario</div>
+              <div class="user-role"><strong class="text-success">Rol:</strong> <span id="sidebarUserRole">Cargando...</span></div>
 
               <div class="d-flex flex-column gap-3">
                 <button class="btn btn-wide menu-btn" data-section="welcome">Información</button>
@@ -380,19 +440,19 @@
                   <div class="col-md-4">
                     <div class="p-3 rounded text-center" style="background: rgba(102, 187, 106, 0.06); border: 1px solid rgba(102,187,106,0.12);">
                       <div style="font-size:14px;color:#2e7d32;font-weight:600;">Nombre</div>
-                      <div class="text-muted small">Juan Pérez</div>
+                      <div class="text-muted small" id="welcomeUserName">Cargando...</div>
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="p-3 rounded text-center" style="background: rgba(77, 182, 172, 0.06); border: 1px solid rgba(77,182,172,0.12);">
                       <div style="font-size:14px;color:#4db6ac;font-weight:600;">Email</div>
-                      <div class="text-muted small">Jperez42@gmail.com</div>
+                      <div class="text-muted small" id="welcomeUserEmail">Cargando...</div>
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="p-3 rounded text-center" style="background: rgba(129, 199, 132, 0.06); border: 1px solid rgba(129,199,132,0.12);">
                       <div style="font-size:14px;color:#2e7d32;font-weight:600;">Telefono</div>
-                      <div class="text-muted small">3001234567</div>
+                      <div class="text-muted small" id="welcomeUserPhone">Cargando...</div>
                     </div>
                   </div>
                 </div>
@@ -404,13 +464,13 @@
                   <h2>Actualizar datos</h2>
                   <form action="" method="POST">
                       <label>Nombre:
-                          <input type="text" name="nombre" value="Juan Pérez">
+                          <input type="text" id="profileInputName" name="nombre" value="">
                       </label>
                       <label>Teléfono:
-                          <input type="tel" name="telefono" value="3001234567">
+                          <input type="tel" id="profileInputPhone" name="telefono" value="">
                       </label>
                       <label> Email:
-                          <input type="email" name="email" value="Jperez42@gmail.com">
+                          <input type="email" id="profileInputEmail" name="email" value="">
                       </label>
                         <button type="submit" style="margin-top: 15px;">Actualizar</button>
                   </form>
@@ -427,7 +487,103 @@
         <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
       </div>
     </footer>
+    <script>
+      (function () {
+        function splitFullName(fullName) {
+          var normalized = String(fullName || "").trim().replace(/\s+/g, " ");
+          if (!normalized) return { firstName: "", lastName: "" };
+          var parts = normalized.split(" ");
+          if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+          return { firstName: parts.slice(0, -1).join(" "), lastName: parts[parts.length - 1] };
+        }
+
+        function normalizeUser(userData) {
+          var user = userData || {};
+          var parsed = splitFullName(user.name || "");
+          var roleMap = {
+            1: "Administrador",
+            2: "Enfermero",
+            3: "Doctor",
+            4: "Tutor"
+          };
+          var roleName = String(user.rol || user.role || "").trim();
+          if (!roleName) {
+            var roleCode = Number(user.cod_rol || user.role_code || 0);
+            roleName = roleMap[roleCode] || "Tutor";
+          }
+          return {
+            firstName: String(user.nombre || parsed.firstName || "").trim(),
+            lastName: String(user.apellido || parsed.lastName || "").trim(),
+            email: String(user.email || "").trim(),
+            phone: String(user.telefono || "").trim(),
+            fullName: String(user.name || "").trim(),
+            role: roleName
+          };
+        }
+
+        function applyProfile(userData) {
+          var profile = normalizeUser(userData);
+          var fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ").trim() || profile.fullName || "Usuario";
+          var email = profile.email || "No registrado";
+          var phone = profile.phone || "No registrado";
+
+          var sidebarUserName = document.getElementById("sidebarUserName") || document.querySelector(".user-name");
+          var welcomeUserName = document.getElementById("welcomeUserName");
+          var welcomeUserEmail = document.getElementById("welcomeUserEmail");
+          var welcomeUserPhone = document.getElementById("welcomeUserPhone");
+          var profileInputName = document.getElementById("profileInputName");
+          var profileInputEmail = document.getElementById("profileInputEmail");
+          var profileInputPhone = document.getElementById("profileInputPhone");
+          var sidebarUserRole = document.getElementById("sidebarUserRole");
+
+          if (sidebarUserName) sidebarUserName.textContent = fullName;
+          if (welcomeUserName) welcomeUserName.textContent = fullName;
+          if (welcomeUserEmail) welcomeUserEmail.textContent = email;
+          if (welcomeUserPhone) welcomeUserPhone.textContent = phone;
+          if (profileInputName) profileInputName.value = fullName;
+          if (profileInputEmail) profileInputEmail.value = profile.email;
+          if (profileInputPhone) profileInputPhone.value = profile.phone;
+          if (sidebarUserRole) sidebarUserRole.textContent = profile.role || "Tutor";
+        }
+
+        try {
+          var raw = localStorage.getItem("usuario");
+          if (raw) {
+            var storedUser = JSON.parse(raw);
+            applyProfile(storedUser);
+          }
+        } catch (error) {
+          console.warn("No se pudo leer localStorage.usuario", error);
+        }
+
+        try {
+          var token = localStorage.getItem("access_token");
+          if (token) {
+            fetch(window.location.origin + "/api/me", {
+              method: "GET",
+              headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer " + token
+              }
+            })
+              .then(function (response) {
+                if (!response.ok) return null;
+                return response.json();
+              })
+              .then(function (data) {
+                if (data && data.user) {
+                  localStorage.setItem("usuario", JSON.stringify(data.user));
+                  applyProfile(data.user);
+                }
+              })
+              .catch(function () {});
+          }
+        } catch (error) {
+          console.warn("No se pudo actualizar perfil desde API", error);
+        }
+      })();
+    </script>
+    <script src="./js/user.js?v=20260305-3"></script>
+    <script src="./js/user_validate.js?v=20260305-3"></script>
   </body>
-  <script src="./js/user.js"></script>
-  <script src="./js/user_validate.js"></script>
 </html>

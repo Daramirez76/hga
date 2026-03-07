@@ -1,16 +1,16 @@
-const LOGIN_ENDPOINT = "/api/user/login/";
+const LOGIN_ENDPOINT = `${window.location.origin}/api/login`;
 
 function validarFormulario() {
-    const usuario = document.getElementById("usuario").value.trim();
+    const email = document.getElementById("usuario").value.trim();
     const contrasena = document.getElementById("contrasena").value.trim();
 
-    if (usuario === "") {
-        alert("El usuario no puede estar vacio");
+    if (email === "") {
+        alert("El correo o usuario no puede estar vacío");
         return false;
     }
 
     if (contrasena === "") {
-        alert("La contraseña no puede estar vacia");
+        alert("La contraseña no puede estar vacía");
         return false;
     }
 
@@ -24,11 +24,11 @@ async function iniciarSesion(event) {
         return;
     }
 
-    const usuario = document.getElementById("usuario").value.trim();
-    const contrasena = document.getElementById("contrasena").value.trim();
+    const email = document.getElementById("usuario").value.trim();
+    const password = document.getElementById("contrasena").value.trim();
     const datos = {
-        usuario,
-        contraseña: contrasena,
+        email,
+        password,
     };
 
     try {
@@ -36,19 +36,31 @@ async function iniciarSesion(event) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
             },
             body: JSON.stringify(datos),
         });
 
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            const body = await response.text();
+            throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
-            const mensaje = data.error || "No fue posible iniciar sesion";
+            const mensaje = data.message || "No fue posible iniciar sesión";
             alert(`Error: ${mensaje}`);
             return;
         }
 
-        localStorage.setItem("usuario", JSON.stringify(data));
+        if (data.access_token) {
+            localStorage.setItem("access_token", data.access_token);
+        }
+        localStorage.setItem("usuario", JSON.stringify(data.user));
         alert("Login exitoso");
         window.location.href = "main_page(user).html";
     } catch (error) {

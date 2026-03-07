@@ -11,7 +11,7 @@ class iniciarSesionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,27 @@ class iniciarSesionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'email' => 'required_without:usuario|string|max:100',
+            'usuario' => 'required_without:email|string|max:100',
+            'password' => 'required|string|min:8|max:32',
+        ];
+    }
+
+    /**
+     * Get custom error messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required_without' => 'Debes ingresar correo o nombre de usuario',
+            'email.string' => 'El correo o usuario debe ser texto válido',
+            'email.max' => 'El correo o usuario no puede exceder 100 caracteres',
+            'usuario.required_without' => 'Debes ingresar correo o nombre de usuario',
+            'usuario.string' => 'El correo o usuario debe ser texto válido',
+            'usuario.max' => 'El correo o usuario no puede exceder 100 caracteres',
+            'password.required' => 'La contraseña es requerida',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
+            'password.max' => 'La contraseña no puede exceder 32 caracteres',
         ];
     }
 }
