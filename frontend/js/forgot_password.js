@@ -1,4 +1,4 @@
-const FORGOT_PASSWORD_ENDPOINT = "/api/user/forgot_password/";
+const FORGOT_PASSWORD_ENDPOINT = "/api/user/forgot_password";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("forgotPasswordForm");
@@ -29,9 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
                 },
                 body: JSON.stringify({ email }),
             });
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const body = await response.text();
+                throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+            }
 
             const data = await response.json();
 
@@ -84,8 +92,18 @@ function obtenerMensajeError(data) {
         return "";
     }
 
+    if (typeof data.message === "string") {
+        return data.message;
+    }
+
     if (typeof data.error === "string") {
         return data.error;
+    }
+
+    if (data.errors && typeof data.errors === "object") {
+        if (Array.isArray(data.errors.email) && data.errors.email.length > 0) {
+            return data.errors.email.join(", ");
+        }
     }
 
     if (Array.isArray(data.email) && data.email.length > 0) {

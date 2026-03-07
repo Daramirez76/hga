@@ -1,4 +1,7 @@
-const REGISTER_ENDPOINT = "/api/user/register/";
+const API_BASE_URL = window.location.origin;
+const REGISTER_ENDPOINT = `${API_BASE_URL}/api/register`;
+const LOGIN_ENDPOINT = `${API_BASE_URL}/api/login`;
+const LOGOUT_ENDPOINT = `${API_BASE_URL}/api/logout`;
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("formRegister");
@@ -26,10 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
                     "X-Register-Source": "public",
                 },
                 body: JSON.stringify(payload),
             });
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const body = await response.text();
+                throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+            }
 
             const data = await response.json();
 
@@ -90,75 +101,75 @@ function validarCampos(campos) {
 }
 
 function construirPayload(campos) {
+    // Combinar nombre y apellido para el campo "name" del backend
+    const nombreCompleto = `${campos.nombre.value.trim()} ${campos.apellido.value.trim()}`.trim();
+    
     return {
-        tipo_doc: normalizarTipoDocumento(campos.tipoDoc.value),
-        doc_id: Number(campos.numDoc.value.trim()),
-        nombre: campos.nombre.value.trim(),
+        name: nombreCompleto,
         apellido: campos.apellido.value.trim(),
+        tipo_doc: campos.tipoDoc.value.trim(),
+        doc_id: Number(campos.numDoc.value.trim()),
         direccion: campos.direccion.value.trim(),
         telefono: Number(campos.telefono.value.trim()),
         edad: Number(campos.edad.value.trim()),
         email: campos.correo.value.trim(),
         usuario: campos.usuario.value.trim(),
-        contraseña: campos.contrasena.value.trim(),
-        parentesco: "",
+        password: campos.contrasena.value.trim(),
+        password_confirmation: campos.contrasena.value.trim(),
     };
 }
 
 function sanitizarUsuario(data) {
-    if (!data || typeof data !== "object") {
-        return data;
+    // El backend retorna { success, message, user: { id, name, email } }
+    // Extractamos solo el objeto user
+    if (data && data.user) {
+        return data.user;
     }
-
-    const usuarioSanitizado = { ...data };
-    delete usuarioSanitizado.cod_rol;
-    delete usuarioSanitizado.rol;
-    delete usuarioSanitizado.role;
-
-    return usuarioSanitizado;
+    return data;
 }
 
-function normalizarTipoDocumento(valorTipoDoc) {
-    const valorNormalizado = valorTipoDoc.trim().toLowerCase();
-
-    if (valorNormalizado === "doc1" || valorNormalizado.includes("ciudadania")) {
-        return "cc";
-    }
-
-    if (valorNormalizado === "doc2" || valorNormalizado.includes("extranjeria")) {
-        return "ce";
-    }
-
-    return valorNormalizado;
-}
 
 function mostrarErroresBackend(data, campos) {
     const mensajes = [];
     const mapaCampos = {
+        name: campos.nombre,
+        apellido: campos.apellido,
         tipo_doc: campos.tipoDoc,
         doc_id: campos.numDoc,
-        nombre: campos.nombre,
-        apellido: campos.apellido,
         direccion: campos.direccion,
         telefono: campos.telefono,
         edad: campos.edad,
         email: campos.correo,
         usuario: campos.usuario,
-        contraseña: campos.contrasena,
+        password: campos.contrasena,
     };
 
-    Object.entries(data).forEach(([clave, valor]) => {
-        if (mapaCampos[clave]) {
-            marcarError(mapaCampos[clave]);
+    // Manejo de errores de validación del backend
+    if (data.errors && typeof data.errors === 'object') {
+        Object.entries(data.errors).forEach(([clave, erroresArray]) => {
+            // Marcar el campo con error
+            if (mapaCampos[clave]) {
+                marcarError(mapaCampos[clave]);
+            }
+            
+            // Agregar mensajes de error
+            if (Array.isArray(erroresArray)) {
+                erroresArray.forEach(error => mensajes.push(error));
+            }
+        });
+    }
+    
+    // Manejo de mensaje genérico del backend
+    if (data.message) {
+        if (!mensajes.includes(data.message)) {
+            mensajes.push(data.message);
         }
-
-        if (Array.isArray(valor)) {
-            mensajes.push(`${clave}: ${valor.join(", ")}`);
-            return;
-        }
-
-        mensajes.push(`${clave}: ${String(valor)}`);
-    });
+    }
+    
+    // Si no hay mensajes específicos, mostrar respuesta genérica
+    if (mensajes.length === 0) {
+        mensajes.push("No fue posible crear la cuenta");
+    }
 
     alert("No fue posible crear la cuenta:\n\n- " + mensajes.join("\n- "));
 }

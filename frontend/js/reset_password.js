@@ -1,4 +1,4 @@
-const RESET_PASSWORD_ENDPOINT = "/api/user/forgot_password/reset/";
+const RESET_PASSWORD_ENDPOINT = "/api/user/forgot_password/reset";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("resetPasswordForm");
@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
                 },
                 body: JSON.stringify({
                     email,
@@ -43,6 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     confirmar_contraseña: confirmarContraseña,
                 }),
             });
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const body = await response.text();
+                throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+            }
 
             const data = await response.json();
 
@@ -116,6 +124,10 @@ function obtenerMensajeError(data) {
         return "";
     }
 
+    if (typeof data.message === "string") {
+        return data.message;
+    }
+
     if (typeof data.error === "string") {
         return data.error;
     }
@@ -126,6 +138,14 @@ function obtenerMensajeError(data) {
 
     if (Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
         return data.non_field_errors.join(", ");
+    }
+
+    if (data.errors && typeof data.errors === "object") {
+        for (const clave of ["email", "nueva_contraseña", "confirmar_contraseña"]) {
+            if (Array.isArray(data.errors[clave]) && data.errors[clave].length > 0) {
+                return data.errors[clave].join(", ");
+            }
+        }
     }
 
     for (const clave of ["email", "nueva_contraseña", "confirmar_contraseña"]) {

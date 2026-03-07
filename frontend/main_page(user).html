@@ -173,6 +173,60 @@
         color: #2e7d32 !important;
       }
 
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+
+      .profile-dropdown.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
       /* Flex utilities */
       .flex-grow-1 { flex-grow: 1; }
       .nav-center { flex: 1 1 auto; }
@@ -218,7 +272,13 @@
 
           <!-- Right profile icon placeholder -->
           <div class="ms-auto d-flex align-items-center gap-2">
-            <a href="user.html" class="btn btn-outline-secondary rounded-circle" aria-label="Perfil" title="Perfil">👤</a>
+            <div class="profile-menu-wrapper">
+              <button class="btn btn-outline-secondary rounded-circle profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">👤</button>
+              <div class="profile-dropdown" id="profileDropdown">
+                <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -281,5 +341,48 @@
         <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
       </div>
     </footer>
+    <script>
+      const profileMenuButton = document.getElementById('profileMenuButton');
+      const profileDropdown = document.getElementById('profileDropdown');
+      const viewUserProfile = document.getElementById('viewUserProfile');
+      const logoutUser = document.getElementById('logoutUser');
+
+      if (profileMenuButton && profileDropdown) {
+        const closeProfileDropdown = () => {
+          profileDropdown.classList.remove('show');
+          profileMenuButton.setAttribute('aria-expanded', 'false');
+        };
+
+        profileMenuButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const isOpen = profileDropdown.classList.toggle('show');
+          profileMenuButton.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!profileDropdown.contains(event.target) && !profileMenuButton.contains(event.target)) {
+            closeProfileDropdown();
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            closeProfileDropdown();
+          }
+        });
+
+        if (viewUserProfile) {
+          viewUserProfile.addEventListener('click', () => {
+            window.location.href = 'user.html';
+          });
+        }
+
+        if (logoutUser) {
+          logoutUser.addEventListener('click', () => {
+            window.location.href = 'login.html';
+          });
+        }
+      }
+    </script>
   </body>
 </html>
