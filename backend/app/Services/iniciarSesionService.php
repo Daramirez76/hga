@@ -60,7 +60,7 @@ class iniciarSesionService
             } elseif ($roleCode === 2) {
                 $roleName = 'Enfermero';
             } elseif ($roleCode === 3) {
-                $roleName = 'Doctor';
+                $roleName = 'Tutor';
             }
 
             return [
