@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medicamentos', function (Blueprint $table) {
+        Schema::create('visitas', function (Blueprint $table) {
             $table->id();
+            $table->integer('cod_Visitas')->unique();
+            $table->integer('doc_id');
+            $table->string('Nomb_visitante', 50);
+            $table->integer('cod_Residente');
+            $table->date('Fecha_Visita');
+            $table->integer('cod_usuario');
             $table->timestamps();
         });
     }
@@ -22,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medicamentos');
+        Schema::dropIfExists('visitas');
     }
 };
