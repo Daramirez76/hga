@@ -11,7 +11,7 @@ class residentesController extends Controller
 {
     protected $residentesService;
 
-    public function __construct(residentesServices $residentesService)
+    public function __construct(residentesService $residentesService)
     {
         $this->residentesService = $residentesService;
     }

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Repositories\Eloquent;
-
 use App\Models\medicamentos;
 use App\Repositories\Interfaces\medicamentosInterface;
 

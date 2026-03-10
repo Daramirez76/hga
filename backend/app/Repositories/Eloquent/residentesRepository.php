@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Eloquent;
 use App\Models\residentes;
 use App\Repositories\Interfaces\residentesInterfaces;
