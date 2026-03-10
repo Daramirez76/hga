@@ -2,15 +2,15 @@
 
 namespace App\Services;
 
-use App\Repositories\Eloquent\usuariosRepository as UserRepository;
+use App\Repositories\Interfaces\usuariosInterface;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class iniciarSesionService
 {
-    protected UserRepository $userRepository;
+    protected usuariosInterface $userRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(usuariosInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }

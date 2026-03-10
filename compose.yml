@@ -1,15 +1,13 @@
-version: '3.8'
-
 services:
   # Base de datos MySQL
   db:
     image: mysql:8.0
     container_name: hga_db
     environment:
-      MYSQL_ROOT_PASSWORD: 4321
-      MYSQL_DATABASE: hogar_geriatrico
-      MYSQL_USER: hga_user
-      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -32,12 +30,12 @@ services:
       APP_ENV: local
       APP_DEBUG: "true"
       APP_KEY: "base64:"
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: "3306"
-      DB_DATABASE: hogar_geriatrico
-      DB_USERNAME: hga_user
-      DB_PASSWORD: 1234
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8000:8000"
     volumes:

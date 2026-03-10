@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Repositories\Eloquent\usuariosRepository as UserRepository;
+use App\Repositories\Interfaces\usuariosInterface;
 
 class registrarseService
 {
-    protected UserRepository $userRepository;
+    protected usuariosInterface $userRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(usuariosInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }

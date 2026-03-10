@@ -3,8 +3,9 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\usuarios;
+use App\Repositories\Interfaces\usuariosInterface;
 
-class usuariosRepository
+class usuariosRepository implements usuariosInterface
 {
     /**
      * Create a new user
