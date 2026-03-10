@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('visitas', function (Blueprint $table) {
+        Schema::create('visita', function (Blueprint $table) {
             $table->id();
             $table->integer('cod_Visitas')->unique();
             $table->integer('doc_id');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('visitas');
+        Schema::dropIfExists('visita');
     }
 };
