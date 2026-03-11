@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\registrarseController;
-use App\Http\Controllers\iniciarSesionController;
+use App\Http\Controllers\googleAuthController;
+use App\Http\Controllers\medicamentosController;
 use App\Http\Controllers\olvideContrasenaController;
+use App\Http\Controllers\registrarseController;
+use App\Http\Controllers\residentesController;
+use App\Http\Controllers\iniciarSesionController;
+use App\Http\Controllers\visitasController;
 
 // Test endpoint - simple response
 Route::get('/test', function () {
@@ -20,6 +24,10 @@ Route::resource('visitas', visitasController::class)->middleware('auth.api');
 Route::resource('informes', informesController::class)->middleware('auth.api');
 Route::resource('actividades', actividadesController::class)->middleware('auth.api');
 Route::resource('citas', citasController::class)->middleware('auth.api');
+
+// Ruta que Google llamará tras el login
+Route::get('/auth/google/callback', [googleAuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback');
 
 // Legacy routes kept for backward compatibility with older frontend builds.
 Route::post('/user/register', [registrarseController::class, 'register']);

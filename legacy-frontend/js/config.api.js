@@ -18,6 +18,8 @@ export const ENDPOINTS = {
     REGISTER: `${API_CONFIG.BACKEND_URL}/api/register`,
     LOGIN: `${API_CONFIG.BACKEND_URL}/api/login`,
     LOGOUT: `${API_CONFIG.BACKEND_URL}/api/logout`,
+    USER_PROFILE: `${API_CONFIG.BACKEND_URL}/api/user`,
+    DASHBOARD_DATA: `${API_CONFIG.BACKEND_URL}/api/dashboard`,
 };
 
 // ⚙️ Opciones por defecto para fetch

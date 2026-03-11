@@ -64,6 +64,7 @@ class usuarios extends Authenticatable implements JWTSubject
         'contraseña',
         'cod_rol',
         'parentesco',
+        'google_id',
         // Aliases used by the current backend contracts.
         'name',
         'password',

@@ -28,6 +28,7 @@ class usuariosRepository implements usuariosInterface
             'contraseña' => $data['password'],
             'cod_rol' => $data['cod_rol'] ?? 4,
             'parentesco' => $data['parentesco'] ?? '',
+            'google_id' => $data['google_id'] ?? null,
         ]);
     }
 
@@ -40,6 +41,17 @@ class usuariosRepository implements usuariosInterface
     public function findByEmail(string $email): ?usuarios
     {
         return usuarios::where('email', $email)->first();
+    }
+
+    /**
+     * Find user by Google ID.
+     *
+     * @param string $googleId
+     * @return usuarios|null
+     */
+    public function findByGoogleId(string $googleId): ?usuarios
+    {
+        return usuarios::where('google_id', $googleId)->first();
     }
 
     /**
@@ -62,6 +74,18 @@ class usuariosRepository implements usuariosInterface
     public function findByUsername(string $username): ?usuarios
     {
         return usuarios::where('usuario', $username)->first();
+    }
+
+    /**
+     * Get the next available document ID for legacy user records.
+     *
+     * @return int
+     */
+    public function getNextDocId(): int
+    {
+        $lastDocId = (int) usuarios::max('doc_id');
+
+        return $lastDocId > 0 ? $lastDocId + 1 : 1;
     }
 
     /**
