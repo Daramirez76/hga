@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Eloquent;
 use App\Models\informes;
-use App\Repositories\Interfaces\informesInterfaces;
+use App\Repositories\Interfaces\informesInterface;
 
-class informesRepository implements informesInterfaces
+class informesRepository implements informesInterface
 {
     public function getAllinformes()
     {
