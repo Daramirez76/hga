@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class citas extends Model
+{
+    protected $table = 'citas';
+    protected $fillable = [
+        'cod_cita',
+        'Fecha_cita',
+        'hora_inicio',
+        'hora_fin',
+        'Nombre_acompañante',
+        'Lugar_cita',
+        'cod_Residente'
+    ];
+}

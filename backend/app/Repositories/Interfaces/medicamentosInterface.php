@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Interfaces;
 
+use Illuminate\Foundation\Http\FormRequest;
+
 interface medicamentosInterface
 {
     public function getAllmedicamentos();
