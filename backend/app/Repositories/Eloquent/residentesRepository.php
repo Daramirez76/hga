@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Eloquent;
 use App\Models\residentes;
-use App\Repositories\Interfaces\residentesInterfaces;
+use App\Repositories\Interfaces\residentesInterface;
 
-class residentesRepository implements residentesInterfaces
+class residentesRepository implements residentesInterface
 {
     public function getAllresidentes()
     {

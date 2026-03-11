@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Eloquent;
 use App\Models\residentes;
-use App\Repositories\Interfaces\visitasInterfaces;
+use App\Repositories\Interfaces\visitasInterface;
 
-class visitasRepository implements visitasInterfaces
+class visitasRepository implements visitasInterface
 {
     public function getAllvisitas()
     {

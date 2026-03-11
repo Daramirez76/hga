@@ -21,6 +21,9 @@ Route::get('/me', [iniciarSesionController::class, 'me'])->middleware('auth.api'
 Route::resource('residentes', residentesController::class)->middleware('auth.api');
 Route::resource('medicamentos', medicamentosController::class)->middleware('auth.api');
 Route::resource('visitas', visitasController::class)->middleware('auth.api');
+Route::resource('informes', informesController::class)->middleware('auth.api');
+Route::resource('actividades', actividadesController::class)->middleware('auth.api');
+Route::resource('citas', citasController::class)->middleware('auth.api');
 
 // Ruta que Google llamará tras el login
 Route::get('/auth/google/callback', [googleAuthController::class, 'handleGoogleCallback'])
