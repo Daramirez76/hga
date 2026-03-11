@@ -10,9 +10,13 @@ interface usuariosInterface
 
     public function findByEmail(string $email): ?usuarios;
 
+    public function findByGoogleId(string $googleId): ?usuarios;
+
     public function findById(int $id): ?usuarios;
 
     public function findByUsername(string $username): ?usuarios;
+
+    public function getNextDocId(): int;
 
     public function update(int $id, array $data): ?usuarios;
 
