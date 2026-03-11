@@ -18,6 +18,7 @@ Route::resource('residentes', residentesController::class)->middleware('auth.api
 Route::resource('medicamentos', medicamentosController::class)->middleware('auth.api');
 Route::resource('visitas', visitasController::class)->middleware('auth.api');
 Route::resource('informes', informesController::class)->middleware('auth.api');
+Route::resource('actividades', actividadesController::class)->middleware('auth.api');
 
 // Legacy routes kept for backward compatibility with older frontend builds.
 Route::post('/user/register', [registrarseController::class, 'register']);
