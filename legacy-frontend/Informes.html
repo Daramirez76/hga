@@ -69,23 +69,29 @@
   <!-- Contenedor Informes -->
   <div class="container-fluid">
     <div class="contenedor-informes">
-      <h3 class="fw-bold">Historial de Informes</h3>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold mb-0">Historial de Informes</h3>
+        <button class="btn btn-primary" id="btnNuevoInforme">+ Crear Nuevo Informe</button>
+      </div>
       
       <!-- Buscador -->
       <div class="search-box mb-3">
-        <input type="text" placeholder="Buscar...">
+        <input type="text" id="searchInformes" placeholder="Buscar...">
       </div>
       
       <!-- Lista de Informes -->
       <div class="lista-informes">
-        <ul>
-          <li>El residente Diego padece de artritis y se está medicando desde hace ya 2 años y su situación no parece mejorable.</li>
-          <li>La hija de la residente Vanessa canceló su visita para el día 12 de diciembre por problemas de transporte.</li>
-          <li>El Enfermero David no asistió el día viernes 13 de noviembre del 2025 a la institución por problemas domésticos.</li>
-          <li>El residente Diego padece de artritis y se está medicando desde hace ya 2 años y su situación no parece mejorable.</li>
-          <li>La hija de la residente Vanessa canceló su visita para el día 12 de diciembre por problemas de transporte.</li>
+        <ul id="listaInformesContainer">
+          <!-- Los informes se cargarán aquí dinámicamente -->
         </ul>
       </div>
     </div>
   </div>
+
+  <!-- Script de Bootstrap (requerido para modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Script de gestión de informes -->
+  <script src="js/informes.js"></script>
+
 </html>
