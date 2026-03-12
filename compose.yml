@@ -4,10 +4,10 @@ services:
     image: mysql:8.0
     container_name: hga_db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: hogar_geriatrico
+      MYSQL_USER: hga_user
+      MYSQL_PASSWORD: hga_password
     ports:
       - "3306:3306"
     volumes:
@@ -29,13 +29,13 @@ services:
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
-      APP_KEY: "base64:"
-      DB_CONNECTION: ${DB_CONNECTION}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+      APP_KEY: "base64:E9crzHfLf7SnBz0DAb3p7K9ZrB2h0mA9dJpk8zW9Rvw="
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: hogar_geriatrico
+      DB_USERNAME: hga_user
+      DB_PASSWORD: hga_password
     ports:
       - "8000:8000"
     volumes:
@@ -44,8 +44,9 @@ services:
       db:
         condition: service_healthy
     command: >
-      sh -c "composer install --no-interaction && \
-             php artisan migrate --force && \
+      sh -c "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
+             chmod -R 775 storage bootstrap/cache && 
+             php artisan migrate --force && 
              php artisan serve --host=0.0.0.0 --port=8000"
     networks:
       - hga_network
@@ -64,9 +65,48 @@ services:
     networks:
       - hga_network
 
+  # SonarQube
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    depends_on:
+      - postgres_db
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres_db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - hga_network
+
+  # PostgreSQL para SonarQube
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - hga_network
+
 volumes:
   db_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  postgresql_data:
 
 networks:
   hga_network:
     driver: bridge
+

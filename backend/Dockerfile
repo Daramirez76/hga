@@ -24,7 +24,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # install php dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-scripts --no-dev --optimize-autoloader --no-interaction
 
 # ensure storage directories are writable
 RUN mkdir -p /var/www/html/storage/framework/cache \
