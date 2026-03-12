@@ -1,0 +1,19 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - dev
+    
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://super-duper-rotary-phone-5gq4v49wvqp6c77v9-9000.app.github.dev/
