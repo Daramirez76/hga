@@ -74,9 +74,9 @@
         <div class="card-visitas">
           <h4 class="fw-bold mb-4"><i class="bi bi-house-door"></i> Visitas Registradas</h4>
           
-          <div class="mensaje">Diego tiene la visita de su sobrino Erick para el día 15 de diciembre del 2025 a las 11 am</div>
-          <div class="mensaje">Ana recibe la visita de su hermana María este 12 de diciembre del 2025 a las 3 pm</div>
-          <div class="mensaje">Angie tiene una visita programada con su hermano Felipe para el día 11 de diciembre del 2025 a las 12 del medio día</div>
+          <div id="listaVisitasContainer">
+            <!-- Las visitas se cargarán aquí de forma dinámica -->
+          </div>
         </div>
       </div>
 
@@ -84,22 +84,34 @@
       <div class="col-md-4">
        <a href="#"><button class="btn btn-end"><h6 class="fw-bold">+Registrar Nueva Visita</h6></button></a>
         <div class="form-visita mt-2">
-          <form>
+          <form id="formNuevaVisita">
+            <div class="mb-2">
+              <label class="form-label">Código Visita</label>
+              <input type="number" class="form-control" id="codVisitas" placeholder="Ej: 1001" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Documento Visitante</label>
+              <input type="number" class="form-control" id="docId" placeholder="Ej: 1234567890" required>
+            </div>
             <div class="mb-2">
               <label class="form-label">Nombre del Visitante</label>
-              <input type="text" class="form-control">
+              <input type="text" class="form-control" id="nombVisitante" placeholder="Nombre completo" required>
             </div>
             <div class="mb-2">
-              <label class="form-label">Residente a Visitar</label>
-              <input type="text" class="form-control">
+              <label class="form-label">Código Residente</label>
+              <input type="number" class="form-control" id="codResidente" placeholder="Código del residente" required>
             </div>
             <div class="mb-2">
-              <label class="form-label">Fecha</label>
-              <input type="date" class="form-control">
+              <label class="form-label">Fecha Visita</label>
+              <input type="date" class="form-control" id="fechaVisita" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Hora (Información)</label>
+              <input type="time" class="form-control" id="hora" placeholder="Hora de visita">
             </div>
             <div class="mb-3">
-              <label class="form-label">Hora</label>
-              <input type="time" class="form-control">
+              <label class="form-label">Código Usuario</label>
+              <input type="number" class="form-control" id="codUsuario" placeholder="Tu código de usuario" required>
             </div>
             <button type="submit" class="btn btn-confirmar">Confirmar</button>
           </form>
@@ -107,5 +119,7 @@
       </div>
     </div>
   </div>
+  <!-- Script de gestión de visitas -->
+  <script src=\"js/visitas.js\"></script>
 </body>
 </html>
