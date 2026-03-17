@@ -16,11 +16,14 @@ class informesRequest extends FormRequest
          $isUpdate = $this->isMethod('put') || $this->isMethod('patch');
 
         return [
-            'cod_Informes' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-            'doc_id' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-            'cod_Residente' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-            'Titulo_Informes' => $isUpdate ? 'sometimes|required|string|max:50' : 'required|string|max:50',
-            'cod_rol' => $isUpdate ? 'sometimes|required|integer' : 'required|integer'
+            'cod_Informes' => 'sometimes|integer',
+            'doc_id' => 'sometimes|integer',
+            'cod_Residente' => 'sometimes|integer',
+            'Titulo_Informes' => $isUpdate ? 'sometimes|required|string|max:255' : 'required|string|max:255',
+            'cod_rol' => 'sometimes|integer',
+            'descripcion' => 'sometimes|string|max:500',
+            'tipo' => 'sometimes|string|max:50',
+            'urgencia' => 'sometimes|in:baja,normal,alta'
         ];
     }
 

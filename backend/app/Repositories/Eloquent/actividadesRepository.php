@@ -23,6 +23,12 @@ class actividadesRepository implements actividadesInterface
         return actividades::create($data);
     }
 
+    // Alias estándar para create
+    public function create(array $data)
+    {
+        return $this->createactividades($data);
+    }
+
     public function updateactividades($id, array $data)
     {
         $actividades = actividades::find($id);
@@ -35,6 +41,12 @@ class actividadesRepository implements actividadesInterface
         return $actividades;
     }
 
+    // Alias estándar para update
+    public function update($id, array $data)
+    {
+        return $this->updateactividades($id, $data);
+    }
+
     public function deleteactividades($id)
     {
         $actividades = actividades::find($id);
@@ -45,5 +57,11 @@ class actividadesRepository implements actividadesInterface
 
         $actividades ->delete();
         return true;
+    }
+
+    // Alias estándar para delete
+    public function delete($id)
+    {
+        return $this->deleteactividades($id);
     }
 }

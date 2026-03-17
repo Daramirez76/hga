@@ -16,14 +16,14 @@ public function rules(): array
     $isUpdate = $this->isMethod('put') || $this->isMethod('patch');
 
     return [
-        'cod_medicamento' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
+        'cod_medicamento' => 'sometimes|integer',
         'nombre_medic' => $isUpdate ? 'sometimes|required|string|max:255' : 'required|string|max:255',
         'fecha_entrada' => $isUpdate ? 'sometimes|required|date' : 'required|date',
         'fecha_vencimiento' => $isUpdate ? 'sometimes|required|date|after_or_equal:fecha_entrada' : 'required|date|after_or_equal:fecha_entrada',
-        'cod_usuario' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-        'cod_residente' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-        'descrip_novedad' => $isUpdate ? 'sometimes|required|string|max:500' : 'required|string|max:500',
-        'fecha_novedad' => $isUpdate ? 'sometimes|required|date' : 'required|date',
+        'cod_usuario' => 'sometimes|integer',
+        'cod_residente' => 'sometimes|integer',
+        'descrip_novedad' => 'sometimes|string|max:500',
+        'fecha_novedad' => 'sometimes|date',
         'stock' => $isUpdate ? 'sometimes|required|integer|min:0' : 'required|integer|min:0'
     ];
 }
