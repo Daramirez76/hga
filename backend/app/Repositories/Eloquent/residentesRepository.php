@@ -23,6 +23,12 @@ class residentesRepository implements residentesInterface
         return residentes::create($data);
     }
 
+    // Alias estándar para create
+    public function create(array $data)
+    {
+        return $this->createresidentes($data);
+    }
+
     public function updateresidentes($id, array $data)
     {
         $residentes = residentes::find($id);
@@ -35,6 +41,12 @@ class residentesRepository implements residentesInterface
         return $residentes;
     }
 
+    // Alias estándar para update
+    public function update($id, array $data)
+    {
+        return $this->updateresidentes($id, $data);
+    }
+
     public function deleteresidentes($id)
     {
         $residentes = residentes::find($id);
@@ -45,5 +57,11 @@ class residentesRepository implements residentesInterface
 
         $residentes ->delete();
         return true;
+    }
+
+    // Alias estándar para delete
+    public function delete($id)
+    {
+        return $this->deleteresidentes($id);
     }
 }

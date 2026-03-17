@@ -18,14 +18,14 @@ class actividadesRequest extends FormRequest
 
         return [ 
 
-             'Cod_acti_ludi'=> $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-             'doc_id' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',    
+             'Cod_acti_ludi'=> 'sometimes|integer',
+             'doc_id' => 'sometimes|integer',    
              'Nombre' => $isUpdate ? 'sometimes|required|string|max:50' : 'required|string|max:50',
              'Fecha' => $isUpdate ? 'sometimes|required|date' : 'required|date',
              'Hora_ini' => $isUpdate ? 'sometimes|required|date_format:H:i' : 'required|date_format:H:i',
              'Hora_fin' => $isUpdate ? 'sometimes|required|date_format:H:i' : 'required|date_format:H:i',
              'cod_residente' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
-             'cod_rol' => $isUpdate ? 'sometimes|required|integer' : 'required|integer',
+             'cod_rol' => 'sometimes|integer',
              'Lugar' => $isUpdate ? 'sometimes|required|string|max:100' : 'required|string|max:100',
 
         ];

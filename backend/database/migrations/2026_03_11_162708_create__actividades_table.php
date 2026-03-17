@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('_actividades', function (Blueprint $table) {
             $table->id();
             $table->integer('Cod_acti_ludi')->unique();
+            $table->integer('doc_id')->nullable();
             $table->string('Nombre');
             $table->date('Fecha');
             $table->time('Hora_ini');

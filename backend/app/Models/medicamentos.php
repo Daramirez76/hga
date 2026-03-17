@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class medicamentos extends Model
 {
-      protected $table = 'medicamentos';
+      protected $table = 'medicamento';
 
     protected $fillable = [
         'cod_medicamento',
@@ -15,6 +15,7 @@ class medicamentos extends Model
         'fecha_vencimiento',
         'cod_usuario',
         'cod_residente',
+        'cod_rol',
         'descrip_novedad',
         'fecha_novedad',
         'stock',
