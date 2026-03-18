@@ -1,82 +1,324 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <title>Actividad Ludica</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Actividades Ludicas</title>
 
-      <style>
-    .btn-verde-manzana {
-      background-color: #A8E6A1;
-      color: #000;
-      border: none;
-      transition: background-color 0.3s ease;
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <style>
+    body {
+        background: linear-gradient(135deg, #8fc5c5, #6fb1b1);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
     }
 
-    .btn-verde-manzana:hover {
-      background-color: #4efb42;
+    /* CLASE PARA EL LOGO */
+    .logo-img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
     }
-  </style>
+
+    /* HEADER */
+    .header {
+        background: #eaeaea;
+        border-radius: 30px;
+        padding: 10px 20px;
+        margin: 20px auto;
+        max-width: 1000px;
+        width: 95%;
+    }
+
+    /* CONTENEDOR PRINCIPAL - de actividades ludicas */
+    .container-main {
+        background: #f3f3f3;
+        border-radius: 25px;
+        padding: 25px;
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* PANEL ACTIVIDADES */
+    .panel-informes {
+        background: #b3ddbf;
+        border-radius: 20px;
+        padding: 20px;
+    }
+
+    /* TARJETAS */
+    .card-informe {
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .card-informe:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* container boton nueva actividad*/
+    .btn-nuevo-container {
+        margin: 0 0 15px 50px;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    /* BOTON nueva actividad*/
+    .btn-nuevo {
+        border-radius: 20px;
+        background: #417c55;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+    }
+
+    .btn-nuevo:hover {
+        background: #3ccc78;
+        color: white;
+    }
+
+    /* PANEL FORM */
+    .panel-form {
+        color: #166e34;
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 380px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        display: none;
+        z-index: 999;
+        box-shadow: 0px 5px 20px rgba(151, 14, 14, 0.2);
+    }
+
+    /* BOTONES */
+    .btn-confirmar {
+        background: #5fbf7f;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+    }
+
+    .btn-confirmar:hover {
+        background: #4da86a;
+        color: white;
+    }
+
+    /* FILTRO MEJORADO */
+    #filtro {
+        min-width: 200px;
+    }
+
+    /* FOOTER - AL FINAL DE LA PÁGINA */
+    footer {
+        background: #eaeaea;
+        padding: 12px;
+        text-align: center;
+        margin-top: auto;
+        flex-shrink: 0;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .container-main {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 20px;
+        }
+
+        .btn-nuevo-container {
+        margin: 0 0 15px 20px;
+        }
+
+        #filtro {
+        min-width: 150px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header {
+        border-radius: 15px;
+        padding: 8px 12px;
+        }
+
+        .container-main {
+        padding: 15px;
+        border-radius: 20px;
+        }
+
+        .panel-informes {
+        padding: 15px;
+        }
+
+        .btn-nuevo-container {
+        margin: 0 0 15px 15px;
+        }
+    }
+    </style>
+</head>
+
 <body>
-     <div class="container-fluid bg-light min-vh-100">
-        <div class="container my-5">
-  <h1 class="mb-4 fw-bold">Crear Actividad Ludica</h1>
-<body class="m-0 p-0">
+    <!-- HEADER -->
+    <div class="header d-flex justify-content-between align-items-center">
+    <!-- IZQUIERDA -->
+    <div class="d-flex align-items-center gap-2">
+        <img src="img/LOGO_HGA.png" class="rounded-circle logo-img" alt="Logo">
+  
+        <button
+        class="btn btn-link text-decoration-none text-primary fw-bold"
+        onclick="location.reload()"
+        >
+        Actividades Lúdicas
+        </button>
+    </div>
 
-    <form class="row g-3 mt-3">
-      <div class="col-md-6">
-        <label for="NomActinput" class="form-label">Nombre Actividad</label>
-        <input type="text" class="form-control" id="NomActinput" placeholder="Ingresa el nombre de la actividad" required> 
-      </div> 
+    <!-- DERECHA -->
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+        <button
+            class="btn"
+            data-bs-toggle="dropdown"
+            aria-label="Notificaciones"
+        >
+            🔔
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Nueva alerta de actividad</a></li>
+            <li><a class="dropdown-item" href="#">Actividad actualizada</a></li>
+        </ul>
+        </div>
 
-      <div class="col-md-6">
-        <label for="date" class="form-label">Fecha</label>
-        <input type="date" class="form-control" id="date" required> 
-      </div>
+        <span aria-label="Usuario">👤</span>
 
-      <div class="col 6">
-        <label for="HoraIncinput" class="form-label">Hora Inicio</label>
-        <input type="Hora inicio" class="form-control" id="HoraIncinput" placeholder="Ingresa la hora de inicio" required> 
-      </div>
+        <div class="dropdown">
+        <button class="btn" data-bs-toggle="dropdown" aria-label="Menú">
+            ☰
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Inicio</a></li>
+            <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
+            <li><a class="dropdown-item" href="Notificaciones.html">Notificaciones</a></li>
+            <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
+            <li><a class="dropdown-item" href="date.html">Citas</a></li>
+            <li><a class="dropdown-item" href="Crear_actividad.html">Actividades Ludicas</a></li>
+            <li><a class="dropdown-item" href="Medicamentos.html">Medicamentos</a></li>
+        </ul>
+        </div>
+    </div>
+    </div>
 
-      <div class="col 6">
-        <label for="HoraFininput" class="form-label">Hora Fin</label>
-        <input type="Hora Fin" class="form-control" id="HoraFininput" placeholder="Ingresa la hora final" required> 
-      </div>
+    <!-- BOTON NUEVA ACTIVIDAD LUDICA-->
+    <div class="btn-nuevo-container">
+    <button class="btn btn-light btn-nuevo" onclick="toggleForm()">
+        + Registrar nueva actividad
+    </button>
+    </div>
 
-      <div class="col-6">
-        <label for="Lugarinput" class="form-label">Lugar</label>
-        <input type="Lugar" class="form-control" id="Lugarinput" placeholder="Ingresa el lugar" required> 
-      </div>
+    <!-- CONTENIDO -->
+    <div class="container-main">
+    <h5 class="text-success text-center mb-3">Actividades Lúdicas</h5>
 
-      <div class="col-md-6">
-        <label for="Parinput" class="form-label">Participantes</label>
-        <input type="text" class="form-control" id="Parinput" placeholder="Ingresa el nombre de los participantes de la actividad" required> 
-      </div> 
+    <div class="panel-informes">
+        <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <input
+            type="text"
+            id="filtro"
+            class="form-control"
+            style="max-width: 250px"
+            placeholder="Buscar..."
+            onkeyup="filtrar()"
+        />
+        <button class="btn btn-light">🔍 BUSCAR</button>
+        </div>
 
-      <div class="col-md-6">
-            <label for="category" class="form-label">Categoría</label>
-            <select id="category" class="form-select" required>
-              <option value="" disabled selected>Selecciona una categoría</option>
-              <option>Artística</option>
-              <option>Cognitiva</option>
-              <option>Fisica</option>
-              <option>Recreativa</option>
-            </select>
-          </div>
-     
-      <div class="col-12 d-flex justify-content-center mt-4">
-  <button type="submit" class="btn btn-verde-manzana px-5">
-    Crear Actividad
-  </button>
-</div>
+        <div id="lista">
+        <div class="card-informe">
+            Actividad de ejercicio física para el día 12...
+        </div>
+        <div class="card-informe">
+            Actividad de arte y manualidades para el viernes 13...
+        </div>
+        <div class="card-informe">
+            Actividad de terapia ocupacional para el martes 14...
+        </div>
+        <div class="card-informe">
+            Actividad de juegos de mesa para el jueves 15...
+        </div>
+        </div>
+    </div>
+    </div>
 
-    </form>
+    <!-- FORMULARIO -->
+    <div id="formPanel" class="panel-form">
+    <h6 class="text-center mb-3 text-success">Nueva Actividad</h6>
 
-  </div>
-    
-  </div>
+    <label class="form-label small">Fecha</label>
+    <input type="date" class="form-control mb-2" />
 
+    <label class="form-label small">Hora de inicio</label>
+    <input type="time" class="form-control mb-2">
+
+    <label class="form-label small">Hora de finalización</label>
+    <input type="time" class="form-control mb-2">
+
+    <label class="form-label small">Nombre de la actividad</label>
+    <input class="form-control mb-2" placeholder="Ingrese el nombre de la actividad" />
+
+    <label class="form-label small">participantes de la actividad</label>
+    <input class="form-control mb-2" placeholder="Ingrese los participantes de la actividad" />
+
+    <label class="form-label small">Descripción</label>
+    <textarea
+        class="form-control mb-3"
+        rows="3"
+        placeholder="Descripción de la actividad..."
+    ></textarea>
+
+    <div class="d-flex justify-content-center gap-2">
+        <button class="btn btn-confirmar">Confirmar</button>
+        <button class="btn btn-secondary" onclick="toggleForm()">
+        Descartar
+        </button>
+    </div>
+    </div>
+
+    <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    function toggleForm() {
+        let panel = document.getElementById("formPanel");
+        panel.style.display =
+        panel.style.display === "block" ? "none" : "block";
+    }
+
+    function filtrar() {
+        let input = document.getElementById("filtro").value.toLowerCase();
+        let items = document.querySelectorAll(".card-informe");
+
+        items.forEach((el) => {
+        el.style.display = el.textContent.toLowerCase().includes(input)
+            ? "block"
+            : "none";
+        });
+    }
+    </script>
+     <script src="./js/informes.js"></script>
 </body>
 </html>
+```
