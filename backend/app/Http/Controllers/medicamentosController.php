@@ -11,7 +11,7 @@ class medicamentosController extends Controller
 {
     protected $medicamentosService;
 
-       public function __construct(medicamentosServices $medicamentosService)
+   public function __construct(medicamentosService $medicamentosService)
     {
         $this->medicamentosService = $medicamentosService;
     }

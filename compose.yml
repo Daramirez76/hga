@@ -38,16 +38,17 @@ services:
       DB_PASSWORD: hga_password
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/var/www/html
+   # volumes:
+   #   - ./backend:/var/www/html /
     depends_on:
       db:
         condition: service_healthy
     command: >
-      sh -c "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
-             chmod -R 775 storage bootstrap/cache && 
-             php artisan migrate --force && 
-             php artisan serve --host=0.0.0.0 --port=8000"
+      sh -c "composer install --no-interaction --prefer-dist --optimize-autoloader &&
+         mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
+         chmod -R 775 storage bootstrap/cache && 
+         php artisan migrate --force && 
+         php artisan serve --host=0.0.0.0 --port=8000"
     networks:
       - hga_network
 

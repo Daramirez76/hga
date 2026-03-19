@@ -1,5 +1,5 @@
 # Dockerfile for Laravel application
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 # install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
