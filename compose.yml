@@ -41,7 +41,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/var/www/html
+      - ./backend/app:/var/www/html/app
+      - ./backend/config:/var/www/html/config
+      - ./backend/resources:/var/www/html/resources
+      - ./backend/routes:/var/www/html/routes
+      - ./backend/storage:/var/www/html/storage
+      - /var/www/html/vendor
     depends_on:
       db:
         condition: service_healthy
@@ -119,4 +124,3 @@ volumes:
 networks:
   hga_network:
     driver: bridge
-

@@ -1,88 +1,403 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="estilos.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Actividades Ludicas</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
 
-    <title>Actividades Ludicas</title> 
+  <style>
+
+    body {
+      background: linear-gradient(135deg, #8fc5c5, #6fb1b1);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* LOGO */
+    .logo-img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+    }
+
+    /* HEADER */
+    .header {
+      background: #eaeaea;
+      border-radius: 30px;
+      padding: 10px 20px;
+      margin: 20px auto;
+      max-width: 1000px;
+      width: 95%;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container-main {
+      background: #f3f3f3;
+      border-radius: 25px;
+      padding: 25px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* PANEL ACTIVIDADES */
+    .panel-informes {
+      background: #b3ddbf;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    /* TARJETAS */
+    .card-informe {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-informe:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* BOTON NUEVA ACTIVIDAD */
+    .btn-nuevo-container {
+      margin: 0 0 15px 50px;
+    }
+
+    .btn-nuevo {
+      border-radius: 20px;
+      background: #417c55;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+    }
+
+    .btn-nuevo:hover {
+      background: #3ccc78;
+      color: white;
+    }
+
+    /* PANEL FORM */
+    .panel-form {
+      color: #166e34;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 380px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      display: none;
+      z-index: 999;
+      box-shadow: 0px 5px 20px rgba(151, 14, 14, 0.2);
+    }
+
+    /* BOTON CONFIRMAR */
+    .btn-confirmar {
+      background: #5fbf7f;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+    }
+
+    .btn-confirmar:hover {
+      background: #4da86a;
+      color: white;
+    }
+
+    /* FILTRO */
+    #filtro {
+      min-width: 200px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #eaeaea;
+      padding: 12px;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    /* BOTONES NOTIFICACION Y PERFIL */
+    .btn-outline-secondary {
+      color: #2e7d32 !important;
+      border-color: #c8e6c9 !important;
+      transition: all 0.3s;
+    }
+
+    .btn-outline-secondary:hover {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
+      border-color: #66bb6a !important;
+      color: #2e7d32 !important;
+    }
+
+    /* MENU PERFIL */
+    .profile-menu-wrapper {
+      position: relative;
+    }
+
+    .profile-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(200, 230, 201, 0.8);
+      border-radius: 14px;
+      box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 10;
+    }
+
+    .profile-dropdown.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .profile-menu-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #2e7d32;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .profile-menu-item:hover {
+      background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+      color: #1b5e20;
+    }
+
+    .profile-menu-item + .profile-menu-item {
+      border-top: 1px solid rgba(200, 230, 201, 0.7);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .container-main { max-width: 95%; padding: 20px; }
+      .btn-nuevo-container { margin-left: 20px; }
+      #filtro { min-width: 150px; }
+    }
+
+    @media (max-width: 480px) {
+      .header { border-radius: 15px; padding: 8px 12px; }
+      .container-main { padding: 15px; border-radius: 20px; }
+      .panel-informes { padding: 15px; }
+      .btn-nuevo-container { margin-left: 15px; }
+    }
+
+  </style>
 </head>
 <body>
-    <div class="container-fluid bg-light min-vh-100">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg bg-info shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold text-dark" href="#">HGA</a>
-       <a class="navbar-brand fw-bold text-dark" href="#">Actividades Ludicas</a> 
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Visitas</a></li>
-        <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Residentes</a></li>
-        <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Informes</a></li>
-        <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Citas</a></li>
-        <li class="nav-item"><a class="nav-link text-dark fw-semibold" href="#">Reuniones</a></li>
-      </ul>
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="header d-flex justify-content-between align-items-center">
+
+    <!-- IZQUIERDA -->
+    <div class="d-flex align-items-center gap-2">
+      <img src="img/LOGO_HGA.png" class="rounded-circle logo-img" alt="Logo">
+      <button class="btn btn-link text-decoration-none text-primary fw-bold" onclick="location.reload()">
+        Actividades Lúdicas
+      </button>
     </div>
-  </nav>
 
-  <div class="container my-4">
-    <!-- Botón nueva actividad -->
-    <button class="btn btn-verde-manzana mb-4 rounded-pill px-4">+ Nueva Actividad</button>
+    <!-- DERECHA -->
+    <div class="d-flex align-items-center gap-2">
 
+      <!-- NOTIFICACIONES -->
+      <button
+        class="btn btn-outline-secondary rounded-circle"
+        aria-label="Notificaciones"
+        title="Notificaciones">
+        🔔
+      </button>
 
-    <div class="row">
-      <!-- Modulo desplazable -->
-      <div class="d-flex overflow-auto gap-3 p-3">
-  <div class="card shadow-sm border-0 rounded-4 p-3" style="min-width: 300px;">
-    <h5 class="fw-bold text-primary">Actividades físicas</h5>
-    <p class="text-muted">8 Nov, 09:00</p>
-    <span class="badge bg-secondary">Finalizada</span>
-    <p class="mt-2"><i class="bi bi-people"></i> 8 participantes</p>
-  </div>
-
-  <div class="card shadow-sm border-0 rounded-4 p-3" style="min-width: 300px;">
-    <h5 class="fw-bold text-danger">Ejercicios de memoria</h5>
-    <p class="text-muted">9 Nov, 11:00</p>
-    <span class="badge bg-info text-dark">En curso</span>
-    <p class="mt-2"><i class="bi bi-people"></i> 14 participantes</p>
-  </div>
-
-  <div class="card shadow-sm border-0 rounded-4 p-3" style="min-width: 300px;">
-    <h5 class="fw-bold text-info">Pintura</h5>
-    <p class="text-muted">10 Nov, 09:00</p>
-    <span class="badge bg-success">Abierta</span>
-    <p class="mt-2"><i class="bi bi-people"></i> 9 participantes</p>
-  </div>
-
-  <div class="card shadow-sm border-0 rounded-4 p-3" style="min-width: 300px;">
-    <h5 class="fw-bold text-primary">Fisioterapia</h5>
-    <p class="text-muted">14 Nov, 10:00</p>
-    <span class="badge bg-success">Abierta</span>
-    <p class="mt-2"><i class="bi bi-people"></i> 7 participantes</p>
-  </div>
-
-  <div class="card shadow-sm border-0 rounded-4 p-3" style="min-width: 300px;">
-    <h5 class="fw-bold text-warning">Bingo</h5>
-    <p class="text-muted">16 Nov, 14:00</p>
-    <span class="badge bg-success">Abierta</span>
-    <p class="mt-2"><i class="bi bi-people"></i> 15 participantes</p>
-  </div>
-</div>
- 
-
-    <!-- Columna filtros -->
-    <div class="col-lg-3 ms-auto">
-      <div class="p-3 bg-info rounded">
-        <h6>Tipo de Actividad</h6>
-        <button class="btn btn-light w-100 mb-2">Artística</button>
-        <button class="btn btn-light w-100 mb-2">Cognitiva</button>
-        <button class="btn btn-light w-100 mb-2">Física</button>
-        
-        <label class="mt-3">Fecha</label>
-        <input type="date" class="form-control">
+      <!-- PERFIL -->
+      <div class="profile-menu-wrapper">
+        <button
+          class="btn btn-outline-secondary rounded-circle profile-menu-btn"
+          id="profileMenuButton"
+          aria-label="Perfil"
+          title="Perfil"
+          aria-haspopup="true"
+          aria-expanded="false">
+          👤
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+          <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+        </div>
       </div>
+
+      <!-- MENU -->
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary rounded-circle" data-bs-toggle="dropdown">☰</button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Inicio</a></li>
+          <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
+          <li><a class="dropdown-item" href="Notificaciones.html">Notificaciones</a></li>
+          <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
+          <li><a class="dropdown-item" href="date.html">Citas</a></li>
+          <li><a class="dropdown-item" href="Crear_actividad.html">Actividades Ludicas</a></li>
+          <li><a class="dropdown-item" href="medicaments.html">Medicamentos</a></li>
+        </ul>
+      </div>
+
+    </div><!-- fin derecha -->
+  </div><!-- fin header -->
+
+  <!-- ==================== BOTON NUEVA ACTIVIDAD ==================== -->
+  <div class="btn-nuevo-container">
+    <button class="btn btn-light btn-nuevo" onclick="toggleForm()">
+      + Registrar nueva actividad
+    </button>
+  </div>
+
+  <!-- ==================== CONTENIDO ==================== -->
+  <div class="container-main">
+
+    <h5 class="text-success text-center mb-3">Actividades Lúdicas</h5>
+
+    <div class="panel-informes">
+
+      <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <input
+          type="text"
+          id="filtro"
+          class="form-control"
+          style="max-width:250px"
+          placeholder="Buscar..."
+          onkeyup="filtrar()"
+        />
+        <button class="btn btn-light">🔍 BUSCAR</button>
+      </div>
+
+      <!-- LISTA DE ACTIVIDADES -->
+      <div id="lista">
+        <div class="card-informe">Actividad de ejercicio física para el día 12...</div>
+        <div class="card-informe">Actividad de arte y manualidades para el viernes 13...</div>
+        <div class="card-informe">Actividad de terapia ocupacional para el martes 14...</div>
+        <div class="card-informe">Actividad de juegos de mesa para el jueves 15...</div>
+      </div>
+
     </div>
   </div>
-</div>
-</div>
-    <script src="./js/recreational_activities.js"></script>
+
+  <!-- ==================== FORMULARIO ==================== -->
+  <div id="formPanel" class="panel-form">
+
+    <h6 class="text-center mb-3 text-success">Nueva Actividad</h6>
+
+      <label class="form-label small">Fecha</label>
+    <input id="actividadFecha" type="date" class="form-control mb-2" />
+
+    <label class="form-label small">Hora de inicio</label>
+    <input id="actividadHoraInicio" type="time" class="form-control mb-2" />
+
+    <label class="form-label small">Hora de finalización</label>
+    <input id="actividadHoraFin" type="time" class="form-control mb-2" />
+
+    <label class="form-label small">Nombre de la actividad</label>
+    <input id="actividadNombre" class="form-control mb-2" placeholder="Ingrese el nombre de la actividad" />
+
+    <label class="form-label small">Participantes de la actividad</label>
+    <input id="actividadParticipantes" class="form-control mb-2" placeholder="Ingrese los participantes de la actividad" />
+
+    <label class="form-label small">Lugar</label>
+    <input id="actividadLugar" class="form-control mb-2" placeholder="Ingrese el lugar de la actividad" />
+
+    <label class="form-label small">Código de residente</label>
+    <input id="actividadResidenteId" type="number" min="1" class="form-control mb-2" value="1" />
+
+    <label class="form-label small">Descripción</label>
+    <textarea id="actividadDescripcion" class="form-control mb-3" rows="3" placeholder="Descripción de la actividad..."></textarea>
+
+    <div class="d-flex justify-content-center gap-2">
+      <button type="button" class="btn btn-confirmar">Confirmar</button>
+      <button type="button" class="btn btn-secondary" onclick="toggleForm()">Descartar</button>
+    </div>
+
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+    /* FORMULARIO */
+    const formPanel = document.getElementById("formPanel");
+
+    function toggleForm() {
+      formPanel.style.display = formPanel.style.display === "block" ? "none" : "block";
+    }
+
+    /* FILTRO */
+    function filtrar() {
+      const val = document.getElementById("filtro").value.toLowerCase();
+      document.querySelectorAll(".card-informe").forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(val) ? "block" : "none";
+      });
+    }
+
+    /* PERFIL */
+    const profileBtn = document.getElementById("profileMenuButton");
+    const profileDrop = document.getElementById("profileDropdown");
+
+    const closeDrop = () => {
+      profileDrop.classList.remove("show");
+      profileBtn.setAttribute("aria-expanded", "false");
+    };
+
+    profileBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      const o = profileDrop.classList.toggle("show");
+      profileBtn.setAttribute("aria-expanded", String(o));
+    });
+
+    document.addEventListener("click", e => {
+      if (!profileDrop.contains(e.target) && !profileBtn.contains(e.target)) closeDrop();
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeDrop();
+    });
+
+    document.getElementById("viewUserProfile").addEventListener("click", () => {
+      window.location.href = "user.html";
+    });
+
+    document.getElementById("logoutUser").addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+
+  </script>
+
+  <script src="./js/recreational_activities.js"></script>
+
+</body>
+</html>
