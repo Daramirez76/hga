@@ -305,7 +305,7 @@
             <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
             <li><a class="dropdown-item" href="date.html">Citas</a></li>
             <li>
-              <a class="dropdown-item" href="Crear_actividad.html"
+              <a class="dropdown-item" href="recreational_activities.html"
                 >Actividades Ludicas</a
               >
             </li>
@@ -352,23 +352,24 @@
       <h6 class="text-center mb-3 text-success">Nuevo Informe</h6>
 
       <label class="form-label small">Título</label>
-      <input class="form-control mb-2" placeholder="Ingrese título" />
+      <input id="tituloInforme" class="form-control mb-2" placeholder="Ingrese título" />
 
       <label class="form-label small">Fecha</label>
-      <input type="date" class="form-control mb-2" />
+      <input id="fechaInforme" type="date" class="form-control mb-2" />
 
       <label class="form-label small">Usuario</label>
-      <input class="form-control mb-2" placeholder="Nombre del usuario" />
+      <input id="usuarioInforme" class="form-control mb-2" placeholder="Nombre del usuario" />
 
       <label class="form-label small">Descripción</label>
       <textarea
+        id="descripcionInforme"
         class="form-control mb-3"
         rows="3"
         placeholder="Descripción del informe..."
       ></textarea>
 
       <div class="d-flex justify-content-center gap-2">
-        <button class="btn btn-confirmar">Confirmar</button>
+        <button id="btnConfirmarInforme" class="btn btn-confirmar">Confirmar</button>
         <button class="btn btn-secondary" onclick="toggleForm()">
           Descartar
         </button>
@@ -383,22 +384,10 @@
 
     <script>
       /* FORMULARIO */
-      const formPanel = document.getElementById("formPanel");
-
-      function toggleForm() {
-        formPanel.style.display =
-          formPanel.style.display === "block" ? "none" : "block";
-      }
+      // toggleForm movido a informes.js
 
       /* FILTRO */
-      function filtrar() {
-        const val = document.getElementById("filtro").value.toLowerCase();
-        document.querySelectorAll(".card-informe").forEach((el) => {
-          el.style.display = el.textContent.toLowerCase().includes(val)
-            ? "block"
-            : "none";
-        });
-      }
+      // buscarInformes movido a informes.js
 
       /* PERFIL */
       const profileBtn = document.getElementById("profileMenuButton");
