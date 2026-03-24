@@ -3,11 +3,12 @@ services:
   db:
     image: mysql:8.0
     container_name: hga_db
+    env_file: .env
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: hogar_geriatrico
-      MYSQL_USER: hga_user
-      MYSQL_PASSWORD: hga_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -20,35 +21,35 @@ services:
     networks:
       - hga_network
 
-  # Aplicación Laravel (proyecto en backend2/backend)
+  # Aplicación Laravel
   app:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: hga_app
+    env_file: .env
     environment:
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_KEY: "base64:E9crzHfLf7SnBz0DAb3p7K9ZrB2h0mA9dJpk8zW9Rvw="
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: hogar_geriatrico
-      DB_USERNAME: hga_user
-      DB_PASSWORD: hga_password
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8000:8000"
-   # volumes:
-   #   - ./backend:/var/www/html /
+    volumes:
+      - ./backend:/var/www/html
     depends_on:
       db:
         condition: service_healthy
     command: >
-      sh -c "composer install --no-interaction --prefer-dist --optimize-autoloader &&
-         mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
-         chmod -R 775 storage bootstrap/cache && 
-         php artisan migrate --force && 
-         php artisan serve --host=0.0.0.0 --port=8000"
+      sh -c "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
+             chmod -R 775 storage bootstrap/cache && 
+             php artisan migrate --force && 
+             php artisan serve --host=0.0.0.0 --port=8000"
     networks:
       - hga_network
 
@@ -59,7 +60,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./frontend:/usr/share/nginx/html:ro
+      - ./legacy-frontend:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app
@@ -110,4 +111,3 @@ volumes:
 networks:
   hga_network:
     driver: bridge
-

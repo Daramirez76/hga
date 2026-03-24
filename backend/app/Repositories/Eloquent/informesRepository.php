@@ -23,6 +23,12 @@ class informesRepository implements informesInterface
         return informes::create($data);
     }
 
+    // Alias estándar para create
+    public function create(array $data)
+    {
+        return $this->createinformes($data);
+    }
+
     public function updateinformes($id, array $data)
     {
         $informes = informes::find($id);
@@ -35,6 +41,12 @@ class informesRepository implements informesInterface
         return $informes;
     }
 
+    // Alias estándar para update
+    public function update($id, array $data)
+    {
+        return $this->updateinformes($id, $data);
+    }
+
     public function deleteinformes($id)
     {
         $informes = informes::find($id);
@@ -45,5 +57,11 @@ class informesRepository implements informesInterface
 
         $informes->delete();
         return true;
+    }
+
+    // Alias estándar para delete
+    public function delete($id)
+    {
+        return $this->deleteinformes($id);
     }
 }

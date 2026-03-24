@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('medicamento', function (Blueprint $table) {
             $table->id();
             $table->integer('cod_medicamento')->unique();
-            $table->string('nombre_medic', 10);
+            $table->string('nombre_medic', 255);
             $table->date('fecha_entrada');
             $table->date('fecha_vencimiento');
-            $table->integer('cod_usuario');
-            $table->integer('cod_residente');
-            $table->integer('cod_rol');
-            $table->string('descrip_novedad', 100);
-            $table->date('fecha_novedad');
+            $table->integer('cod_usuario')->nullable();
+            $table->integer('cod_residente')->nullable();
+            $table->integer('cod_rol')->nullable();
+            $table->string('descrip_novedad', 500)->nullable();
+            $table->date('fecha_novedad')->nullable();
             $table->integer('stock');
             $table->timestamps();
         });

@@ -24,6 +24,12 @@ class medicamentosRepository implements medicamentosInterface
         return medicamentos::create($data);
     }
 
+    // Alias estándar para create
+    public function create(array $data)
+    {
+        return $this->createmedicamentos($data);
+    }
+
     public function updatemedicamentos($id, array $data)
     {
         $medicamentos = medicamentos::find($id);
@@ -36,6 +42,12 @@ class medicamentosRepository implements medicamentosInterface
         return $medicamentos;
     }
 
+    // Alias estándar para update
+    public function update($id, array $data)
+    {
+        return $this->updatemedicamentos($id, $data);
+    }
+
     public function deletemedicamentos($id)
     {
         $medicamentos = medicamentos::find($id);
@@ -46,5 +58,11 @@ class medicamentosRepository implements medicamentosInterface
 
         $medicamentos ->delete();
         return true;
+    }
+
+    // Alias estándar para delete
+    public function delete($id)
+    {
+        return $this->deletemedicamentos($id);
     }
 }

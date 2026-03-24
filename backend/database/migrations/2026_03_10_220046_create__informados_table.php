@@ -14,10 +14,13 @@ return new class extends Migration
         Schema::create('_informados', function (Blueprint $table) {
             $table->id();
             $table->integer('cod_Informes')->unique();
-            $table->integer('doc_id');
-            $table->integer('cod_Residente');
+            $table->integer('doc_id')->nullable();
+            $table->integer('cod_Residente')->nullable();
             $table->string('Titulo_Informes');
-            $table->integer('cod_rol');
+            $table->integer('cod_rol')->nullable();
+            $table->string('descripcion')->nullable();
+            $table->string('tipo')->nullable();
+            $table->string('urgencia')->default('normal');
             $table->timestamps();
         });
     }
