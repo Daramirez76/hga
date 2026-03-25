@@ -60,6 +60,7 @@ services:
       done &&
       echo 'MySQL está disponible. Iniciando aplicación...' &&
       mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
+      rm -f bootstrap/cache/*.php &&
       chmod -R 775 storage bootstrap/cache && 
       php artisan migrate --force && 
       php artisan serve --host=0.0.0.0 --port=8000
