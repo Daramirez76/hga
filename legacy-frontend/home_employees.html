@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <title>home_employees</title>
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #8fc5c5, #6fb1b1);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* LOGO */
+      .logo-img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+      }
+
+      /* HEADER */
+      .header {
+        background: #eaeaea;
+        border-radius: 30px;
+        padding: 10px 20px;
+        margin: 20px auto;
+        max-width: 1000px;
+        width: 95%;
+      }
+
+      /* CONTENEDOR PRINCIPAL */
+      .container-main {
+        background: #f3f3f3;
+        border-radius: 25px;
+        padding: 25px;
+        width: 80%;
+        max-width: 1000px;
+        margin: 0 auto 20px auto;
+      }
+
+      /* ---- CALENDARIO ---- */
+      .panel-calendario {
+        background: #d6eeea;
+        border-radius: 20px;
+        padding: 18px;
+      }
+
+      .calendario-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .dia-nombre {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #2e7d32;
+        background: #c8e6c9;
+        border-radius: 8px;
+        padding: 4px 0;
+      }
+
+      .calendario-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+
+      .celda-dia {
+        background: #fff;
+        border-radius: 10px;
+        min-height: 70px;
+        padding: 6px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        position: relative;
+        border: 1.5px solid transparent;
+      }
+
+      .celda-dia:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-color: #a5d6a7;
+      }
+
+      .celda-dia .num-dia {
+        font-size: 11px;
+        color: #888;
+        font-weight: 600;
+      }
+
+      .celda-dia.hoy {
+        border-color: #4caf50;
+        background: #f1f8f1;
+      }
+
+      .celda-dia.hoy .num-dia {
+        color: #2e7d32;
+      }
+
+      /* ---- NOVEDADES ---- */
+      .panel-novedades {
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        height: 100%;
+      }
+
+      .panel-novedades h6 {
+        color: #2e7d32;
+        font-weight: 700;
+        margin-bottom: 14px;
+      }
+
+      .novedad-item {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: #333;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .novedad-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      }
+
+      .novedad-item.vacia {
+        background: #f0f0f0;
+        color: #353333;
+        font-style: italic;
+      }
+
+      /* FOOTER */
+      footer {
+        background: #eaeaea;
+        padding: 12px;
+        text-align: center;
+        margin-top: auto;
+      }
+
+      /* BOTONES HEADER */
+      .btn-outline-secondary {
+        color: #2e7d32 !important;
+        border-color: #c8e6c9 !important;
+        transition: all 0.3s;
+      }
+
+      .btn-outline-secondary:hover {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
+        border-color: #66bb6a !important;
+        color: #2e7d32 !important;
+      }
+
+      /* MENU PERFIL */
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .profile-dropdown, .profile-dropdown-notif {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+
+      .profile-dropdown.show, .profile-dropdown-notif.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        .container-main { padding: 15px; }
+        .celda-dia { min-height: 50px; }
+      }
+
+      @media (max-width: 480px) {
+        .header { border-radius: 15px; padding: 8px 12px; }
+        .celda-dia { min-height: 40px; padding: 4px; }
+        .dia-nombre { font-size: 10px; }
+      }
+    </style>
+</head>
+<body>
+
+    <div class="header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <img src="img/LOGO_HGA.png" class="rounded-circle logo-img" alt="Logo" />
+        <button
+          class="btn btn-link text-decoration-none text-primary fw-bold"
+          onclick="location.reload()"
+        >
+          Inicio
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        
+        <div class="profile-menu-wrapper">
+          <button
+            class="btn btn-outline-secondary rounded-circle profile-menu-btn"
+            id="profileNotificacionesButton"
+            aria-label="Notificaciones"
+            title="Notificaciones"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            🔔
+          </button>
+          
+          <div class="profile-dropdown-notif" id="notifDropdown">
+            <button class="profile-menu-item" type="button">
+                Nueva actualización en sistema
+            </button>
+            <button class="profile-menu-item" type="button">
+                Reporte mensual generado
+            </button>
+            
+            <button class="profile-menu-item" type="button" id="viewNotifications" style="text-align: center; background: #f8f9fa; font-weight: bold; border-top: 1px solid #c8e6c9;">
+                Ver todas las notificaciones
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-menu-wrapper">
+          <button
+            class="btn btn-outline-secondary rounded-circle profile-menu-btn"
+            id="profileMenuButton"
+            aria-label="Perfil"
+            title="Perfil"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            👤
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <button class="profile-menu-item" type="button" id="viewUserProfile">
+              Ver perfil de usuario
+            </button>
+            <button class="profile-menu-item" type="button" id="logoutUser">
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+        
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-secondary rounded-circle"
+            data-bs-toggle="dropdown"
+          >
+            ☰
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Inicio</a></li>
+            <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
+            <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
+            <li><a class="dropdown-item" href="date.html">Citas</a></li>
+            <li><a class="dropdown-item" href="recreational_activities.html">Actividades Ludicas</a></li>
+            <li><a class="dropdown-item" href="medicaments.html">Medicamentos</a></li>
+            <li><a class="dropdown-item" href="resident.html">residentes</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-main">
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <div class="panel-calendario">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <button class="btn btn-sm btn-light" id="btnMesAnterior">&#8592;</button>
+              <span class="fw-bold text-success" id="mesActual"></span>
+              <button class="btn btn-sm btn-light" id="btnMesSiguiente">&#8594;</button>
+            </div>
+            <div class="calendario-header">
+              <div class="dia-nombre">Lunes</div>
+              <div class="dia-nombre">Martes</div>
+              <div class="dia-nombre">Miércoles</div>
+              <div class="dia-nombre">Jueves</div>
+              <div class="dia-nombre">Viernes</div>
+              <div class="dia-nombre">Sábado</div>
+              <div class="dia-nombre">Domingo</div>
+            </div>
+            <div class="calendario-grid" id="calendarioGrid"></div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <div class="panel-novedades">
+            <h6>Novedades</h6>
+            <div id="listaNovedad">
+              <div class="novedad-item vacia">Sin novedades recientes</div>
+              <div class="novedad-item vacia">Sin novedades recientes</div>
+              <div class="novedad-item vacia">Sin novedades recientes</div>
+              <div class="novedad-item vacia">Sin novedades recientes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      /* ---- CALENDARIO ---- */
+      let fechaActual = new Date();
+      let mesVista = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+      const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+      function renderCalendario() {
+        const grid = document.getElementById("calendarioGrid");
+        const titulo = document.getElementById("mesActual");
+        grid.innerHTML = "";
+        const anio = mesVista.getFullYear();
+        const mes = mesVista.getMonth();
+        titulo.textContent = `${meses[mes]} ${anio}`;
+        let primerDia = new Date(anio, mes, 1).getDay();
+        primerDia = (primerDia === 0) ? 6 : primerDia - 1;
+        const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+        const hoy = new Date();
+
+        for (let i = 0; i < primerDia; i++) {
+          const vacia = document.createElement("div");
+          vacia.className = "celda-dia";
+          vacia.style.background = "transparent";
+          vacia.style.border = "none";
+          grid.appendChild(vacia);
+        }
+
+        for (let d = 1; d <= diasEnMes; d++) {
+          const celda = document.createElement("div");
+          celda.className = "celda-dia";
+          if (d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear()) celda.classList.add("hoy");
+          const numSpan = document.createElement("span");
+          numSpan.className = "num-dia";
+          numSpan.textContent = d;
+          celda.appendChild(numSpan);
+          grid.appendChild(celda);
+        }
+      }
+
+      document.getElementById("btnMesAnterior").addEventListener("click", () => { mesVista.setMonth(mesVista.getMonth() - 1); renderCalendario(); });
+      document.getElementById("btnMesSiguiente").addEventListener("click", () => { mesVista.setMonth(mesVista.getMonth() + 1); renderCalendario(); });
+      renderCalendario();
+
+      /* ---- LÓGICA DE MENÚS (NOTIFICACIONES Y PERFIL) ---- */
+      const profileBtn = document.getElementById("profileMenuButton");
+      const profileDrop = document.getElementById("profileDropdown");
+      const notifBtn = document.getElementById("profileNotificacionesButton");
+      const notifDrop = document.getElementById("notifDropdown");
+
+      // Función para cerrar todo
+      const closeAllMenus = () => {
+        profileDrop.classList.remove("show");
+        notifDrop.classList.remove("show");
+        profileBtn.setAttribute("aria-expanded", "false");
+        notifBtn.setAttribute("aria-expanded", "false");
+      };
+
+      // Evento Perfil
+      profileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        notifDrop.classList.remove("show"); // Cerrar el otro si está abierto
+        const isShown = profileDrop.classList.toggle("show");
+        profileBtn.setAttribute("aria-expanded", String(isShown));
+      });
+
+      // Evento Notificaciones
+      notifBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profileDrop.classList.remove("show"); // Cerrar el otro si está abierto
+        const isShown = notifDrop.classList.toggle("show");
+        notifBtn.setAttribute("aria-expanded", String(isShown));
+      });
+
+      // Cerrar al hacer clic fuera o Escape
+      document.addEventListener("click", () => closeAllMenus());
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAllMenus(); });
+
+      // Evitar que el menú se cierre al hacer clic dentro de él
+      profileDrop.addEventListener("click", (e) => e.stopPropagation());
+      notifDrop.addEventListener("click", (e) => e.stopPropagation());
+
+      /* ---- REDIRECCIONES ---- */
+      document.getElementById("viewUserProfile").addEventListener("click", () => { window.location.href = "user.html"; });
+      document.getElementById("logoutUser").addEventListener("click", () => { window.location.href = "login.html"; });
+      document.getElementById("viewNotifications").addEventListener("click", () => { window.location.href = "notificaciones.html"; });
+    </script>
+
+    <script src="./js/home_employees.js"></script>
+</body>
+</html>

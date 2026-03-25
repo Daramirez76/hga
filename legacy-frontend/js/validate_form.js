@@ -5,9 +5,17 @@ const LOGOUT_ENDPOINT = `${API_BASE_URL}/api/logout`;
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("formRegister");
+    const resendLink = document.getElementById("resendVerificationLink");
 
     if (!form) {
         return;
+    }
+
+    if (resendLink) {
+        resendLink.addEventListener("click", (event) => {
+            event.preventDefault();
+            alert("Se reenviara el correo de verificacion cuando el servicio este disponible.");
+        });
     }
 
     form.addEventListener("submit", async (event) => {
@@ -39,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const contentType = response.headers.get("content-type") || "";
             if (!contentType.includes("application/json")) {
                 const body = await response.text();
-                throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+                throw new Error(`Respuesta no JSON (${response.status}). Posible redireccion inesperada. ${body.slice(0, 140)}`);
             }
 
             const data = await response.json();
@@ -50,8 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             localStorage.setItem("usuario", JSON.stringify(sanitizarUsuario(data)));
-            alert("Cuenta creada correctamente");
-            window.location.href = "login.html";
+            mostrarExitoRegistro(campos.correo.value.trim());
         } catch (error) {
             console.error("Error al registrar usuario:", error);
             alert("Error al conectar con el servidor");
@@ -70,7 +77,7 @@ function obtenerCampos() {
         edad: document.getElementById("edad"),
         correo: document.getElementById("correo"),
         usuario: document.getElementById("usuario"),
-        contrasena: document.getElementById("contraseña"),
+        contrasena: document.getElementById("contrasena") || document.getElementById("contraseña"),
     };
 }
 
@@ -84,7 +91,6 @@ function validarCampos(campos) {
         { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
         { input: campos.direccion, mensaje: "La direccion es obligatoria." },
         { input: campos.telefono, mensaje: "El telefono es obligatorio." },
-        { input: campos.edad, mensaje: "La edad es obligatoria." },
         { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
         { input: campos.usuario, mensaje: "El nombre de usuario es obligatorio." },
         { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
@@ -101,33 +107,33 @@ function validarCampos(campos) {
 }
 
 function construirPayload(campos) {
-    // Combinar nombre y apellido para el campo "name" del backend
     const nombreCompleto = `${campos.nombre.value.trim()} ${campos.apellido.value.trim()}`.trim();
-    
-    return {
+    const payload = {
         name: nombreCompleto,
         apellido: campos.apellido.value.trim(),
         tipo_doc: campos.tipoDoc.value.trim(),
         doc_id: Number(campos.numDoc.value.trim()),
         direccion: campos.direccion.value.trim(),
         telefono: Number(campos.telefono.value.trim()),
-        edad: Number(campos.edad.value.trim()),
         email: campos.correo.value.trim(),
         usuario: campos.usuario.value.trim(),
         password: campos.contrasena.value.trim(),
         password_confirmation: campos.contrasena.value.trim(),
     };
+
+    if (valor(campos.edad)) {
+        payload.edad = Number(campos.edad.value.trim());
+    }
+
+    return payload;
 }
 
 function sanitizarUsuario(data) {
-    // El backend retorna { success, message, user: { id, name, email } }
-    // Extractamos solo el objeto user
     if (data && data.user) {
         return data.user;
     }
     return data;
 }
-
 
 function mostrarErroresBackend(data, campos) {
     const mensajes = [];
@@ -144,29 +150,22 @@ function mostrarErroresBackend(data, campos) {
         password: campos.contrasena,
     };
 
-    // Manejo de errores de validación del backend
-    if (data.errors && typeof data.errors === 'object') {
+    if (data.errors && typeof data.errors === "object") {
         Object.entries(data.errors).forEach(([clave, erroresArray]) => {
-            // Marcar el campo con error
             if (mapaCampos[clave]) {
                 marcarError(mapaCampos[clave]);
             }
-            
-            // Agregar mensajes de error
+
             if (Array.isArray(erroresArray)) {
-                erroresArray.forEach(error => mensajes.push(error));
+                erroresArray.forEach((error) => mensajes.push(error));
             }
         });
     }
-    
-    // Manejo de mensaje genérico del backend
-    if (data.message) {
-        if (!mensajes.includes(data.message)) {
-            mensajes.push(data.message);
-        }
+
+    if (data.message && !mensajes.includes(data.message)) {
+        mensajes.push(data.message);
     }
-    
-    // Si no hay mensajes específicos, mostrar respuesta genérica
+
     if (mensajes.length === 0) {
         mensajes.push("No fue posible crear la cuenta");
     }
@@ -175,7 +174,7 @@ function mostrarErroresBackend(data, campos) {
 }
 
 function valor(input) {
-    return input && input.value.trim() !== "";
+    return Boolean(input && input.value.trim() !== "");
 }
 
 function marcarError(input) {
@@ -190,4 +189,22 @@ function limpiarErrores() {
     document
         .querySelectorAll(".campo-error")
         .forEach((elemento) => elemento.classList.remove("campo-error"));
+}
+
+function mostrarExitoRegistro(correo) {
+    const overlay = document.getElementById("successOverlay");
+    const successEmail = document.getElementById("successEmail");
+
+    if (!overlay) {
+        alert("Cuenta creada correctamente");
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (successEmail) {
+        successEmail.textContent = correo || "miusuario@ejemplo.com";
+    }
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
 }
