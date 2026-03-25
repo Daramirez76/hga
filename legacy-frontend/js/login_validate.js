@@ -1,16 +1,22 @@
 const LOGIN_ENDPOINT = `${window.location.origin}/api/login`;
 
 function validarFormulario() {
-    const email = document.getElementById("usuario").value.trim();
-    const contrasena = document.getElementById("contrasena").value.trim();
+    const usuarioInput = document.getElementById("usuario");
+    const contrasenaInput = document.getElementById("contrasena");
+    const email = usuarioInput.value.trim();
+    const contrasena = contrasenaInput.value.trim();
+
+    limpiarErrores();
 
     if (email === "") {
-        alert("El correo o usuario no puede estar vacío");
+        marcarError(usuarioInput);
+        alert("El correo o usuario no puede estar vacio");
         return false;
     }
 
     if (contrasena === "") {
-        alert("La contraseña no puede estar vacía");
+        marcarError(contrasenaInput);
+        alert("La contrasena no puede estar vacia");
         return false;
     }
 
@@ -46,13 +52,13 @@ async function iniciarSesion(event) {
 
         if (!contentType.includes("application/json")) {
             const body = await response.text();
-            throw new Error(`Respuesta no JSON (${response.status}). Posible redirección inesperada. ${body.slice(0, 140)}`);
+            throw new Error(`Respuesta no JSON (${response.status}). Posible redireccion inesperada. ${body.slice(0, 140)}`);
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            const mensaje = data.message || "No fue posible iniciar sesión";
+            const mensaje = data.message || "No fue posible iniciar sesion";
             alert(`Error: ${mensaje}`);
             return;
         }
@@ -60,6 +66,7 @@ async function iniciarSesion(event) {
         if (data.access_token) {
             localStorage.setItem("access_token", data.access_token);
         }
+
         localStorage.setItem("usuario", JSON.stringify(data.user));
         alert("Login exitoso");
         window.location.href = "main_page(user).html";
@@ -69,9 +76,23 @@ async function iniciarSesion(event) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const formulario = document.getElementById("loginForm");
     if (formulario) {
         formulario.addEventListener("submit", iniciarSesion);
     }
 });
+
+function marcarError(input) {
+    if (!input) {
+        return;
+    }
+
+    input.classList.add("field-error");
+}
+
+function limpiarErrores() {
+    document
+        .querySelectorAll(".field-error")
+        .forEach((elemento) => elemento.classList.remove("field-error"));
+}

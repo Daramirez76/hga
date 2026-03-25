@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = "Enviar solicitud";
+            submitButton.textContent = "Crear cuenta";
         }
     });
 });
