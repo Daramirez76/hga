@@ -126,20 +126,62 @@
       margin-top: auto;
     }
 
-    /* BOTONES NOTIFICACION Y PERFIL */
+    /* ================= MENÚ HEADER ================= */
+
+    /* Botones del header */
     .btn-outline-secondary {
-      color: #2e7d32 !important;
-      border-color: #c8e6c9 !important;
-      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #c8e6c9;
+      color: #2e7d32;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .btn-outline-secondary:hover {
-      background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-      border-color: #66bb6a !important;
-      color: #2e7d32 !important;
+      background: #e8f5e9;
+      border-color: #66bb6a;
+      color: #1b5e20;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* MENU PERFIL */
+    /* Dropdown menú ☰ */
+    .dropdown-menu {
+      border-radius: 12px;
+      border: 1px solid #c8e6c9;
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
+    }
+
+    .dropdown-menu .dropdown-item {
+      padding: 10px 20px;
+      font-weight: 500;
+      color: #2e7d32;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-menu .dropdown-item:hover {
+      background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+      color: #1b5e20;
+      transform: translateX(5px);
+    }
+
+    /* Animación de entrada unificada para ambos dropdowns */
+    .dropdown-menu,
+    .profile-dropdown {
+      opacity: 0;
+      transform: translateY(-5px) scale(0.98);
+      pointer-events: none;
+    }
+
+    .dropdown-menu.show,
+    .profile-dropdown.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* MENÚ PERFIL */
     .profile-menu-wrapper {
       position: relative;
     }
@@ -160,17 +202,7 @@
       border-radius: 14px;
       box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
       overflow: hidden;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
       z-index: 10;
-    }
-
-    .profile-dropdown.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
     }
 
     .profile-menu-item {
@@ -251,11 +283,11 @@
         </div>
       </div>
 
-      <!-- MENU -->
+      <!-- MENU ☰ -->
       <div class="dropdown">
         <button class="btn btn-outline-secondary rounded-circle" data-bs-toggle="dropdown">☰</button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Inicio</a></li>
+          <li><a class="dropdown-item" href="home_employees.html">Inicio</a></li>
           <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
           <li><a class="dropdown-item" href="Notificaciones.html">Notificaciones</a></li>
           <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
@@ -263,6 +295,7 @@
           <li><a class="dropdown-item" href="recreational_activities.html">Actividades Ludicas</a></li>
           <li><a class="dropdown-item" href="medicaments.html">Medicamentos</a></li>
         </ul>
+        
       </div>
 
     </div><!-- fin derecha -->
@@ -309,38 +342,38 @@
   <div id="formPanel" class="panel-form">
     <form id="formNuevaVisita">
 
-    <h6 class="text-center mb-3 text-success">Nueva Visita</h6>
+      <h6 class="text-center mb-3 text-success">Nueva Visita</h6>
 
-    <label class="form-label small">Cod Visitas</label>
-    <input id="codVisitas" type="number" min="1" class="form-control mb-2" placeholder="Código de visita" />
+      <label class="form-label small">Cod Visitas</label>
+      <input id="codVisitas" type="number" min="1" class="form-control mb-2" placeholder="Código de visita" />
 
-    <label class="form-label small">Fecha</label>
-    <input id="fechaVisita" type="date" class="form-control mb-2" />
+      <label class="form-label small">Fecha</label>
+      <input id="fechaVisita" type="date" class="form-control mb-2" />
 
-    <label class="form-label small">Hora</label>
-    <input id="hora" type="time" class="form-control mb-2" />
+      <label class="form-label small">Hora</label>
+      <input id="hora" type="time" class="form-control mb-2" />
 
-    <label class="form-label small">Número de Documento</label>
-    <input id="docId" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el número de documento" />
+      <label class="form-label small">Número de Documento</label>
+      <input id="docId" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el número de documento" />
 
-    <label class="form-label small">Código del Residente</label>
-    <input id="codResidente" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del residente" />
+      <label class="form-label small">Código del Residente</label>
+      <input id="codResidente" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del residente" />
 
-    <label class="form-label small">Nombre del Visitante</label>
-    <input id="nombVisitante" type="text" class="form-control mb-2" placeholder="Ingrese el nombre del visitante" />
+      <label class="form-label small">Nombre del Visitante</label>
+      <input id="nombVisitante" type="text" class="form-control mb-2" placeholder="Ingrese el nombre del visitante" />
 
-    <label class="form-label small">Código del Usuario</label>
-    <input id="codUsuario" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del usuario" />
+      <label class="form-label small">Código del Usuario</label>
+      <input id="codUsuario" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del usuario" />
 
-    <label class="form-label small">Descripción</label>
-    <textarea id="descripcionVisita" class="form-control mb-3" rows="3" placeholder="Descripción de la visita..."></textarea>
+      <label class="form-label small">Descripción</label>
+      <textarea id="descripcionVisita" class="form-control mb-3" rows="3" placeholder="Descripción de la visita..."></textarea>
 
-    <div class="d-flex justify-content-center gap-2">
-      <button type="submit" class="btn btn-confirmar">Confirmar</button>
-      <button type="button" class="btn btn-secondary" onclick="toggleForm()">Descartar</button>
-    </div>
+      <div class="d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-confirmar">Confirmar</button>
+        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Descartar</button>
+      </div>
 
-  </form>
+    </form>
   </div>
 
   <!-- ==================== FOOTER ==================== -->
@@ -354,7 +387,8 @@
     const formPanel = document.getElementById("formPanel");
 
     function toggleForm() {
-      formPanel.style.display = formPanel.style.display === "block" ? "none" : "block";
+      const isVisible = getComputedStyle(formPanel).display !== "none";
+      formPanel.style.display = isVisible ? "none" : "block";
     }
 
     /* FILTRO */
