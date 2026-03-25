@@ -42,12 +42,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/app:/var/www/html/app
-      - ./backend/config:/var/www/html/config
-      - ./backend/resources:/var/www/html/resources
-      - ./backend/routes:/var/www/html/routes
-      - ./backend/storage:/var/www/html/storage
-      - /var/www/html/vendor
+      - ./backend:/var/www/html
     depends_on:
       db:
         condition: service_healthy
