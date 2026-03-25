@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Inicio Usuario</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+      :root {
+        --hga-primary: #299c4c;
+        --hga-secondary: #4db6ac;
+        --hga-surface: rgba(255, 255, 255, 0.98);
+        --hga-bg-top: #94d7d1;
+        --hga-bg-bottom: #e0f2f1;
+        --hga-day-strip: #c8ebd3;
+        --hga-border: rgba(41, 156, 76, 0.72);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        background: linear-gradient(180deg, var(--hga-bg-top) 0%, #afe3de 42%, var(--hga-bg-bottom) 100%);
+        color: #1f1f1f;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+      }
+
+      .top-bar,
+      .calendar-panel,
+      .news-panel {
+        background: var(--hga-surface);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      }
+
+      .top-bar {
+        border-radius: 1.8rem;
+      }
+
+      .brand-logo {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+      }
+
+      .header-actions .btn {
+        align-items: center;
+        background: transparent;
+        border: none;
+        border-radius: 50%;
+        color: #1f1f1f;
+        display: inline-flex;
+        height: 42px;
+        justify-content: center;
+        padding: 0;
+        width: 42px;
+      }
+
+      .header-actions .btn:hover,
+      .header-actions .btn:focus {
+        background: rgba(77, 182, 172, 0.12);
+      }
+
+      .menu-trigger {
+        color: #33bdd2;
+      }
+
+      .panel-shell {
+        max-width: 1520px;
+      }
+
+      .calendar-panel,
+      .news-panel {
+        border-radius: 2rem;
+      }
+
+      .calendar-strip {
+        background: var(--hga-day-strip);
+        border: 1px solid var(--hga-border);
+        border-radius: 0.6rem;
+        min-height: 24px;
+      }
+
+      .calendar-days {
+        color: #056321;
+        font-size: 0.82rem;
+        font-weight: 500;
+      }
+
+      .calendar-grid {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+      }
+
+      .calendar-cell {
+        aspect-ratio: 133 / 124;
+        background: #fff;
+        border: 1px solid var(--hga-border);
+        border-radius: 0.65rem;
+      }
+
+      .news-title {
+        color: var(--hga-primary);
+        font-size: 1.8rem;
+        font-weight: 500;
+      }
+
+      .news-item {
+        background: linear-gradient(90deg, #ffffff, #dff1ef);
+        border: 1px solid #ffffff;
+        border-radius: 0.65rem;
+        box-shadow: 0 4px 4px rgba(0, 0, 0, 0.18);
+        min-height: 44px;
+      }
+
+      .footer-strip {
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+
+      .profile-dropdown.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
+      @media (max-width: 991.98px) {
+        .calendar-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .calendar-days {
+          display: none;
+        }
+      }
+
+      @media (max-width: 575.98px) {
+        .calendar-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .top-bar,
+        .calendar-panel,
+        .news-panel {
+          border-radius: 1.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell d-flex flex-column">
+      <header class="container py-4 py-lg-5">
+        <div class="top-bar px-3 px-lg-4 py-3">
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <a href="home.html" class="text-decoration-none">
+              <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle" />
+            </a>
+
+            <div class="header-actions d-flex align-items-center gap-2">
+              <button class="btn" type="button" aria-label="Notificaciones" title="Notificaciones" onclick="window.location.href='Notificaciones.html'">
+
+                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
+                  <path d="M10 21a2 2 0 0 0 4 0"></path>
+                </svg>
+              </button>
+
+              <div class="profile-menu-wrapper">
+                <button class="btn profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                  <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                    <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 4a3.5 3.5 0 1 1-3.5 3.5A3.504 3.504 0 0 1 12 6Zm0 14a7.955 7.955 0 0 1-5.58-2.27 5.99 5.99 0 0 1 11.16 0A7.955 7.955 0 0 1 12 20Z"></path>
+                  </svg>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                  <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                  <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                </div>
+              </div>
+
+              <button class="btn menu-trigger" type="button" aria-label="Menú" title="Menú">
+                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M4 7h16"></path>
+                  <path d="M4 12h16"></path>
+                  <path d="M4 17h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="container flex-grow-1 pb-4 pb-lg-5">
+        <div class="panel-shell mx-auto">
+          <div class="row g-4 g-xl-5 align-items-start">
+            <div class="col-12 col-xl-9">
+              <section class="calendar-panel p-3 p-md-4">
+                <div class="calendar-strip mb-2"></div>
+                <div class="calendar-days d-none d-md-grid text-center mb-2" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
+                  <span>Lunes</span>
+                  <span>Martes</span>
+                  <span>Miercoles</span>
+                  <span>Jueves</span>
+                  <span>Viernes</span>
+                  <span>Sabado</span>
+                  <span>Domingo</span>
+                </div>
+
+                <div class="calendar-grid">
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                  <div class="calendar-cell"></div>
+                </div>
+              </section>
+            </div>
+
+            <div class="col-12 col-xl-3">
+              <section class="news-panel p-4 p-md-4">
+                <h2 class="news-title mb-4">Novedades</h2>
+                <div class="news-item mb-3"></div>
+                <div class="news-item mb-3"></div>
+                <div class="news-item mb-3"></div>
+                <div class="news-item"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer-strip py-4 mt-auto">
+        <div class="container text-center">
+          <small class="fs-5">derechos reservados HGA © 2025 | Hogar Geriátrico</small>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./js/menu_notificacion.js"></script>
+    <script src="./js/menu_usuario.js"></script>
+  </body>
+</html>

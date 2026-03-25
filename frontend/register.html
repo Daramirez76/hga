@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>Registrarse</title>
+    <style>
+        :root {
+            --hga-primary: #299c4c;
+            --hga-secondary: #4db6ac;
+            --hga-accent: #66bb6a;
+            --hga-surface: #ffffff;
+            --hga-muted: #e9eeee;
+            --hga-bg-top: #94d7d1;
+            --hga-bg-bottom: #e0f2f1;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--hga-bg-top) 0%, #b8e6e1 42%, var(--hga-bg-bottom) 100%);
+            color: #1f1f1f;
+        }
+
+        .page-shell {
+            min-height: 100vh;
+        }
+
+        .top-bar,
+        .main-panel,
+        .success-card {
+            background: var(--hga-surface);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-bar {
+            border-radius: 1.5rem;
+        }
+
+        .main-panel {
+            border-radius: 2rem;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+        }
+
+        .screen-title {
+            color: #38bdd3;
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            font-weight: 400;
+        }
+
+        .panel-title {
+            color: var(--hga-primary);
+            font-size: clamp(2rem, 3vw, 3rem);
+            font-weight: 700;
+        }
+
+        .register-label {
+            color: var(--hga-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .register-input,
+        .register-input:focus,
+        .register-select,
+        .register-select:focus {
+            border: 1px solid rgba(41, 156, 76, 0.75);
+            border-radius: 0.65rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            min-height: 44px;
+        }
+
+        .register-input:focus,
+        .register-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.16), 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .register-cta,
+        .register-secondary {
+            border-radius: 0.65rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+            font-size: 0.875rem;
+            font-weight: 700;
+            min-height: 46px;
+            text-transform: uppercase;
+        }
+
+        .register-cta {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+        }
+
+        .register-cta:hover,
+        .register-cta:focus {
+            background: linear-gradient(90deg, #5eb863, #44b0a4);
+        }
+
+        .register-secondary {
+            background: linear-gradient(90deg, #ffffff, var(--hga-bg-bottom));
+            border: 1px solid #d9e5e2;
+            color: var(--hga-primary);
+        }
+
+        .register-secondary:hover,
+        .register-secondary:focus {
+            color: var(--hga-primary);
+            background: linear-gradient(90deg, #f8fbfb, #d5ece8);
+        }
+
+        .oauth-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 1.4rem;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .oauth-title {
+            color: var(--hga-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .oauth-copy {
+            color: #53706a;
+            font-size: 0.95rem;
+        }
+
+        .google-oauth-btn {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #d7e0de;
+            border-radius: 0.85rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            color: #1f1f1f;
+            display: inline-flex;
+            font-size: 0.95rem;
+            font-weight: 600;
+            gap: 0.8rem;
+            justify-content: center;
+            min-height: 52px;
+        }
+
+        .google-oauth-btn:hover,
+        .google-oauth-btn:focus {
+            background: #f8fbfb;
+            border-color: #bfd7d3;
+            color: #1f1f1f;
+        }
+
+        .google-icon {
+            flex: 0 0 auto;
+        }
+
+        .footer-strip {
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        .campo-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.14) !important;
+        }
+
+        .success-overlay {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.18);
+            display: none;
+            inset: 0;
+            justify-content: center;
+            padding: 1.5rem;
+            position: absolute;
+            z-index: 3;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-card {
+            border: 1px solid #d9d9d9;
+            border-radius: 0.8rem;
+            max-width: 860px;
+            width: 100%;
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+        }
+
+        .success-note {
+            background: var(--hga-muted);
+            border-radius: 0.55rem;
+        }
+
+        .success-link {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+            border-radius: 999px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+            color: #fff;
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 700;
+            min-width: 180px;
+            padding: 0.3rem 1.25rem;
+            text-decoration: none;
+        }
+
+        .success-link:hover,
+        .success-link:focus {
+            color: #fff;
+        }
+
+        .success-resend {
+            color: #1f1f1f;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .success-resend:hover,
+        .success-resend:focus {
+            color: var(--hga-primary);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-panel {
+                border-radius: 1.6rem;
+            }
+
+            .success-overlay {
+                position: fixed;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell d-flex flex-column">
+        <header class="container py-4 py-lg-5">
+            <div class="top-bar px-3 px-lg-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index.html" class="text-decoration-none">
+                        <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle">
+                    </a>
+                    <span class="screen-title mb-0">Registrarse</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container flex-grow-1 pb-4 pb-lg-5">
+            <section class="main-panel position-relative px-4 px-md-5 py-5">
+                <div class="success-overlay" id="successOverlay" aria-hidden="true">
+                    <div class="success-card p-4 p-md-5 text-center">
+                        <svg class="success-icon mx-auto mb-3" viewBox="0 0 64 64" aria-hidden="true">
+                            <circle cx="32" cy="32" r="32" fill="#32b878"></circle>
+                            <path d="M19 33.5l8.2 8.2L45 23.9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+                        </svg>
+                        <h2 class="h3 fw-bold mb-2 text-dark">¡Cuenta creada con éxito!</h2>
+                        <p class="mb-3" id="successEmail">miusuario@ejemplo.com</p>
+                        <div class="success-note mx-auto mb-3 p-3 text-start" style="max-width: 610px;">
+                            <p class="mb-1">Verifica tu correo electrónico</p>
+                            <p class="mb-2">Te hemos enviado un correo de verificación. Haz clic en el enlace dentro del correo para activar tu cuenta.</p>
+                            <p class="mb-0">Si no ves el correo, revisa tu carpeta de spam o correo no deseado.</p>
+                        </div>
+                        <a href="login.html" class="success-link mb-2">Ir al inicio de sesión</a>
+                        <div class="mt-2">
+                            <a href="#" id="resendVerificationLink" class="success-resend">¿No recibiste el correo? Reenviar</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <h1 class="panel-title text-center mb-4 mb-lg-5">Registro Usuario</h1>
+                    </div>
+                </div>
+
+                <form id="formRegister" novalidate>
+                    <div class="row g-4">
+                        <div class="col-12 col-lg-6">
+                            <label for="nombre" class="form-label register-label">Nombre</label>
+                            <input id="nombre" name="nombre" type="text" class="form-control register-input">
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="apellido" class="form-label register-label">Apellidos</label>
+                            <input id="apellido" name="apellido" type="text" class="form-control register-input">
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label for="tipo_doc" class="form-label register-label">Tipo de Documento</label>
+                            <select id="tipo_doc" name="tipo_doc" class="form-select register-select">
+                                <option value="">Seleccione una opción</option>
+                                <option value="CC">Cédula de ciudadanía</option>
+                                <option value="CE">Cédula de extranjería</option>
+                                <option value="TI">Tarjeta de identidad</option>
+                                <option value="PP">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="num_doc" class="form-label register-label">No. Documento</label>
+                            <input id="num_doc" name="num_doc" type="text" class="form-control register-input" inputmode="numeric">
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label for="direccion" class="form-label register-label">Dirección</label>
+                            <input id="direccion" name="direccion" type="text" class="form-control register-input">
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="telefono" class="form-label register-label">Teléfono</label>
+                            <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="correo" class="form-label register-label">Correo Electrónico</label>
+                            <input id="correo" name="correo" type="email" class="form-control register-input">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="contrasena" class="form-label register-label">Contraseña</label>
+                            <input id="contrasena" name="contrasena" type="password" class="form-control register-input">
+                        </div>
+                    </div>
+
+                    <input id="edad" name="edad" type="hidden" value="">
+
+                    <div class="row justify-content-center mt-4 mt-lg-5 g-3">
+                        <div class="col-12 col-xl-10">
+                            <button type="submit" class="btn register-cta w-100 text-white">Crear Cuenta</button>
+                        </div>
+                        <div class="col-12 col-xl-10">
+                            <a href="index.html" class="btn register-secondary w-100">Regresar</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+            <section class="mt-4 mt-lg-5">
+                <div class="main-panel position-relative px-4 px-md-5 py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-xl-8">
+                        <div class="oauth-panel px-4 px-md-5 py-4 text-center">
+                            <p class="oauth-title mb-2">Registro Alternativo</p>
+                            <a href="auth/google" class="btn google-oauth-btn w-100 mx-auto px-4 px-lg-5" style="max-width: 380px;">
+                                <svg class="google-icon" width="22" height="22" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.199 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.96 3.04l5.657-5.657C34.046 6.053 29.27 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
+                                    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.96 3.04l5.657-5.657C34.046 6.053 29.27 4 24 4c-7.682 0-14.344 4.337-17.694 10.691z"></path>
+                                    <path fill="#4CAF50" d="M24 44c5.167 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.145 35.091 26.715 36 24 36c-5.178 0-9.625-3.329-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
+                                    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.054 12.054 0 0 1-4.084 5.571l.003-.002 6.19 5.238C36.971 39.193 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"></path>
+                                </svg>
+                                Registrarse con Google
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-strip py-4 mt-auto">
+            <div class="container text-center">
+                <small class="fs-5">derechos reservados HGA © 2025 | Hogar Geriátrico</small>
+            </div>
+        </footer>
+    </div>
+
+    <script src="./js/alerts.js"></script>
+    <script src="./js/validate_form.js"></script>
+</body>
+</html>

@@ -9,7 +9,10 @@ class medicamentos extends Model
 {
     use HasFactory;
 
-    protected $table = 'medicamento';
+    protected $table = 'medicamentos';
+    protected $primaryKey = 'Cod_medicamento';
+    public $incrementing = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'cod_medicamento',
@@ -24,4 +27,3 @@ class medicamentos extends Model
         'stock',
     ];
 }       
-

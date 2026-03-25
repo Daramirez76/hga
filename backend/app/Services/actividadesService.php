@@ -3,8 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\actividadesRequest;
-use App\repositories\Interfaces\actividadesRepository;
-use Illuminate\Support\Str;
+use App\Repositories\Interfaces\actividadesInterface;
 
 class actividadesService
 {

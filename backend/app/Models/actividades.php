@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class actividades extends Model
 {
-     protected $table = '_actividades';
+    protected $table = 'actividades_ludicas';
+    protected $primaryKey = 'Cod_acti_ludi';
+    public $incrementing = false;
+    public $timestamps = false;
      
     protected $fillable = [
   'Cod_acti_ludi',
@@ -20,5 +23,4 @@ class actividades extends Model
   'Lugar',
     ];
 }
-
 
