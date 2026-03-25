@@ -6,7 +6,6 @@
   <title>Citas Médicas</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
   <style>
-    /* ===== VARIABLES ===== */
     :root {
       --verde-principal: #5fbf7f;
       --verde-oscuro:    #4da86a;
@@ -14,8 +13,7 @@
       --verde-borde:     #b3ddbf;
       --verde-fondo:     #d4edda;
       --verde-dark:      #2e7d32;
-      --teal-inicio:     #8fc5c5;
-      --teal-fin:        #6fb1b1;
+      --teal:            #6fb1b1;
       --blanco:          #ffffff;
       --gris-header:     #eaeaea;
       --gris-fondo:      #f8f9fa;
@@ -26,7 +24,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: linear-gradient(135deg, var(--teal-inicio), var(--teal-fin));
+      background: #6fb1b1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -38,52 +36,65 @@
     .header {
       background: var(--gris-header);
       border-radius: 30px;
-      padding: 10px 20px;
-      margin: 20px auto;
-      max-width: 1200px;
-      width: 95%;
+      padding: 8px 20px;
+      margin: 18px auto;
+      max-width: 820px;
+      width: 92%;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .logo-img {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       object-fit: cover;
       border-radius: 50%;
+      border: 2px solid #ccc;
     }
 
     .header-title {
-      color: var(--teal-fin);
-      font-size: 21px;
+      color: var(--teal);
+      font-size: 20px;
       font-weight: 500;
       margin: 0;
     }
 
-    .btn-outline-secondary {
-      color: var(--verde-dark) !important;
-      border-color: #c8e6c9 !important;
-      width: 38px;
-      height: 38px;
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s;
-      font-size: 16px;
+      font-size: 18px;
+      color: #444;
+      transition: background 0.2s;
     }
-
-    .btn-outline-secondary:hover {
-      background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-      border-color: #66bb6a !important;
-    }
+    .icon-btn:hover { background: rgba(0,0,0,0.07); }
 
     /* ===== PERFIL DROPDOWN ===== */
     .profile-menu-wrapper { position: relative; }
 
     .profile-dropdown {
       position: absolute;
-      top: 48px;
+      top: 44px;
       right: 0;
       min-width: 220px;
       background: rgba(255,255,255,0.98);
@@ -95,15 +106,13 @@
       transform: translateY(-8px);
       pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
-      z-index: 10;
+      z-index: 100;
     }
-
     .profile-dropdown.show {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
-
     .profile-menu-item {
       width: 100%;
       border: 0;
@@ -117,64 +126,64 @@
       transition: background 0.2s;
       display: block;
     }
-
-    .profile-menu-item:hover { background: linear-gradient(135deg, #e8f5e9, #d9f0ee); }
+    .profile-menu-item:hover { background: #e8f5e9; }
     .profile-menu-item + .profile-menu-item { border-top: 1px solid rgba(200,230,201,0.7); }
 
     /* ===== BOTÓN REGISTRAR ===== */
     .btn-registrar {
       background: var(--blanco);
-      color: var(--verde-texto);
-      border: 2px solid var(--verde-borde);
+      color: #444;
+      border: 2px solid #ccc;
       border-radius: 20px;
-      padding: 8px 18px;
-      font-size: 14px;
+      padding: 7px 18px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
-      margin: 0 auto 20px 40px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      margin: 0 0 20px 28px;
       width: fit-content;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
-
     .btn-registrar:hover {
       background: var(--verde-fondo);
       border-color: var(--verde-principal);
+      color: var(--verde-texto);
       transform: translateY(-1px);
     }
 
-    /* ===== CONTENEDOR PRINCIPAL ===== */
+    /* ===== CONTENEDOR ===== */
     .container-main {
-      max-width: 900px;
+      max-width: 820px;
       margin: 0 auto 40px;
       padding: 0 20px;
-      width: 95%;
+      width: 92%;
       flex: 1;
     }
 
-    /* ===== TARJETA BLANCA EXTERNA ===== */
+    /* ===== CARD EXTERNA ===== */
     .card-externa {
       background: var(--blanco);
-      border-radius: 25px;
-      padding: 30px 30px 30px;
+      border-radius: 22px;
+      padding: 28px 28px 26px;
       box-shadow: 0 4px 20px var(--sombra);
     }
 
     .card-externa-titulo {
       color: var(--verde-texto);
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     /* ===== ÁREA VERDE ===== */
     .area-verde {
       background: #d4edda;
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 18px;
+      padding: 18px;
       min-height: 200px;
     }
 
@@ -183,15 +192,14 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      margin-bottom: 16px;
-      gap: 10px;
+      margin-bottom: 14px;
+      gap: 8px;
     }
 
     .filtro-input-wrap {
       display: none;
       animation: fadeSlide 0.25s ease;
     }
-
     .filtro-input-wrap.show { display: block; }
 
     @keyframes fadeSlide {
@@ -202,13 +210,13 @@
     .filtro-input {
       border: 2px solid var(--verde-borde);
       border-radius: 20px;
-      padding: 6px 14px;
+      padding: 5px 14px;
       font-size: 13px;
       outline: none;
-      width: 220px;
+      width: 200px;
       transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
     }
-
     .filtro-input:focus {
       border-color: var(--verde-principal);
       box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
@@ -219,17 +227,16 @@
       color: var(--verde-texto);
       border: 2px solid var(--verde-borde);
       border-radius: 20px;
-      padding: 6px 18px;
-      font-size: 14px;
+      padding: 5px 16px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: background 0.2s, border-color 0.2s;
       white-space: nowrap;
     }
-
     .btn-filtrar:hover {
       background: var(--verde-fondo);
       border-color: var(--verde-principal);
@@ -239,24 +246,23 @@
     .cita-item {
       background: var(--blanco);
       border-radius: 12px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      padding: 13px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       font-size: 13px;
-      color: #444444;
+      color: #444;
       line-height: 20px;
       display: flex;
       align-items: flex-start;
       gap: 8px;
       transition: box-shadow 0.2s, transform 0.2s;
       animation: slideIn 0.3s ease;
+      cursor: pointer;
     }
-
     .cita-item:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.11);
       transform: translateY(-1px);
     }
-
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -264,36 +270,42 @@
 
     .cita-bullet {
       color: var(--verde-principal);
-      font-size: 18px;
+      font-size: 16px;
       line-height: 20px;
       flex-shrink: 0;
     }
 
     .cita-meta {
       display: flex;
-      gap: 8px;
-      margin-top: 6px;
+      gap: 6px;
+      margin-top: 7px;
       flex-wrap: wrap;
     }
 
+    /* Badges con íconos de colores como en la imagen */
     .cita-badge {
-      background: var(--verde-fondo);
-      color: var(--verde-texto);
       border-radius: 10px;
-      padding: 2px 10px;
+      padding: 3px 10px;
       font-size: 11px;
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+    .badge-fecha   { background: #fde8e8; color: #b94040; }
+    .badge-hora    { background: #e8f5ee; color: #3a7d57; }
+    .badge-lugar   { background: #e8f5ee; color: #3a7d57; }
+    .badge-codigo  { background: #fff9e0; color: #8a6d00; }
 
     .sin-resultados {
       text-align: center;
-      color: #999999;
+      color: #999;
       font-style: italic;
       padding: 20px;
       font-size: 13px;
     }
 
-    /* ===== OVERLAY BASE ===== */
+    /* ===== OVERLAY FONDO ===== */
     .overlay-fondo {
       position: fixed;
       inset: 0;
@@ -302,27 +314,108 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      animation: fadeIn 0.2s ease;
     }
-
     .overlay-fondo.show { display: flex; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
+    /* ===== OVERLAY REGISTRAR ===== */
     .overlay-card {
       background: var(--blanco);
       border-radius: 20px;
-      padding: 18px 22px 16px;
+      padding: 20px 24px 18px;
       width: 90%;
       max-width: 500px;
       box-shadow: 0 16px 48px rgba(0,0,0,0.25);
       animation: popUp 0.25s ease;
     }
 
-    /* ===== OVERLAY DETALLE CITA ===== */
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(-18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .ov-titulo {
+      color: var(--verde-texto);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--verde-borde);
+    }
+
+    .ov-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .ov-group { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+
+    .ov-label {
+      color: var(--verde-texto);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .ov-input, .ov-input-full {
+      border: 2px solid var(--verde-borde);
+      border-radius: 10px;
+      padding: 6px 8px 6px 28px;
+      font-size: 12px;
+      outline: none;
+      width: 100%;
+      background: var(--gris-fondo);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ov-input-full { font-size: 13px; }
+    .ov-input:focus, .ov-input-full:focus {
+      border-color: var(--verde-principal);
+      box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
+      background: #fff;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      pointer-events: none;
+      color: var(--verde-texto);
+    }
+
+    .ov-divider { height: 1px; background: var(--verde-borde); margin: 4px 0 10px; border: none; }
+    .ov-field { margin-bottom: 10px; }
+
+    .btn-confirmar {
+      background: var(--verde-principal);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, transform 0.15s;
+      margin-bottom: 7px;
+    }
+    .btn-confirmar:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
+
+    .btn-descartar {
+      background: transparent;
+      color: var(--gris-texto);
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-descartar:hover { background: #f5f5f5; border-color: #bbb; }
+
+    /* ===== OVERLAY DETALLE ===== */
     .detalle-card {
       background: var(--blanco);
       border-radius: 20px;
@@ -353,11 +446,8 @@
       border-bottom: 1px solid #f0f0f0;
       font-size: 13px;
     }
-
     .detalle-fila:last-of-type { border-bottom: none; }
-
     .detalle-icono { font-size: 15px; width: 20px; flex-shrink: 0; margin-top: 1px; }
-
     .detalle-key {
       color: var(--verde-texto);
       font-weight: 700;
@@ -367,12 +457,11 @@
       min-width: 115px;
       flex-shrink: 0;
     }
-
-    .detalle-val { color: #444444; line-height: 18px; }
+    .detalle-val { color: #444; line-height: 18px; }
 
     .btn-cerrar-detalle {
       background: var(--verde-principal);
-      color: var(--blanco);
+      color: #fff;
       border: none;
       border-radius: 20px;
       padding: 9px 0;
@@ -382,120 +471,9 @@
       cursor: pointer;
       letter-spacing: 1px;
       margin-top: 16px;
-      transition: background 0.2s, transform 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
-
     .btn-cerrar-detalle:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
-
-    @keyframes popUp {
-      from { opacity: 0; transform: translateY(-20px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0)    scale(1); }
-    }
-
-    /* ===== FORMULARIO OVERLAY ===== */
-    .ov-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .ov-group {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .ov-label {
-      color: var(--verde-texto);
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .ov-input {
-      border: 2px solid var(--verde-borde);
-      border-radius: 10px;
-      padding: 6px 8px 6px 28px;
-      font-size: 12px;
-      outline: none;
-      width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background: var(--gris-fondo);
-    }
-
-    .ov-input:focus {
-      border-color: var(--verde-principal);
-      box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
-      background: var(--blanco);
-    }
-
-    .input-wrap { position: relative; }
-
-    .input-icon {
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      pointer-events: none;
-      color: var(--verde-texto);
-    }
-
-    .ov-input-full {
-      border: 2px solid var(--verde-borde);
-      border-radius: 10px;
-      padding: 6px 8px 6px 28px;
-      font-size: 13px;
-      outline: none;
-      width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background: var(--gris-fondo);
-    }
-
-    .ov-input-full:focus {
-      border-color: var(--verde-principal);
-      box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
-      background: var(--blanco);
-    }
-
-    .ov-divider { height: 1px; background: var(--verde-borde); margin: 4px 0 10px; border: none; }
-
-    .ov-field { margin-bottom: 10px; }
-
-    .btn-confirmar {
-      background: var(--verde-principal);
-      color: var(--blanco);
-      border: none;
-      border-radius: 20px;
-      padding: 9px 0;
-      font-size: 13px;
-      font-weight: 700;
-      width: 100%;
-      cursor: pointer;
-      letter-spacing: 1px;
-      transition: background 0.2s, transform 0.2s;
-      margin-bottom: 7px;
-    }
-
-    .btn-confirmar:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
-
-    .btn-descartar {
-      background: transparent;
-      color: var(--gris-texto);
-      border: 2px solid #dddddd;
-      border-radius: 20px;
-      padding: 9px 0;
-      font-size: 13px;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      letter-spacing: 1px;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .btn-descartar:hover { background: #f5f5f5; border-color: #bbbbbb; }
 
     /* ===== FOOTER ===== */
     footer {
@@ -506,11 +484,10 @@
       color: var(--gris-texto);
     }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 600px) {
       .ov-row { flex-direction: column; gap: 8px; }
-      .btn-registrar { margin-left: 20px; }
-      .card-externa { padding: 20px 16px; }
+      .btn-registrar { margin-left: 16px; }
+      .card-externa { padding: 18px 14px; }
     }
   </style>
 </head>
@@ -518,23 +495,29 @@
 
   <!-- ===== HEADER ===== -->
   <div class="header">
-    <div class="d-flex align-items-center gap-2">
-      <img src="img/LOGO_HGA.png" class="logo-img" alt="Logo" />
+    <div class="header-left">
+      <img src="img/LOGO_HGA.png" class="logo-img" alt="Logo HGA"
+           onerror="this.style.background='#6fb1b1';this.style.display='flex';this.alt='HGA';" />
       <h1 class="header-title">Citas Medicas</h1>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary rounded-circle" title="Notificaciones">🔔</button>
+    <div class="header-icons">
+      <!-- Campana -->
+      <button class="icon-btn" title="Notificaciones" onclick="window.location.href='Notificaciones.html'">
+        🔔
+      </button>
 
+      <!-- Perfil -->
       <div class="profile-menu-wrapper">
-        <button class="btn btn-outline-secondary rounded-circle" id="profileBtn" title="Perfil">👤</button>
+        <button class="icon-btn" id="profileBtn" title="Perfil">👤</button>
         <div class="profile-dropdown" id="profileDrop">
           <button class="profile-menu-item" onclick="window.location.href='user.html'">Ver perfil de usuario</button>
           <button class="profile-menu-item" onclick="window.location.href='login.html'">Cerrar sesión</button>
         </div>
       </div>
 
+      <!-- Menú hamburguesa -->
       <div class="dropdown">
-        <button class="btn btn-outline-secondary rounded-circle" data-bs-toggle="dropdown">☰</button>
+        <button class="icon-btn" data-bs-toggle="dropdown" title="Menú">☰</button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="#">Inicio</a></li>
           <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
@@ -550,7 +533,7 @@
 
   <!-- ===== BOTÓN REGISTRAR ===== -->
   <button class="btn-registrar" onclick="abrirOverlay()">
-    <span style="font-size:18px; font-weight:300;">+</span> Registrar nueva Cita
+    <span style="font-size:16px; font-weight:300;">+</span> Registrar nueva Cita
   </button>
 
   <!-- ===== CONTENIDO ===== -->
@@ -562,16 +545,11 @@
         <!-- Barra filtro -->
         <div class="filtro-bar">
           <div class="filtro-input-wrap" id="filtroWrap">
-            <input
-              type="text"
-              class="filtro-input"
-              id="filtroInput"
-              placeholder="Buscar en citas..."
-              oninput="filtrarCitas()"
-            />
+            <input type="text" class="filtro-input" id="filtroInput"
+              placeholder="Buscar en citas..." oninput="filtrarCitas()" />
           </div>
           <button class="btn-filtrar" onclick="toggleFiltro()">
-            <span>⚗</span> Filtrar
+            ⚗ Filtrar
           </button>
         </div>
 
@@ -584,8 +562,8 @@
   <!-- ===== OVERLAY REGISTRAR CITA ===== -->
   <div class="overlay-fondo" id="overlayFondo" onclick="clickFuera(event)">
     <div class="overlay-card" id="overlayCard">
+      <div class="ov-titulo">📋 Registrar nueva Cita</div>
 
-      <!-- Fila 1: Fecha, Hora Inicio, Hora Fin -->
       <div class="ov-row">
         <div class="ov-group">
           <label class="ov-label">• Fecha:</label>
@@ -612,7 +590,6 @@
 
       <hr class="ov-divider" />
 
-      <!-- Código Usuario -->
       <div class="ov-field">
         <label class="ov-label">• Codigo Usuario</label>
         <div class="input-wrap" style="margin-top:3px;">
@@ -621,7 +598,6 @@
         </div>
       </div>
 
-      <!-- Código Residente -->
       <div class="ov-field">
         <label class="ov-label">• Codigo Residente:</label>
         <div class="input-wrap" style="margin-top:3px;">
@@ -630,21 +606,11 @@
         </div>
       </div>
 
-      <!-- Lugar -->
       <div class="ov-field">
         <label class="ov-label">• Lugar de la Cita Medica:</label>
         <div class="input-wrap" style="margin-top:3px;">
           <span class="input-icon">🏥</span>
           <input type="text" class="ov-input-full" id="regLugar" placeholder="Lugar de la cita" />
-        </div>
-      </div>
-
-      <!-- Código Cita -->
-      <div class="ov-field" style="margin-bottom:14px;">
-        <label class="ov-label">• Codigo Cita:</label>
-        <div class="input-wrap" style="margin-top:3px;">
-          <span class="input-icon">🔖</span>
-          <input type="text" class="ov-input-full" id="regCodCita" placeholder="Código de la cita" />
         </div>
       </div>
 
@@ -658,7 +624,7 @@
 
   <!-- ===== OVERLAY DETALLE CITA ===== -->
   <div class="overlay-fondo" id="overlayDetalle" onclick="clickFueraDetalle(event)">
-    <div class="detalle-card" id="detalleCard">
+    <div class="detalle-card">
       <div class="detalle-titulo">
         <span>Detalle de Cita</span>
         <button onclick="cerrarDetalle()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#999;line-height:1;">×</button>
@@ -670,7 +636,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ===== DATOS INICIALES =====
     let citas = [
       {
         id: 1,
@@ -692,10 +657,9 @@
       }
     ];
 
-    let contadorId   = 4;
+    let contadorId = 4;
     let filtroActivo = false;
 
-    // ===== RENDER =====
     function renderCitas(lista) {
       const container = document.getElementById("listaCitas");
       if (!lista || lista.length === 0) {
@@ -703,61 +667,32 @@
         return;
       }
       container.innerHTML = lista.map(c => `
-        <div class="cita-item" onclick="abrirDetalle(${c.id})" style="cursor:pointer;">
+        <div class="cita-item" onclick="abrirDetalle(${c.id})">
           <span class="cita-bullet">•</span>
           <div>
             <div>${c.texto}</div>
             <div class="cita-meta">
-              ${c.fecha      ? `<span class="cita-badge">📅 ${c.fecha}</span>` : ''}
-              ${c.horaInicio ? `<span class="cita-badge">🕐 ${c.horaInicio} - ${c.horaFin}</span>` : ''}
-              ${c.lugar      ? `<span class="cita-badge">🏥 ${c.lugar}</span>` : ''}
-              ${c.codCita    ? `<span class="cita-badge">🔖 ${c.codCita}</span>` : ''}
+              ${c.fecha      ? `<span class="cita-badge badge-fecha">📅 ${c.fecha}</span>` : ''}
+              ${c.horaInicio ? `<span class="cita-badge badge-hora">🕐 ${c.horaInicio} - ${c.horaFin}</span>` : ''}
+              ${c.lugar      ? `<span class="cita-badge badge-lugar">📄 ${c.lugar}</span>` : ''}
+              ${c.codCita    ? `<span class="cita-badge badge-codigo">🔗 ${c.codCita}</span>` : ''}
             </div>
           </div>
         </div>
       `).join("");
     }
 
-    // ===== OVERLAY DETALLE =====
     function abrirDetalle(id) {
       const c = citas.find(x => x.id === id);
       if (!c) return;
       document.getElementById("detalleContenido").innerHTML = `
-        <div class="detalle-fila">
-          <span class="detalle-icono">📝</span>
-          <span class="detalle-key">Descripción</span>
-          <span class="detalle-val">${c.texto}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">📅</span>
-          <span class="detalle-key">Fecha</span>
-          <span class="detalle-val">${c.fecha || '—'}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">🕐</span>
-          <span class="detalle-key">Hora</span>
-          <span class="detalle-val">${c.horaInicio && c.horaFin ? c.horaInicio + ' — ' + c.horaFin : '—'}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">🏥</span>
-          <span class="detalle-key">Lugar</span>
-          <span class="detalle-val">${c.lugar || '—'}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">👤</span>
-          <span class="detalle-key">Cod. Usuario</span>
-          <span class="detalle-val">${c.codUsuario || '—'}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">👤</span>
-          <span class="detalle-key">Cod. Residente</span>
-          <span class="detalle-val">${c.codResidente || '—'}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="detalle-icono">🔖</span>
-          <span class="detalle-key">Cod. Cita</span>
-          <span class="detalle-val">${c.codCita || '—'}</span>
-        </div>
+        <div class="detalle-fila"><span class="detalle-icono">📝</span><span class="detalle-key">Descripción</span><span class="detalle-val">${c.texto}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">📅</span><span class="detalle-key">Fecha</span><span class="detalle-val">${c.fecha || '—'}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">🕐</span><span class="detalle-key">Hora</span><span class="detalle-val">${c.horaInicio && c.horaFin ? c.horaInicio + ' — ' + c.horaFin : '—'}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">🏥</span><span class="detalle-key">Lugar</span><span class="detalle-val">${c.lugar || '—'}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">👤</span><span class="detalle-key">Cod. Usuario</span><span class="detalle-val">${c.codUsuario || '—'}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">👤</span><span class="detalle-key">Cod. Residente</span><span class="detalle-val">${c.codResidente || '—'}</span></div>
+        <div class="detalle-fila"><span class="detalle-icono">🔖</span><span class="detalle-key">Cod. Cita</span><span class="detalle-val">${c.codCita || '—'}</span></div>
       `;
       document.getElementById("overlayDetalle").classList.add("show");
     }
@@ -770,26 +705,21 @@
       if (e.target === document.getElementById("overlayDetalle")) cerrarDetalle();
     }
 
-    // ===== FILTRAR =====
     function toggleFiltro() {
-      const wrap  = document.getElementById("filtroWrap");
+      const wrap = document.getElementById("filtroWrap");
       const input = document.getElementById("filtroInput");
       filtroActivo = !filtroActivo;
       wrap.classList.toggle("show", filtroActivo);
-      if (filtroActivo) {
-        input.focus();
-      } else {
-        input.value = "";
-        renderCitas(citas);
-      }
+      if (filtroActivo) { input.focus(); }
+      else { input.value = ""; renderCitas(citas); }
     }
 
     function filtrarCitas() {
       const q = document.getElementById("filtroInput").value.toLowerCase().trim();
       if (!q) { renderCitas(citas); return; }
       const filtradas = citas.filter(c =>
-        c.texto.toLowerCase().includes(q)        ||
-        (c.lugar      && c.lugar.toLowerCase().includes(q))   ||
+        c.texto.toLowerCase().includes(q) ||
+        (c.lugar      && c.lugar.toLowerCase().includes(q)) ||
         (c.codCita    && c.codCita.toLowerCase().includes(q)) ||
         (c.codUsuario && c.codUsuario.toLowerCase().includes(q)) ||
         (c.fecha      && c.fecha.includes(q))
@@ -797,7 +727,6 @@
       renderCitas(filtradas);
     }
 
-    // ===== OVERLAY =====
     function abrirOverlay() {
       document.getElementById("overlayFondo").classList.add("show");
       limpiarFormulario();
@@ -815,21 +744,28 @@
       if (e.key === "Escape") { cerrarOverlay(); cerrarDetalle(); }
     });
 
+    function generarCodCita() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let cod = "CIT-";
+      for (let i = 0; i < 6; i++) cod += chars[Math.floor(Math.random() * chars.length)];
+      return cod;
+    }
+
     function limpiarFormulario() {
-      ["regFecha","regHoraInicio","regHoraFin","regCodUsuario","regCodResidente","regLugar","regCodCita"]
+      ["regFecha","regHoraInicio","regHoraFin","regCodUsuario","regCodResidente","regLugar"]
         .forEach(id => { document.getElementById(id).value = ""; });
     }
 
     function confirmarCita() {
-      const fecha       = document.getElementById("regFecha").value;
-      const horaInicio  = document.getElementById("regHoraInicio").value;
-      const horaFin     = document.getElementById("regHoraFin").value;
-      const codUsuario  = document.getElementById("regCodUsuario").value.trim();
-      const codResidente= document.getElementById("regCodResidente").value.trim();
-      const lugar       = document.getElementById("regLugar").value.trim();
-      const codCita     = document.getElementById("regCodCita").value.trim();
+      const fecha        = document.getElementById("regFecha").value;
+      const horaInicio   = document.getElementById("regHoraInicio").value;
+      const horaFin      = document.getElementById("regHoraFin").value;
+      const codUsuario   = document.getElementById("regCodUsuario").value.trim();
+      const codResidente = document.getElementById("regCodResidente").value.trim();
+      const lugar        = document.getElementById("regLugar").value.trim();
+      const codCita      = generarCodCita();
 
-      if (!fecha || !horaInicio || !horaFin || !codUsuario || !codResidente || !lugar || !codCita) {
+      if (!fecha || !horaInicio || !horaFin || !codUsuario || !codResidente || !lugar) {
         alert("Por favor, complete todos los campos.");
         return;
       }
@@ -837,7 +773,6 @@
       const texto = `Nueva cita registrada — Residente: ${codResidente} | Usuario: ${codUsuario} | Lugar: ${lugar}`;
       citas.push({ id: contadorId++, texto, fecha, horaInicio, horaFin, codUsuario, codResidente, lugar, codCita });
 
-      // Si hay filtro activo, reaplicar
       if (filtroActivo && document.getElementById("filtroInput").value) {
         filtrarCitas();
       } else {
@@ -847,7 +782,7 @@
       cerrarOverlay();
     }
 
-    // ===== MENÚ PERFIL =====
+    // Menú perfil
     const profileBtn  = document.getElementById("profileBtn");
     const profileDrop = document.getElementById("profileDrop");
 
@@ -862,7 +797,6 @@
       }
     });
 
-    // ===== INICIALIZAR =====
     renderCitas(citas);
   </script>
 </body>
