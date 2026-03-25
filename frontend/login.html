@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        :root {
+            --hga-primary: #299c4c;
+            --hga-secondary: #4db6ac;
+            --hga-accent: #66bb6a;
+            --hga-surface: #ffffff;
+            --hga-muted: #e9eeee;
+            --hga-text-soft: #55706a;
+            --hga-bg-top: #94d7d1;
+            --hga-bg-bottom: #e0f2f1;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--hga-bg-top) 0%, #b8e6e1 42%, var(--hga-bg-bottom) 100%);
+            color: #1f1f1f;
+        }
+
+        .page-shell {
+            min-height: 100vh;
+        }
+
+        .top-bar,
+        .login-panel,
+        .login-side-card {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-bar {
+            border-radius: 1.5rem;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+        }
+
+        .screen-title {
+            color: #38bdd3;
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            font-weight: 400;
+        }
+
+        .login-panel {
+            border-radius: 2rem;
+        }
+
+        .login-shell {
+            max-width: 560px;
+            width: 100%;
+        }
+
+        .login-side-card {
+            border-radius: 1.5rem;
+        }
+
+        .panel-title {
+            color: var(--hga-primary);
+            font-size: clamp(2.1rem, 3vw, 3.2rem);
+            font-weight: 700;
+        }
+
+        .panel-copy {
+            color: var(--hga-text-soft);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .login-label {
+            color: var(--hga-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .login-input,
+        .login-input:focus {
+            border: 1px solid rgba(41, 156, 76, 0.75);
+            border-radius: 0.7rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            min-height: 52px;
+        }
+
+        .login-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.16), 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .forgot-link {
+            color: var(--hga-primary);
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover,
+        .forgot-link:focus {
+            color: var(--hga-secondary);
+        }
+
+        .login-cta,
+        .login-secondary {
+            border-radius: 0.7rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+            font-size: 0.92rem;
+            font-weight: 700;
+            min-height: 50px;
+            text-transform: uppercase;
+        }
+
+        .login-cta {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+            color: #fff;
+        }
+
+        .login-cta:hover,
+        .login-cta:focus {
+            background: linear-gradient(90deg, #5eb863, #44b0a4);
+            color: #fff;
+        }
+
+        .login-secondary {
+            background: linear-gradient(90deg, #ffffff, var(--hga-bg-bottom));
+            border: 1px solid #d9e5e2;
+            color: var(--hga-primary);
+        }
+
+        .login-secondary:hover,
+        .login-secondary:focus {
+            color: var(--hga-primary);
+            background: linear-gradient(90deg, #f8fbfb, #d5ece8);
+        }
+
+        .google-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #ebf0ef;
+            border-radius: 1.25rem;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .google-title {
+            color: var(--hga-primary);
+            font-size: 0.98rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .google-copy {
+            color: var(--hga-text-soft);
+            font-size: 0.95rem;
+        }
+
+        .google-oauth-btn {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #d7e0de;
+            border-radius: 0.85rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            color: #1f1f1f;
+            display: inline-flex;
+            font-size: 0.95rem;
+            font-weight: 600;
+            gap: 0.8rem;
+            justify-content: center;
+            min-height: 52px;
+        }
+
+        .google-oauth-btn:hover,
+        .google-oauth-btn:focus {
+            background: #f8fbfb;
+            border-color: #bfd7d3;
+            color: #1f1f1f;
+        }
+
+        .field-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.14) !important;
+        }
+
+        .footer-strip {
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        @media (max-width: 991.98px) {
+            .login-panel {
+                border-radius: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell d-flex flex-column">
+        <header class="container py-4 py-lg-5">
+            <div class="top-bar px-3 px-lg-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index.html" class="text-decoration-none">
+                        <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle">
+                    </a>
+                    <span class="screen-title mb-0">Iniciar sesión</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container flex-grow-1 pb-4 pb-lg-5">
+            <section class="login-panel login-shell mx-auto px-4 px-md-5 py-4 py-md-5">
+                <div class="row justify-content-center align-items-center g-4 g-xl-5">
+
+                    <div class="col-12">
+                        <div>
+                            <h2 class="panel-title text-center mb-4">Iniciar Sesión</h2>
+
+                            <form id="loginForm" novalidate>
+                                <div class="mb-4">
+                                    <label for="usuario" class="form-label login-label">Correo electrónico o usuario</label>
+                                    <input type="text" id="usuario" name="usuario" class="form-control login-input" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contrasena" class="form-label login-label">Contraseña</label>
+                                    <input type="password" id="contrasena" name="contrasena" class="form-control login-input" required>
+                                </div>
+
+                                <div class="text-end mb-4">
+                                    <a href="forgot_password.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                                </div>
+                                
+                                <div class="row g-3 justify-content-center">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn login-cta w-100">Iniciar Sesión</button>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn login-secondary w-100" onclick="window.location.href='index.html'">Regresar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="mt-4 mt-lg-5">
+                <div class="google-panel login-shell mx-auto text-center px-4 px-md-5 py-4 mb-4">
+                    <p class="google-title mb-2">Acceso con Google</p>
+                    <a href="auth/google" class="btn google-oauth-btn w-100 mx-auto px-4 px-lg-5" style="max-width: 380px;">
+                        <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.199 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.96 3.04l5.657-5.657C34.046 6.053 29.27 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
+                            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.96 3.04l5.657-5.657C34.046 6.053 29.27 4 24 4c-7.682 0-14.344 4.337-17.694 10.691z"></path>
+                            <path fill="#4CAF50" d="M24 44c5.167 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.145 35.091 26.715 36 24 36c-5.178 0-9.625-3.329-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.054 12.054 0 0 1-4.084 5.571l.003-.002 6.19 5.238C36.971 39.193 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"></path>
+                        </svg>
+                        Iniciar sesión con Google
+                    </a>
+                 </div>
+            </section>
+        </main>
+
+        <footer class="footer-strip py-4 mt-auto">
+            <div class="container text-center">
+                <small class="fs-5">derechos reservados HGA © 2025 | Hogar Geriátrico</small>
+            </div>
+        </footer>
+    </div>
+
+    <script src="./js/alerts.js"></script>
+    <script src="./js/login_validate.js?v=20260325-1"></script>
+</body>
+</html>
