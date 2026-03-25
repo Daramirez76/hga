@@ -4,20 +4,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
  
 use App\Http\Requests\visitasRequest;
-use App\Services\visitassService;
+use App\Services\visitasService;
 
 class visitasController extends Controller
 {
-    protected $visitassService;
+    protected $visitasService;
 
-    public function __construct(visitassService $visitassService)
+    public function __construct(visitasService $visitasService)
     {
-        $this->visitassService = $visitassService;
+        $this->visitasService = $visitasService;
     }
 
     public function index()
     {
-        $visitass = $this->visitassService->getAllvisitass();
+        $visitass = $this->visitasService->getAllvisitas();
         return response()->json([
             'message' => 'visitass retrieved successfully',
             'data' => $visitass
@@ -26,7 +26,7 @@ class visitasController extends Controller
 
     public function show($id)
     {
-       $visitass = $this->visitassService->getvisitassById($id);
+       $visitass = $this->visitasService->getvisitasById($id);
         if (!$visitass) {
             return response()->json([
                 'message' => 'visitass not found'
@@ -40,7 +40,7 @@ class visitasController extends Controller
 
     public function store(visitasRequest $request)
     {
-        $visitass = $this->visitassService->create($request);
+        $visitass = $this->visitasService->create($request);
         return response()->json([
             'message' => 'visitass created successfully',
             'data' => $visitass
@@ -49,7 +49,7 @@ class visitasController extends Controller
 
     public function update($id, visitasRequest $request)
     {
-        $visitass = $this->visitassService->update($id, $request);
+        $visitass = $this->visitasService->update($id, $request);
         if (!$visitass) {
             return response()->json([
                 'message' => 'visitass not found'
@@ -63,7 +63,7 @@ class visitasController extends Controller
 
     public function destroy($id)
     {
-        $visitass = $this->visitassService->delete($id);
+        $visitass = $this->visitasService->delete($id);
         if (!$visitass) {
             return response()->json([
                 'message' => 'visitass not found'
@@ -74,6 +74,5 @@ class visitasController extends Controller
         ]);
     }
 }
-
 
 

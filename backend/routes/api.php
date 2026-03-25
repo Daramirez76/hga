@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\actividadesController;
+use App\Http\Controllers\citasController;
 use App\Http\Controllers\googleAuthController;
+use App\Http\Controllers\informesController;
 use App\Http\Controllers\medicamentosController;
 use App\Http\Controllers\olvideContrasenaController;
 use App\Http\Controllers\registrarseController;

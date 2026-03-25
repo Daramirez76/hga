@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\visitasRequest;
-use App\repositories\Interfaces\visitasRepository;
+use App\Repositories\Interfaces\visitasInterface;
 
 class visitasService
 {
@@ -24,18 +24,18 @@ class visitasService
         return $this->visitasRepository->getvisitasById($id);
     }
 
-    public function createvisitas(visitasRequest $request)
+    public function create(visitasRequest $request)
     {
         return $this->visitasRepository->createvisitas($request->validated());
     }
 
-    public function updatevisitas($id, visitasRequest $request)
+    public function update($id, visitasRequest $request)
     {
-        return $this->visitasRepository->update($id, $request->validated());
+        return $this->visitasRepository->updatevisitas($id, $request->validated());
     }
 
-    public function deletevisitas($id)
+    public function delete($id)
     {
-        return $this->visitasRepository->delete($id);
+        return $this->visitasRepository->deletevisitas($id);
     }
 }

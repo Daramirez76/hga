@@ -3,8 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\informesRequest;
-use App\repositories\Interfaces\informesRepository;
-use Illuminate\Support\Str;
+use App\Repositories\Interfaces\informesInterface;
 
 class informesService
 {

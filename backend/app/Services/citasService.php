@@ -3,8 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\citasRequest;
-
-use App\repositories\Interfaces\citasRepository;
+use App\Repositories\Interfaces\citasInterface;
 
 class citasService
 {
@@ -25,18 +24,18 @@ class citasService
         return $this->citasRepository->getcitasById($id);
     }
 
-    public function createcitas(citasRequest $request)
+    public function create(citasRequest $request)
     {
         return $this->citasRepository->createcitas($request->validated());
     }
 
-    public function updatecitas($id, citasRequest $request)
+    public function update($id, citasRequest $request)
     {
-        return $this->citasRepository->update($id, $request->validated());
+        return $this->citasRepository->updatecitas($id, $request->validated());
     }
 
-    public function deletecitas($id)
+    public function delete($id)
     {
-        return $this->citasRepository->delete($id);
+        return $this->citasRepository->deletecitas($id);
     }
 }

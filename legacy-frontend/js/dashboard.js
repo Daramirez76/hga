@@ -50,7 +50,7 @@ function setLoadingState() {
 
 function fillMonthFilter() {
   const currentMonth = new Date().getMonth() + 1;
-  monthFilter.innerHTML = '<option value="all">Mes - * *</option>';
+  monthFilter.innerHTML = '<option value="all">Mes</option>';
   MONTH_NAMES.forEach((monthName, index) => {
     const value = String(index + 1).padStart(2, '0');
     const option = document.createElement('option');

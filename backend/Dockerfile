@@ -26,6 +26,10 @@ COPY . /var/www/html
 # install php dependencies
 RUN composer install --no-scripts --no-dev --optimize-autoloader --no-interaction
 
+# Drop any cached manifests copied from the host so production boots
+# against the dependencies actually installed in the image.
+RUN rm -f /var/www/html/bootstrap/cache/*.php
+
 # ensure storage directories are writable
 RUN mkdir -p /var/www/html/storage/framework/cache \
     /var/www/html/storage/framework/sessions \

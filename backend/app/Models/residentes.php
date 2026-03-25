@@ -9,6 +9,9 @@ class residentes extends Model
 {
     use HasFactory;
 
-    protected $table = 'residentes';
+    protected $table = 'residente';
+    protected $primaryKey = 'cod_residente';
+    public $incrementing = false;
+    public $timestamps = false;
     protected $fillable = ['cod_residente', 'nombre', 'apellido', 'edad', 'patologia', 'RH', 'cod_usuario', 'cod_rol'];
 }

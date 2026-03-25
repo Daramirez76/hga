@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Repositories\Eloquent;
-use App\Models\residentes;
+use App\Models\visitas;
 use App\Repositories\Interfaces\visitasInterface;
 
 class visitasRepository implements visitasInterface
@@ -47,4 +47,3 @@ class visitasRepository implements visitasInterface
         return true;
     }
 }
-
