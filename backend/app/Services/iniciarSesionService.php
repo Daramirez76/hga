@@ -76,8 +76,12 @@ class iniciarSesionService
                     'email' => $user->email,
                     'username' => $user->usuario,
                     'telefono' => $user->telefono,
+                    'direccion' => $user->direccion,
+                    'edad' => $user->edad,
                     'cod_rol' => $roleCode,
                     'rol' => $roleName,
+                    'google_id' => $user->google_id,
+                    'profile_completed' => $this->isProfileCompleted($user),
                 ],
             ];
         } catch (\Exception $e) {
@@ -103,5 +107,15 @@ class iniciarSesionService
                 'message' => 'Error al cerrar sesión: ' . $e->getMessage(),
             ];
         }
+    }
+
+    protected function isProfileCompleted(object $user): bool
+    {
+        return trim((string) ($user->name ?? '')) !== ''
+            && trim((string) ($user->apellido ?? '')) !== ''
+            && trim((string) ($user->direccion ?? '')) !== ''
+            && trim((string) ($user->telefono ?? '')) !== ''
+            && trim((string) ($user->usuario ?? '')) !== ''
+            && (int) ($user->edad ?? 0) >= 18;
     }
 }

@@ -12,6 +12,13 @@ class residentes extends Model
     protected $table = 'residente';
     protected $primaryKey = 'cod_residente';
     public $incrementing = false;
+    protected $keyType = 'int';
     public $timestamps = false;
     protected $fillable = ['cod_residente', 'nombre', 'apellido', 'edad', 'patologia', 'RH', 'cod_usuario', 'cod_rol'];
+    protected $casts = [
+        'cod_residente' => 'integer',
+        'edad' => 'integer',
+        'cod_usuario' => 'integer',
+        'cod_rol' => 'integer',
+    ];
 }

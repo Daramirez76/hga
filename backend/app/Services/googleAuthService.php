@@ -20,12 +20,13 @@ class googleAuthService
      * Resolve the Google OAuth callback and issue a local JWT.
      *
      * @param string $authorizationCode
+     * @param string $redirectUri
      * @return array<string, mixed>
      */
-    public function handleCallback(string $authorizationCode): array
+    public function handleCallback(string $authorizationCode, string $redirectUri): array
     {
         try {
-            $googleUser = $this->fetchGoogleUser($authorizationCode);
+            $googleUser = $this->fetchGoogleUser($authorizationCode, $redirectUri);
             $user = $this->resolveLocalUser($googleUser);
             $roleCode = (int) ($user->cod_rol ?? 4);
             $expiresIn = (int) config('jwt.ttl', 60) * 60;
@@ -44,9 +45,12 @@ class googleAuthService
                     'email' => $user->email,
                     'username' => $user->usuario,
                     'telefono' => $user->telefono,
+                    'direccion' => $user->direccion,
+                    'edad' => $user->edad,
                     'cod_rol' => $roleCode,
                     'rol' => $this->resolveRoleName($roleCode),
                     'google_id' => $user->google_id,
+                    'profile_completed' => $this->isProfileCompleted($user),
                 ],
             ];
         } catch (\Throwable $exception) {
@@ -59,13 +63,13 @@ class googleAuthService
 
     /**
      * @param string $authorizationCode
+     * @param string $redirectUri
      * @return array<string, mixed>
      */
-    protected function fetchGoogleUser(string $authorizationCode): array
+    protected function fetchGoogleUser(string $authorizationCode, string $redirectUri): array
     {
         $clientId = (string) config('services.google.client_id');
         $clientSecret = (string) config('services.google.client_secret');
-        $redirectUri = (string) config('services.google.redirect');
 
         if ($clientId === '' || $clientSecret === '' || $redirectUri === '') {
             throw new \RuntimeException('Falta configurar GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET o GOOGLE_REDIRECT_URI');
@@ -203,5 +207,15 @@ class googleAuthService
             2 => 'Enfermero',
             default => 'Tutor',
         };
+    }
+
+    protected function isProfileCompleted(usuarios $user): bool
+    {
+        return trim((string) ($user->name ?? '')) !== ''
+            && trim((string) ($user->apellido ?? '')) !== ''
+            && trim((string) ($user->direccion ?? '')) !== ''
+            && trim((string) ($user->telefono ?? '')) !== ''
+            && trim((string) ($user->usuario ?? '')) !== ''
+            && (int) ($user->edad ?? 0) >= 18;
     }
 }

@@ -2,6 +2,43 @@ const LOGIN_ENDPOINT = `${globalThis.location.origin}/api/login`;
 const LOGIN_SUCCESS_REDIRECT = "home.html";
 const JSON_CONTENT_TYPE = "application/json";
 
+async function procesarRetornoGoogle() {
+    const url = new URL(globalThis.location.href);
+    const params = url.searchParams;
+
+    if (!params.has("success") && !params.has("access_token") && !params.has("message")) {
+        return false;
+    }
+
+    const success = params.get("success") === "1";
+    const accessToken = params.get("access_token") || "";
+    const userPayload = params.get("user") || "";
+    const message = params.get("message") || "";
+
+    url.search = "";
+    window.history.replaceState({}, document.title, url.toString());
+
+    if (!success || accessToken === "") {
+        await window.HgaAlerts.error(message || "No fue posible autenticar con Google");
+        return true;
+    }
+
+    localStorage.setItem("access_token", accessToken);
+
+    if (userPayload !== "") {
+        try {
+            localStorage.setItem("usuario", userPayload);
+        } catch (error) {
+            console.error("No fue posible guardar el usuario de Google:", error);
+        }
+    }
+
+    await window.HgaAlerts.success(message || "Login exitoso con Google");
+    const loginRedirectUrl = new URL(LOGIN_SUCCESS_REDIRECT, globalThis.location.href);
+    globalThis.location.replace(loginRedirectUrl.toString());
+    return true;
+}
+
 function obtenerCampo(id) {
     const campo = document.getElementById(id);
 
@@ -102,7 +139,9 @@ async function iniciarSesion(event) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await procesarRetornoGoogle();
+
     const formulario = document.getElementById("loginForm");
     if (formulario) {
         formulario.addEventListener("submit", iniciarSesion);

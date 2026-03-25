@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('residentes', function (Blueprint $table) {
-            $table->id();
-            $table->string('cod_residente')->unique();
-            $table->string('nombre');
-            $table->string('apellido');
-            $table->integer('edad');
-            $table->string('patologia');
-            $table->string('RH');
-            $table->unsignedBigInteger('cod_usuario');
-            $table->unsignedBigInteger('cod_rol');
-            $table->timestamps();
+        if (Schema::hasTable('residente') || Schema::hasTable('residentes')) {
+            return;
+        }
 
+        Schema::create('residente', function (Blueprint $table) {
+            $table->integer('cod_residente')->primary();
+            $table->string('nombre', 50);
+            $table->string('apellido', 50);
+            $table->integer('edad');
+            $table->string('patologia', 120);
+            $table->string('RH', 6);
+            $table->integer('cod_usuario');
+            $table->integer('cod_rol');
         });
     }
 
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('residentes');
+        Schema::dropIfExists('residente');
     }
 };

@@ -17,11 +17,15 @@ Route::get('/test', function () {
     return response()->json(['success' => true, 'message' => 'Backend working!'], 200);
 });
 
+Route::get('/auth/google', [googleAuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+
 Route::post('/register', [registrarseController::class, 'register']);
 Route::post('/login', [iniciarSesionController::class, 'login']);
 Route::post('/logout', [iniciarSesionController::class, 'logout'])->middleware('auth.api');
 Route::get('/me', [iniciarSesionController::class, 'me'])->middleware('auth.api');
-Route::resource('/residentes', residentesController::class)->middleware('auth.api');
+Route::put('/me', [iniciarSesionController::class, 'updateMe'])->middleware('auth.api');
+Route::apiResource('/residentes', residentesController::class)->middleware('auth.api');
 Route::resource('/medicamentos', medicamentosController::class)->middleware('auth.api');
 Route::resource('/visitas', visitasController::class)->middleware('auth.api');
 Route::resource('/informes', informesController::class)->middleware('auth.api');
