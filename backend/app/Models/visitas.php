@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class visitas extends Model
 {
-    protected $table = 'visitas';
-    protected $primaryKey = 'cod_Visitas';
-    public $incrementing = false;
-    public $timestamps = false;
+    use HasFactory;
+
+    protected $table = 'visita';
+
     protected $fillable = [
         'cod_Visitas',
         'doc_id',
@@ -17,5 +18,14 @@ class visitas extends Model
         'cod_Residente',
         'Fecha_Visita',
         'cod_usuario'
+    ];
+
+    protected $casts = [
+        'id' => 'integer',
+        'cod_Visitas' => 'integer',
+        'doc_id' => 'integer',
+        'cod_Residente' => 'integer',
+        'cod_usuario' => 'integer',
+        'Fecha_Visita' => 'date:Y-m-d',
     ];
 }

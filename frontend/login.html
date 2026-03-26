@@ -196,7 +196,7 @@
         }
     </style>
 </head>
-<body>
+<body data-login-redirect="home.html">
     <div class="page-shell d-flex flex-column">
         <header class="container py-4 py-lg-5">
             <div class="top-bar px-3 px-lg-4 py-3">
@@ -219,8 +219,8 @@
 
                             <form id="loginForm" novalidate>
                                 <div class="mb-4">
-                                    <label for="usuario" class="form-label login-label">Correo electrónico</label>
-                                    <input type="text" id="usuario" name="usuario" class="form-control login-input" required>
+                                    <label for="usuario" class="form-label login-label">Correo electrónico o usuario</label>
+                                    <input type="text" id="usuario" name="usuario" class="form-control login-input" autocomplete="username" required>
                                 </div>
 
                                 <div class="mb-3">
@@ -229,7 +229,7 @@
                                 </div>
 
                                 <div class="text-end mb-4">
-                                    <a href="forgot_password.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                                    <a href="forgot_password.html?return_to=login.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
                                 </div>
                                 
                                 <div class="row g-3 justify-content-center">

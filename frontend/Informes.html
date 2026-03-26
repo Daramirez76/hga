@@ -48,23 +48,6 @@
         padding: 20px;
       }
 
-      /* TARJETAS */
-      .card-informe {
-        background: #fff;
-        border-radius: 10px;
-        padding: 12px 15px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease;
-      }
-
-      .card-informe:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
       /* BOTON NUEVO INFORME */
       .btn-nuevo-container {
         margin: 0 0 15px 50px;
@@ -83,21 +66,103 @@
         color: white;
       }
 
-      /* PANEL FORM */
-      .panel-form {
+      .informes-summary {
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(65, 124, 85, 0.15);
+        border-radius: 18px;
+        padding: 12px 16px;
+      }
+
+      .informes-banner {
+        border-radius: 16px;
+        border: 1px solid rgba(65, 124, 85, 0.15);
+        background: rgba(255, 255, 255, 0.8);
+        color: #2e7d32;
+      }
+
+      .informe-card {
+        border: 1px solid rgba(65, 124, 85, 0.12);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff, #f8fcf9);
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.06);
+      }
+
+      .informe-card-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .informe-code {
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #5c7d66;
+      }
+
+      .informe-title {
         color: #166e34;
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 380px;
-        background: #fff;
-        border-radius: 20px;
-        padding: 25px;
-        display: none;
-        z-index: 999;
-        box-shadow: 0px 5px 20px rgba(151, 14, 14, 0.2);
+        margin: 0;
+      }
+
+      .informe-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .informe-chip {
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #e8f5e9;
+        color: #1b5e20;
+      }
+
+      .informe-chip.type {
+        background: #e3f2fd;
+        color: #0d47a1;
+      }
+
+      .informe-chip.urgency-normal {
+        background: #fff8e1;
+        color: #8d6e63;
+      }
+
+      .informe-chip.urgency-alta {
+        background: #ffebee;
+        color: #b71c1c;
+      }
+
+      .informe-description {
+        margin: 12px 0 0;
+        color: #4b5c50;
+      }
+
+      .informe-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .informe-actions .btn {
+        border-radius: 999px;
+      }
+
+      .empty-state-informes {
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px dashed rgba(65, 124, 85, 0.25);
+        border-radius: 16px;
+        color: #4b5c50;
+        padding: 18px;
+        text-align: center;
       }
 
       /* BOTON CONFIRMAR */
@@ -112,11 +177,6 @@
       .btn-confirmar:hover {
         background: #4da86a;
         color: white;
-      }
-
-      /* FILTRO */
-      #filtro {
-        min-width: 200px;
       }
 
       /* FOOTER */
@@ -208,9 +268,6 @@
         .btn-nuevo-container {
           margin-left: 20px;
         }
-        #filtro {
-          min-width: 150px;
-        }
       }
 
       @media (max-width: 480px) {
@@ -287,33 +344,15 @@
         </div>
 
         <!-- MENU -->
-        <div class="dropdown">
-          <button
-            class="btn btn-outline-secondary rounded-circle"
-            data-bs-toggle="dropdown"
-          >
-            ☰
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#">Inicio</a></li>
-            <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
-            <li>
-              <a class="dropdown-item" href="Notificaciones.html"
-                >Notificaciones</a
-              >
-            </li>
-            <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
-            <li><a class="dropdown-item" href="date.html">Citas</a></li>
-            <li>
-              <a class="dropdown-item" href="recreational_activities.html"
-                >Actividades Ludicas</a
-              >
-            </li>
-            <li>
-              <a class="dropdown-item" href="medicaments.html">Medicamentos</a>
-            </li>
-          </ul>
-        </div>
+        <button
+          class="btn btn-outline-secondary rounded-circle"
+          type="button"
+          aria-label="Menú"
+          title="Menú"
+          data-menu-hamburguesa
+        >
+          ☰
+        </button>
       </div>
       <!-- fin derecha -->
     </div>
@@ -322,13 +361,24 @@
     <!-- ==================== BOTON NUEVO INFORME ==================== -->
     <div class="btn-nuevo-container">
       <button id="btnNuevoInforme" class="btn btn-light btn-nuevo">
-        + Registrar nuevo informe
+        + Nuevo informe
       </button>
     </div>
 
     <!-- ==================== CONTENIDO ==================== -->
     <div class="container-main">
-      <h5 class="text-success text-center mb-3">Historial de Informes</h5>
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+        <div>
+          <h5 class="text-success mb-1">Historial de Informes</h5>
+          <p class="mb-0 text-muted" id="informesContext">Cargando contexto de sesión...</p>
+        </div>
+        <div class="informes-summary d-flex gap-2 flex-wrap">
+          <span class="badge text-bg-light border" id="informesCountBadge">0 informes</span>
+          <span class="badge text-bg-light border" id="residentesCountBadge">0 residentes</span>
+        </div>
+      </div>
+
+      <div id="informesBanner" class="informes-banner alert d-none mb-3" role="status" aria-live="polite"></div>
 
       <div class="panel-informes">
         <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
@@ -336,10 +386,10 @@
             type="text"
             id="searchInformes"
             class="form-control"
-            style="max-width: 250px"
-            placeholder="Buscar..."
+            style="max-width: 280px"
+            placeholder="Buscar por título, residente o código"
           />
-          <button class="btn btn-light">🔍 Filtrar</button>
+          <button class="btn btn-light" id="btnLimpiarFiltro">Limpiar filtro</button>
         </div>
 
         <!-- LISTA DE INFORMES -->
@@ -347,53 +397,80 @@
       </div>
     </div>
 
-    <!-- ==================== FORMULARIO ==================== -->
-    <div id="formPanel" class="panel-form">
-      <h6 class="text-center mb-3 text-success">Nuevo Informe</h6>
-
-      <label class="form-label small">Título</label>
-      <input id="tituloInforme" class="form-control mb-2" placeholder="Ingrese título" />
-
-      <label class="form-label small">Fecha</label>
-      <input id="fechaInforme" type="date" class="form-control mb-2" />
-
-      <label class="form-label small">Usuario</label>
-      <input id="usuarioInforme" class="form-control mb-2" placeholder="Nombre del usuario" />
-
-      <label class="form-label small">Descripción</label>
-      <textarea
-        id="descripcionInforme"
-        class="form-control mb-3"
-        rows="3"
-        placeholder="Descripción del informe..."
-      ></textarea>
-
-      <div class="d-flex justify-content-center gap-2">
-        <button id="btnConfirmarInforme" class="btn btn-confirmar">Confirmar</button>
-        <button class="btn btn-secondary" onclick="toggleForm()">
-          Descartar
-        </button>
-      </div>
-    </div>
-
     <!-- ==================== FOOTER ==================== -->
     <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+    <!-- ==================== MODAL INFORME ==================== -->
+    <div class="modal fade" id="modalInforme" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title mb-1" id="modalInformeTitle">Nuevo informe</h5>
+              <small class="text-muted" id="modalInformeSubtitle">Registra un informe usando datos reales del sistema.</small>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formInforme" autocomplete="off">
+              <div class="mb-3">
+                <label class="form-label">Código del informe</label>
+                <input id="inputInformeCodigo" class="form-control" type="text" readonly placeholder="Lo asigna el sistema" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Residente</label>
+                <select id="inputInformeResidente" class="form-select" required>
+                  <option value="">Cargando residentes...</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Título</label>
+                <input id="inputInformeTitulo" class="form-control" type="text" maxlength="255" required placeholder="Título del informe" />
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Tipo</label>
+                  <select id="inputInformeTipo" class="form-select">
+                    <option value="general">General</option>
+                    <option value="seguimiento">Seguimiento</option>
+                    <option value="incidencia">Incidencia</option>
+                    <option value="evaluacion">Evaluación</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Urgencia</label>
+                  <select id="inputInformeUrgencia" class="form-select">
+                    <option value="normal">Normal</option>
+                    <option value="baja">Baja</option>
+                    <option value="alta">Alta</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-3 mb-2">
+                <label class="form-label">Descripción</label>
+                <textarea id="inputInformeDescripcion" class="form-control" rows="4" maxlength="500" placeholder="Observaciones, notas o resumen del informe"></textarea>
+              </div>
+              <div class="mt-3">
+                <label class="form-label">Usuario autenticado</label>
+                <input id="inputInformeAutor" class="form-control" type="text" readonly />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" form="formInforme" class="btn btn-confirmar" id="btnGuardarInforme">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ==================== SCRIPTS ==================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-      /* FORMULARIO */
-      // toggleForm movido a informes.js
-
-      /* FILTRO */
-      // buscarInformes movido a informes.js
-
-    </script>
-
     <script src="./js/alerts.js"></script>
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
     <script src="./js/informes.js"></script>
   </body>
 </html>

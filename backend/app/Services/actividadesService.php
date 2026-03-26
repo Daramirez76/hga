@@ -2,59 +2,116 @@
 
 namespace App\Services;
 
-use App\Http\Requests\actividadesRequest;
 use App\Repositories\Interfaces\actividadesInterface;
+use Illuminate\Support\Facades\Auth;
 
 class actividadesService
 {
-    protected $actividadesRepository;
+    protected actividadesInterface $actividadesRepository;
 
-    public function __construct(actividadesInterface $actividadesRepository)
-    {
+    public function __construct(
+        actividadesInterface $actividadesRepository,
+        protected notificacionesService $notificacionesService
+    ) {
         $this->actividadesRepository = $actividadesRepository;
     }
 
     public function getAllActividades()
     {
-        return $this->actividadesRepository->getAllactividades();
+        return $this->actividadesRepository->all();
     }
 
     public function getActividadesById($id)
     {
-        return $this->actividadesRepository->getactividadesById($id);
+        return $this->actividadesRepository->find((int) $id);
     }
 
-    public function create(actividadesRequest $request)
+    public function create(array $data)
     {
-        $data = $request->validated();
-        
-        // Auto-generar Cod_acti_ludi si no viene
+        $data = $this->normalizePayload($data);
+        $user = Auth::guard('api')->user();
+
         if (empty($data['Cod_acti_ludi'])) {
-            $data['Cod_acti_ludi'] = (int)(date('Ymd') . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT));
+            $data['Cod_acti_ludi'] = $this->actividadesRepository->getNextCodActiLudi();
         }
-        
-        // Asignar doc_id del usuario autenticado
-        if (!isset($data['doc_id']) || empty($data['doc_id'])) {
-            $user = auth()->user();
-            $data['doc_id'] = $user ? $user->id : 1;
+
+        if (!isset($data['cod_rol']) || $data['cod_rol'] === null || $data['cod_rol'] === '') {
+            $data['cod_rol'] = $user ? (int) ($user->cod_rol ?? 2) : 2;
         }
-        
-        // Asignar cod_rol por defecto si no viene
-        if (!isset($data['cod_rol']) || empty($data['cod_rol'])) {
-            $data['cod_rol'] = 2; // Role por defecto
-        }
-        
-        return $this->actividadesRepository->createactividades($data);
+
+        $actividad = $this->actividadesRepository->create($data);
+        $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyActividadCreated($actividad));
+
+        return $actividad;
     }
 
-    public function update($id, actividadesRequest $request)
+    public function update(int $id, array $data)
     {
-        $data = $request->validated();
-        return $this->actividadesRepository->updateactividades($id, $data);
+        $data = $this->normalizePayload($data);
+        unset($data['Cod_acti_ludi'], $data['cod_rol']);
+
+        $actividad = $this->actividadesRepository->update($id, $data);
+
+        if ($actividad) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyActividadUpdated($actividad));
+        }
+
+        return $actividad;
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
-        return $this->actividadesRepository->deleteactividades($id);
+        $actividad = $this->getActividadesById($id);
+
+        if (!$actividad) {
+            return null;
+        }
+
+        $deleted = $this->actividadesRepository->delete($id);
+
+        if ($deleted) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyActividadDeleted($actividad));
+        }
+
+        return $deleted;
+    }
+
+    protected function normalizePayload(array $data): array
+    {
+        if (isset($data['cod_acti_ludi']) && !isset($data['Cod_acti_ludi'])) {
+            $data['Cod_acti_ludi'] = $data['cod_acti_ludi'];
+        }
+        unset($data['cod_acti_ludi']);
+
+        if (isset($data['Cod_acti_ludi'])) {
+            $data['Cod_acti_ludi'] = (int) $data['Cod_acti_ludi'];
+        }
+
+        if (isset($data['cod_residente'])) {
+            $data['cod_residente'] = (int) $data['cod_residente'];
+        }
+
+        if (isset($data['cod_rol'])) {
+            $data['cod_rol'] = (int) $data['cod_rol'];
+        }
+
+        if (isset($data['Nombre'])) {
+            $data['Nombre'] = trim((string) $data['Nombre']);
+        }
+
+        if (isset($data['Lugar'])) {
+            $data['Lugar'] = trim((string) $data['Lugar']);
+        }
+
+        return $data;
+    }
+
+    protected function dispatchNotificationSafely(callable $callback): void
+    {
+        try {
+            $callback();
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

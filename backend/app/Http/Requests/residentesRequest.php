@@ -23,7 +23,7 @@ class residentesRequest extends FormRequest
             'patologia' => $isUpdate ? 'sometimes|required|string|max:120' : 'required|string|max:120',
             'RH' => $isUpdate ? 'sometimes|required|string|max:6' : 'required|string|max:6',
             'rh' => 'sometimes|string|max:6',
-            'cod_usuario' => 'sometimes|integer|min:1',
+            'cod_usuario' => $isUpdate ? 'sometimes|required|integer|min:1|exists:usuario,doc_id' : 'required|integer|min:1|exists:usuario,doc_id',
             'cod_rol' => 'sometimes|integer|min:1',
         ];
     }
@@ -50,6 +50,8 @@ class residentesRequest extends FormRequest
             'RH.max' => 'El grupo sanguíneo RH no puede tener más de 6 caracteres.',
             'cod_usuario.integer' => 'El código del usuario debe ser un número entero.',
             'cod_usuario.min' => 'El código del usuario debe ser mayor que cero.',
+            'cod_usuario.required' => 'Debes seleccionar un tutor responsable.',
+            'cod_usuario.exists' => 'El tutor seleccionado no existe.',
             'cod_rol.integer' => 'El código del rol debe ser un número entero.',
             'cod_rol.min' => 'El código del rol debe ser mayor que cero.',
         ];

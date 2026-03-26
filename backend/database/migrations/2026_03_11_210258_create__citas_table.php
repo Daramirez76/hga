@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('_citas', function (Blueprint $table) {
-            $table->id();
-            $table->integer('cod_cita')->unique();
+        if (Schema::hasTable('citas')) {
+            return;
+        }
+
+        Schema::create('citas', function (Blueprint $table) {
+            $table->integer('cod_cita')->primary();
             $table->date('Fecha_cita');
             $table->time('hora_inicio');
             $table->time('hora_fin');
             $table->string('Nombre_acompañante', 50);
-            $table->string('Lugar_cita', 100);
+            $table->string('Lugar_cita', 30);
             $table->integer('cod_Residente');
-            $table->timestamps();
+            $table->integer('cod_usuario')->nullable();
         });
     }
 
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_citas');
+        Schema::dropIfExists('citas');
     }
 };

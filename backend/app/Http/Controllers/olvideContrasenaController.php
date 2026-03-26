@@ -21,9 +21,12 @@ class olvideContrasenaController extends Controller
      */
     public function forgotPassword(olvideContrasenaRequest $request): JsonResponse
     {
-        $result = $this->olvideContrasenaService->requestReset($request->email);
+        $result = $this->olvideContrasenaService->requestReset(
+            $request->email,
+            $request->input('return_to')
+        );
 
-        return response()->json($result, $result['success'] ? 200 : 404);
+        return response()->json($result, $result['success'] ? 200 : 500);
     }
 
     /**
@@ -34,7 +37,8 @@ class olvideContrasenaController extends Controller
     {
         $result = $this->olvideContrasenaService->resetPassword(
             $request->email,
-            $request->nueva_contraseña
+            $request->nueva_contraseña,
+            $request->token
         );
 
         return response()->json($result, $result['success'] ? 200 : 400);

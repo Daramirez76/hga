@@ -24,7 +24,7 @@ class iniciarSesionRequest extends FormRequest
         return [
             'email' => 'required_without:usuario|string|max:100',
             'usuario' => 'required_without:email|string|max:100',
-            'password' => 'required|string|min:8|max:32',
+            'password' => 'required|string|max:255',
         ];
     }
 
@@ -41,8 +41,7 @@ class iniciarSesionRequest extends FormRequest
             'usuario.string' => 'El correo o usuario debe ser texto válido',
             'usuario.max' => 'El correo o usuario no puede exceder 100 caracteres',
             'password.required' => 'La contraseña es requerida',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
-            'password.max' => 'La contraseña no puede exceder 32 caracteres',
+            'password.max' => 'La contraseña no puede exceder 255 caracteres',
         ];
     }
 }

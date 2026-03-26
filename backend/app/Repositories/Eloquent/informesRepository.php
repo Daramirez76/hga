@@ -1,67 +1,110 @@
 <?php
 
 namespace App\Repositories\Eloquent;
+
 use App\Models\informes;
 use App\Repositories\Interfaces\informesInterface;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class informesRepository implements informesInterface
 {
-    public function getAllinformes()
+    public function getAllVisibleForUser(?object $user)
     {
-        return informes::all();
+        return $this->visibilityQuery($user)
+            ->orderByDesc('cod_Informes')
+            ->get();
     }
 
-    public function getinformesById($id)
+    public function findVisibleById(int $id, ?object $user)
     {
-        $informes = informes::find($id);
-
-        return !$informes ? null : $informes;
+        return $this->visibilityQuery($user)
+            ->where('cod_Informes', $id)
+            ->first();
     }
 
-    public function createinformes(array $data)
-    {
-        return informes::create($data);
-    }
-
-    // Alias estándar para create
     public function create(array $data)
     {
-        return $this->createinformes($data);
+        return DB::transaction(function () use ($data) {
+            $payload = $data;
+
+            if (empty($payload['cod_Informes'])) {
+                $payload['cod_Informes'] = $this->getNextCodeForTransaction();
+            }
+
+            return informes::create($payload)->fresh();
+        });
     }
 
-    public function updateinformes($id, array $data)
+    public function update(int $id, array $data, ?object $user)
     {
-        $informes = informes::find($id);
+        $informe = $this->findVisibleById($id, $user);
 
-        if (!$informes) {
+        if (!$informe) {
             return null;
         }
 
-        $informes->update($data);
-        return $informes;
+        unset($data['cod_Informes'], $data['doc_id'], $data['cod_rol']);
+
+        $informe->update($data);
+
+        return $informe->fresh();
     }
 
-    // Alias estándar para update
-    public function update($id, array $data)
+    public function delete(int $id, ?object $user)
     {
-        return $this->updateinformes($id, $data);
-    }
+        $informe = $this->findVisibleById($id, $user);
 
-    public function deleteinformes($id)
-    {
-        $informes = informes::find($id);
-
-        if (!$informes) {
+        if (!$informe) {
             return null;
         }
 
-        $informes->delete();
+        $informe->delete();
+
         return true;
     }
 
-    // Alias estándar para delete
-    public function delete($id)
+    public function getNextCode(): int
     {
-        return $this->deleteinformes($id);
+        $lastCode = informes::query()->max('cod_Informes');
+
+        return $lastCode ? ((int) $lastCode + 1) : 1;
+    }
+
+    protected function getNextCodeForTransaction(): int
+    {
+        $lastCode = informes::query()
+            ->select('cod_Informes')
+            ->orderByDesc('cod_Informes')
+            ->lockForUpdate()
+            ->value('cod_Informes');
+
+        return $lastCode ? ((int) $lastCode + 1) : 1;
+    }
+
+    protected function visibilityQuery(?object $user): Builder
+    {
+        $query = informes::query();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ((int) ($user->cod_rol ?? 0) === 1) {
+            return $query;
+        }
+
+        return $query->where('doc_id', $this->resolveAuthorDocument($user));
+    }
+
+    protected function resolveAuthorDocument(object $user): int
+    {
+        $docId = (int) ($user->doc_id ?? 0);
+
+        if ($docId > 0) {
+            return $docId;
+        }
+
+        return (int) ($user->id ?? 0);
     }
 }

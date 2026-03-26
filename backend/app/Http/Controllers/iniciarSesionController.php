@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\iniciarSesionRequest;
 use App\Http\Requests\updateGoogleProfileRequest;
+use App\Repositories\Interfaces\usuariosInterface;
 use App\Services\iniciarSesionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,10 +14,12 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class iniciarSesionController extends Controller
 {
     protected iniciarSesionService $iniciarSesionService;
+    protected usuariosInterface $usuariosRepository;
 
-    public function __construct(iniciarSesionService $iniciarSesionService)
+    public function __construct(iniciarSesionService $iniciarSesionService, usuariosInterface $usuariosRepository)
     {
         $this->iniciarSesionService = $iniciarSesionService;
+        $this->usuariosRepository = $usuariosRepository;
     }
 
     /**
@@ -88,6 +91,8 @@ class iniciarSesionController extends Controller
             $roleName = 'Administrador';
         } elseif ($roleCode === 2) {
             $roleName = 'Enfermero';
+        } elseif ($roleCode === 3) {
+            $roleName = 'Doctor';
         }
 
         return response()->json([
@@ -140,6 +145,8 @@ class iniciarSesionController extends Controller
             $roleName = 'Administrador';
         } elseif ($roleCode === 2) {
             $roleName = 'Enfermero';
+        } elseif ($roleCode === 3) {
+            $roleName = 'Doctor';
         }
 
         return response()->json([
@@ -164,6 +171,36 @@ class iniciarSesionController extends Controller
                 'google_id' => $authUser->google_id,
                 'profile_completed' => $this->isProfileCompleted($authUser),
             ],
+        ], 200);
+    }
+
+    public function tutores(): JsonResponse
+    {
+        $authUser = Auth::guard('api')->user();
+
+        if (!$authUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado',
+            ], 401);
+        }
+
+        $tutores = $this->usuariosRepository->getUsersByRole(4)
+            ->map(static function ($user): array {
+                return [
+                    'doc_id' => (int) ($user->doc_id ?? 0),
+                    'nombre' => (string) ($user->nombre ?? $user->name ?? ''),
+                    'apellido' => (string) ($user->apellido ?? ''),
+                    'email' => (string) ($user->email ?? ''),
+                    'usuario' => (string) ($user->usuario ?? ''),
+                    'parentesco' => (string) ($user->parentesco ?? ''),
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $tutores,
         ], 200);
     }
 

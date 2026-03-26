@@ -1,5 +1,5 @@
 const LOGIN_ENDPOINT = `${globalThis.location.origin}/api/login`;
-const LOGIN_SUCCESS_REDIRECT = "home.html";
+const DEFAULT_LOGIN_REDIRECT = "home.html";
 const JSON_CONTENT_TYPE = "application/json";
 
 async function procesarRetornoGoogle() {
@@ -19,22 +19,21 @@ async function procesarRetornoGoogle() {
     window.history.replaceState({}, document.title, url.toString());
 
     if (!success || accessToken === "") {
+        limpiarSesionLocal();
         await window.HgaAlerts.error(message || "No fue posible autenticar con Google");
         return true;
     }
 
-    localStorage.setItem("access_token", accessToken);
-
-    if (userPayload !== "") {
-        try {
-            localStorage.setItem("usuario", userPayload);
-        } catch (error) {
-            console.error("No fue posible guardar el usuario de Google:", error);
-        }
-    }
+    limpiarSesionLocal();
+    guardarSesion({
+        accessToken,
+        tokenType: params.get("token_type") || "Bearer",
+        expiresIn: params.get("expires_in") || "",
+        user: parsearUsuario(userPayload),
+    });
 
     await window.HgaAlerts.success(message || "Login exitoso con Google");
-    const loginRedirectUrl = new URL(LOGIN_SUCCESS_REDIRECT, globalThis.location.href);
+    const loginRedirectUrl = new URL(obtenerRedireccionLogin(), globalThis.location.href);
     globalThis.location.replace(loginRedirectUrl.toString());
     return true;
 }
@@ -120,21 +119,25 @@ async function iniciarSesion(event) {
         const data = await response.json();
 
         if (!response.ok) {
+            limpiarSesionLocal();
             const mensaje = data.message || "No fue posible iniciar sesion";
             await window.HgaAlerts.error(mensaje, "No fue posible iniciar sesion");
             return;
         }
 
-        if (data.access_token) {
-            localStorage.setItem("access_token", data.access_token);
-        }
-
-        localStorage.setItem("usuario", JSON.stringify(data.user));
+        limpiarSesionLocal();
+        guardarSesion({
+            accessToken: data.access_token || "",
+            tokenType: data.token_type || "Bearer",
+            expiresIn: data.expires_in || "",
+            user: data.user || {},
+        });
         await window.HgaAlerts.success("Login exitoso");
-        const loginRedirectUrl = new URL(LOGIN_SUCCESS_REDIRECT, globalThis.location.href);
+        const loginRedirectUrl = new URL(obtenerRedireccionLogin(), globalThis.location.href);
         globalThis.location.replace(loginRedirectUrl.toString());
     } catch (error) {
         console.error("Error al iniciar sesion:", error);
+        limpiarSesionLocal();
         await window.HgaAlerts.error("Error al conectar con el servidor");
     }
 }
@@ -160,4 +163,72 @@ function limpiarErrores() {
     document
         .querySelectorAll(".field-error")
         .forEach((elemento) => elemento.classList.remove("field-error"));
+}
+
+function obtenerRedireccionLogin() {
+    const redirect = document.body?.dataset?.loginRedirect?.trim();
+    return redirect || DEFAULT_LOGIN_REDIRECT;
+}
+
+function limpiarSesionLocal() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("token_type");
+    localStorage.removeItem("expires_in");
+    localStorage.removeItem("usuario");
+}
+
+function guardarSesion({ accessToken = "", tokenType = "Bearer", expiresIn = "", user = {} }) {
+    if (accessToken) {
+        localStorage.setItem("access_token", accessToken);
+        localStorage.setItem("authToken", accessToken);
+    }
+
+    if (tokenType) {
+        localStorage.setItem("token_type", tokenType);
+    }
+
+    if (expiresIn !== "") {
+        localStorage.setItem("expires_in", String(expiresIn));
+    }
+
+    guardarUsuario(user);
+}
+
+function guardarUsuario(user) {
+    if (!user) {
+        return;
+    }
+
+    try {
+        const normalizedUser = typeof user === "string" ? parsearUsuario(user) : user;
+        if (!normalizedUser || (typeof normalizedUser === "object" && Object.keys(normalizedUser).length === 0)) {
+            return;
+        }
+        localStorage.setItem("usuario", JSON.stringify(normalizedUser));
+    } catch (error) {
+        console.error("No fue posible guardar el usuario autenticado:", error);
+    }
+}
+
+function parsearUsuario(payload) {
+    if (!payload) {
+        return {};
+    }
+
+    const decodedPayload = safeDecodeURIComponent(payload);
+
+    try {
+        return JSON.parse(decodedPayload);
+    } catch {
+        return { raw: decodedPayload };
+    }
+}
+
+function safeDecodeURIComponent(value) {
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
 }

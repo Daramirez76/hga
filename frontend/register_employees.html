@@ -265,31 +265,45 @@
                             <label for="direccion" class="form-label register-label">Direccion</label>
                             <input id="direccion" name="direccion" type="text" class="form-control register-input">
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <label for="telefono" class="form-label register-label">Telefono</label>
-                            <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
-                        </div>
+	                        <div class="col-12 col-lg-6">
+	                            <label for="telefono" class="form-label register-label">Telefono</label>
+	                            <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
+	                        </div>
+
+	                        <div class="col-12 col-lg-6">
+	                            <label for="edad" class="form-label register-label">Edad</label>
+	                            <input id="edad" name="edad" type="number" class="form-control register-input" min="18" max="120" inputmode="numeric">
+	                        </div>
 
                         <div class="col-12 col-lg-6">
                             <label for="correo" class="form-label register-label">Correo Electronico</label>
                             <input id="correo" name="correo" type="email" class="form-control register-input">
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <label for="cargo" class="form-label register-label">Cargo</label>
-                            <input id="cargo" name="cargo" type="text" class="form-control register-input">
-                        </div>
+	                        <div class="col-12 col-lg-6">
+	                            <label for="cod_rol" class="form-label register-label">Cargo / Rol</label>
+		                            <select id="cod_rol" name="cod_rol" class="form-select register-select">
+		                                <option value="">Seleccione un rol</option>
+		                                <option value="1">Administrador</option>
+		                                <option value="2">Enfermero</option>
+		                                <option value="3">Doctor</option>
+		                            </select>
+		                        </div>
 
-                        <div class="col-12 col-lg-6">
-                            <label for="usuario" class="form-label register-label">Nombre de Usuario</label>
-                            <input id="usuario" name="usuario" type="text" class="form-control register-input">
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <label for="contrasena" class="form-label register-label">Contrasena</label>
-                            <input id="contrasena" name="contrasena" type="password" class="form-control register-input">
-                        </div>
-                    </div>
+	                        <div class="col-12 col-lg-6">
+	                            <label for="usuario" class="form-label register-label">Nombre de Usuario</label>
+	                            <input id="usuario" name="usuario" type="text" class="form-control register-input">
+	                        </div>
+	                        <div class="col-12 col-lg-6">
+	                            <label for="contrasena" class="form-label register-label">Contrasena</label>
+	                            <input id="contrasena" name="contrasena" type="password" class="form-control register-input" autocomplete="new-password">
+	                        </div>
+	                        <div class="col-12 col-lg-6">
+	                            <label for="password_confirmation" class="form-label register-label">Confirmar contrasena</label>
+	                            <input id="password_confirmation" name="password_confirmation" type="password" class="form-control register-input" autocomplete="new-password">
+	                        </div>
+	                    </div>
 
-                    <input id="edad" name="edad" type="hidden" value="">
+	                    <input id="parentesco" name="parentesco" type="hidden" value="">
 
                     <div class="row justify-content-center mt-4 mt-lg-5 g-3">
                         <div class="col-12 col-xl-10">

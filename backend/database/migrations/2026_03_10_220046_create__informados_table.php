@@ -11,17 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('_informados', function (Blueprint $table) {
-            $table->id();
-            $table->integer('cod_Informes')->unique();
-            $table->integer('doc_id')->nullable();
-            $table->integer('cod_Residente')->nullable();
-            $table->string('Titulo_Informes');
-            $table->integer('cod_rol')->nullable();
-            $table->string('descripcion')->nullable();
-            $table->string('tipo')->nullable();
-            $table->string('urgencia')->default('normal');
-            $table->timestamps();
+        if (Schema::hasTable('informes')) {
+            return;
+        }
+
+        Schema::create('informes', function (Blueprint $table) {
+            $table->integer('cod_Informes')->primary();
+            $table->integer('doc_id');
+            $table->integer('cod_Residente');
+            $table->string('Titulo_Informes', 255);
+            $table->string('descripcion', 500)->nullable();
+            $table->string('tipo', 50)->default('general');
+            $table->string('urgencia', 20)->default('normal');
+            $table->integer('cod_rol');
+            $table->index('doc_id');
+            $table->index('cod_Residente');
         });
     }
 
@@ -30,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_informados');
+        Schema::dropIfExists('informes');
     }
 };

@@ -1,13 +1,18 @@
 <?php
-namespace App\Repositories\Interfaces;
 
-use Illuminate\Foundation\Http\FormRequest;
+namespace App\Repositories\Interfaces;
 
 interface informesInterface
 {
-    public function getAllinformes();
-    public function getinformesById($id);
-    public function createinformes(array $data);
-    public function updateinformes($id, array $data);
-    public function deleteinformes($id);
+    public function getAllVisibleForUser(?object $user);
+
+    public function findVisibleById(int $id, ?object $user);
+
+    public function create(array $data);
+
+    public function update(int $id, array $data, ?object $user);
+
+    public function delete(int $id, ?object $user);
+
+    public function getNextCode(): int;
 }

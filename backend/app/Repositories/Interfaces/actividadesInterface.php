@@ -1,13 +1,17 @@
 <?php
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Foundation\Http\FormRequest;
-
 interface actividadesInterface
 {
-    public function getAllactividades();
-    public function getactividadesById($id);
-    public function createactividades(array $data);
-    public function updateactividades($id, array $data);
-    public function deleteactividades($id);
+    public function all();
+
+    public function find(int $id);
+
+    public function create(array $data);
+
+    public function update(int $id, array $data);
+
+    public function delete(int $id);
+
+    public function getNextCodActiLudi(): int;
 }

@@ -32,7 +32,7 @@ class registrarseRequest extends FormRequest
             'email' => 'required|email|max:100|unique:usuario,email',
             'usuario' => 'required|string|max:100|unique:usuario,usuario',
             'password' => 'required|string|min:8|max:32|confirmed',
-            'cod_rol' => 'nullable|integer',
+            'cod_rol' => 'nullable|integer|in:1,2,3,4',
             'parentesco' => 'nullable|string|max:32',
         ];
     }
@@ -71,6 +71,8 @@ class registrarseRequest extends FormRequest
             'password.min' => 'La contraseña debe tener al menos 8 caracteres',
             'password.max' => 'La contraseña no puede exceder 32 caracteres',
             'password.confirmed' => 'Las contraseñas no coinciden',
+            'cod_rol.integer' => 'El rol debe ser numérico',
+            'cod_rol.in' => 'El rol seleccionado no es válido',
         ];
     }
 }

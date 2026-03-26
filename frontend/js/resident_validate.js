@@ -1,12 +1,16 @@
 const RESIDENTES_API_ENDPOINT = `${window.location.origin}/api/residentes`;
+const TUTORES_API_ENDPOINT = `${window.location.origin}/api/tutores`;
+const ME_API_ENDPOINT = `${window.location.origin}/api/me`;
 
 const residentesState = {
   items: [],
   pendingDeleteIndex: null,
+  tutores: [],
+  currentUser: null,
 };
 
 function getResidentesToken() {
-  return localStorage.getItem("access_token") || "";
+  return localStorage.getItem("access_token") || localStorage.getItem("authToken") || "";
 }
 
 function getResidentesContainer() {
@@ -32,8 +36,41 @@ function normalizeResidente(residente = {}) {
       ? Number(residente.edad)
       : "",
     RH: String(residente.RH || residente.rh || "").trim().toUpperCase(),
+    cod_usuario: residente.cod_usuario ? Number(residente.cod_usuario) : null,
     isNew: !residente.cod_residente,
   };
+}
+
+function getTutorOptionsMarkup(selectedDocId) {
+  const options = residentesState.tutores.map((tutor) => {
+    const docId = Number(tutor.doc_id);
+    const fullName = [tutor.nombre, tutor.apellido].filter(Boolean).join(" ").trim() || `Tutor #${docId}`;
+    const labelParts = [fullName];
+
+    if (tutor.parentesco) {
+      labelParts.push(`(${tutor.parentesco})`);
+    }
+
+    if (tutor.email) {
+      labelParts.push(`- ${tutor.email}`);
+    }
+
+    const selected = selectedDocId === docId ? " selected" : "";
+    return `<option value="${escapeHtml(String(docId))}"${selected}>${escapeHtml(labelParts.join(" "))}</option>`;
+  });
+
+  const hasSelected = Number.isInteger(selectedDocId) && selectedDocId > 0;
+  const knownOption = hasSelected
+    ? residentesState.tutores.some((tutor) => Number(tutor.doc_id) === selectedDocId)
+    : false;
+
+  if (hasSelected && !knownOption) {
+    options.unshift(`<option value="${escapeHtml(String(selectedDocId))}" selected>${escapeHtml(`Tutor asignado #${selectedDocId}`)}</option>`);
+  } else {
+    options.unshift('<option value="">Selecciona un tutor responsable</option>');
+  }
+
+  return options.join("");
 }
 
 function buildResidenteCard(residente, index) {
@@ -45,31 +82,41 @@ function buildResidenteCard(residente, index) {
   const deleteLabel = residente.cod_residente ? "Eliminar residente" : "Quitar bloque";
 
   wrapper.innerHTML = `
-    <div class="fw-semibold mb-2" style="color: #2e7d32;">Residente ${String(index + 1).padStart(2, "0")}</div>
-    <div class="bloque-residente p-3 p-md-4">
+    <div class="residentes-card-title">Residente</div>
+    <div class="bloque-residente">
       <div class="residentes-actions">
         <button type="button" class="residentes-delete-btn" data-action="delete">${deleteLabel}</button>
       </div>
-      <div class="row g-3 align-items-end">
-        <div class="col-12 col-md-4">
+      <div class="residentes-fields">
+        <div class="residentes-field">
           <label class="form-label label-sm">Nombre</label>
           <input type="text" class="form-control" data-field="nombre" value="${escapeHtml(residente.nombre)}" />
         </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label label-sm">Apellido</label>
+        <div class="residentes-field">
+          <label class="form-label label-sm">Apellidos</label>
           <input type="text" class="form-control" data-field="apellido" value="${escapeHtml(residente.apellido)}" />
         </div>
-        <div class="col-12 col-md-4">
+        <div class="residentes-field">
           <label class="form-label label-sm">Patología</label>
           <input type="text" class="form-control" data-field="patologia" value="${escapeHtml(residente.patologia)}" />
         </div>
-        <div class="col-12 col-md-4">
+        <div class="residentes-field">
           <label class="form-label label-sm">Edad</label>
           <input type="number" min="0" class="form-control" data-field="edad" value="${residente.edad === "" ? "" : escapeHtml(String(residente.edad))}" />
         </div>
-        <div class="col-12 col-md-4">
+        <div class="residentes-field">
           <label class="form-label label-sm">RH</label>
           <input type="text" maxlength="6" class="form-control" data-field="RH" value="${escapeHtml(residente.RH)}" />
+        </div>
+        <div class="residentes-field">
+          <label class="form-label label-sm">Tutor responsable</label>
+          <select class="form-control" data-field="cod_usuario">
+            ${getTutorOptionsMarkup(residente.cod_usuario)}
+          </select>
+        </div>
+        <div class="residentes-field">
+          <label class="form-label label-sm">Código residente</label>
+          <input type="text" class="form-control" value="${residente.cod_residente ? escapeHtml(String(residente.cod_residente)) : ""}" readonly />
         </div>
       </div>
     </div>
@@ -129,6 +176,46 @@ async function fetchResidentes() {
   return Array.isArray(data.data) ? data.data : [];
 }
 
+async function fetchCurrentUser() {
+  const token = getResidentesToken();
+
+  const response = await fetch(ME_API_ENDPOINT, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || "No fue posible cargar la sesión actual.");
+  }
+
+  return data.user || null;
+}
+
+async function fetchTutores() {
+  const token = getResidentesToken();
+
+  const response = await fetch(TUTORES_API_ENDPOINT, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || "No fue posible cargar los tutores.");
+  }
+
+  return Array.isArray(data.data) ? data.data : [];
+}
+
 async function loadResidentes() {
   const token = getResidentesToken();
 
@@ -139,11 +226,19 @@ async function loadResidentes() {
   }
 
   try {
-    const residentes = await fetchResidentes();
+    const [currentUser, tutores, residentes] = await Promise.all([
+      fetchCurrentUser(),
+      fetchTutores(),
+      fetchResidentes(),
+    ]);
+
+    residentesState.currentUser = currentUser;
+    residentesState.tutores = tutores;
     residentesState.items = residentes.map((item) => normalizeResidente(item));
 
     if (residentesState.items.length === 0) {
-      residentesState.items.push(normalizeResidente({}));
+      const defaultTutor = currentUser && Number(currentUser.cod_rol) === 4 ? Number(currentUser.doc_id) : null;
+      residentesState.items.push(normalizeResidente({ cod_usuario: defaultTutor }));
     }
 
     renderResidentes();
@@ -154,7 +249,9 @@ async function loadResidentes() {
 }
 
 function addResidente() {
-  residentesState.items.push(normalizeResidente({}));
+  const currentUser = residentesState.currentUser;
+  const defaultTutor = currentUser && Number(currentUser.cod_rol) === 4 ? Number(currentUser.doc_id) : null;
+  residentesState.items.push(normalizeResidente({ cod_usuario: defaultTutor }));
   renderResidentes();
 }
 
@@ -167,6 +264,7 @@ function readCardPayload(card) {
     patologia: String(getField("patologia")?.value || "").trim(),
     edad: Number(String(getField("edad")?.value || "").trim()),
     RH: String(getField("RH")?.value || "").trim().toUpperCase(),
+    cod_usuario: Number(String(getField("cod_usuario")?.value || "").trim()),
   };
 
   return payload;
@@ -182,7 +280,7 @@ function markCardError(input, hasError) {
 
 function validateCard(card) {
   const payload = readCardPayload(card);
-  const fields = ["nombre", "apellido", "patologia", "edad", "RH"];
+  const fields = ["nombre", "apellido", "patologia", "edad", "RH", "cod_usuario"];
   let valid = true;
 
   fields.forEach((field) => {
@@ -190,7 +288,9 @@ function validateCard(card) {
     const value = field === "edad" ? payload.edad : payload[field];
     const hasError = field === "edad"
       ? !Number.isInteger(value) || value < 0
-      : !String(value || "").trim();
+      : field === "cod_usuario"
+        ? !Number.isInteger(value) || value <= 0
+        : !String(value || "").trim();
 
     markCardError(input, hasError);
     if (hasError) {

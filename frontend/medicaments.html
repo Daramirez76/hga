@@ -6,306 +6,547 @@
     <title>HGA - Medicamentos</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <style>
+      :root {
+        --hga-primary: #2ea64d;
+        --hga-secondary: #3fc0cc;
+        --hga-bg-start: #88d3cd;
+        --hga-bg-end: #d8f0eb;
+        --hga-panel: rgba(255, 255, 255, 0.98);
+        --hga-subpanel: #f4f8f5;
+        --hga-border: rgba(46, 166, 77, 0.65);
+        --hga-copy: #1f1f1f;
+        --hga-muted: #6f7c78;
+        --hga-danger: #ee8a84;
+        --hga-success: #1fe03d;
+      }
+
       * {
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
       }
 
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
         min-height: 100vh;
-        background: linear-gradient(135deg, #e8f5e9 0%, #b2dfdb 50%, #e0f2f1 100%) !important;
-        position: relative;
-        overflow-x: hidden;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--hga-copy);
+        background: linear-gradient(180deg, var(--hga-bg-start) 0%, #9edcd6 36%, var(--hga-bg-end) 100%);
       }
 
-      body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-            radial-gradient(circle at 20% 50%, rgba(129, 199, 132, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(77, 182, 172, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, rgba(174, 213, 129, 0.1) 0%, transparent 50%);
-        filter: blur(60px);
-        z-index: 0;
-        pointer-events: none;
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
-      /* Header mejorado */
-      header {
-        position: relative;
-        z-index: 2;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-bottom: none !important;
+      .content-shell {
+        width: min(1180px, calc(100% - 2rem));
+        margin: 0 auto;
       }
 
-      .logo-icon-med {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, #66bb6a, #4db6ac);
-        border-radius: 10px;
+      .top-bar {
+        margin-top: 2.2rem;
+        padding: 1rem 1.2rem;
+        background: var(--hga-panel);
+        border-radius: 1.6rem;
+        box-shadow: 0 10px 32px rgba(27, 66, 72, 0.08);
         display: flex;
         align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
+        gap: 1rem;
+        justify-content: space-between;
       }
 
-      header a span {
-        color: #2e7d32 !important;
-        font-weight: 600 !important;
-      }
-
-      /* Navegación */
-      nav a {
-        color: #2e7d32 !important;
-        font-weight: 500 !important;
-        transition: color 0.3s;
-      }
-
-      nav a:hover {
-        color: #4db6ac !important;
-      }
-
-      /* Main content */
-      main {
-        position: relative;
-        z-index: 1;
-      }
-
-      /* Cards de medicamentos mejoradas */
-      .card-oval {
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(15px);
-        border-radius: 25px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        border: none !important;
-        padding: 25px !important;
-        transition: all 0.3s;
-      }
-
-      .card-oval:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(102, 187, 106, 0.15);
-      }
-
-      .card-oval .fw-semibold {
-        color: #2e7d32;
-        font-size: 18px;
-        font-weight: 600 !important;
-      }
-
-      .inner-slot {
-        background: linear-gradient(135deg, rgba(230, 245, 232, 0.6), rgba(224, 242, 241, 0.6));
-        border: 2px solid rgba(102, 187, 106, 0.1);
-        border-radius: 15px !important;
-        height: 320px;
-        display: flex;
+      .brand-block {
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        color: #999;
-        font-size: 14px;
-        transition: all 0.3s;
-      }
-
-      .card-oval:hover .inner-slot {
-        background: linear-gradient(135deg, rgba(102, 187, 106, 0.08), rgba(77, 182, 172, 0.08));
-        border-color: rgba(102, 187, 106, 0.2);
-      }
-
-      /* Botón gestionar */
-      .btn-gestionar {
-        background: linear-gradient(135deg, #66bb6a, #4db6ac);
-        border: none !important;
-        color: white;
-        font-weight: 600;
-        border-radius: 12px !important;
-        padding: 12px 30px !important;
-        transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+        gap: 1rem;
         text-decoration: none;
       }
 
-      .btn-gestionar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
-        color: white;
+      .brand-logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #fff;
       }
 
-      /* Footer */
-      .footer {
-        position: relative;
-        z-index: 1;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px);
-        border-top: 1px solid rgba(200, 230, 201, 0.5) !important;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+      .brand-title {
+        margin: 0;
+        color: var(--hga-secondary);
+        font-size: clamp(1.45rem, 2vw, 2rem);
+        font-weight: 400;
       }
 
-      .footer small {
-        color: #2e7d32;
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
       }
 
-      /* Botones notificación y perfil */
-      .btn-outline-secondary {
-        color: #2e7d32 !important;
-        border-color: #c8e6c9 !important;
-        transition: all 0.3s;
-      }
-
-      .btn-outline-secondary:hover {
-        background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-        border-color: #66bb6a !important;
-        color: #2e7d32 !important;
-      }
-
-      .profile-menu-wrapper {
-        position: relative;
-      }
-
-      .profile-menu-btn {
+      .icon-btn {
+        width: 2.75rem;
+        height: 2.75rem;
+        border: none;
+        background: transparent;
+        border-radius: 999px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        color: #111;
+        transition: background-color 0.2s ease, transform 0.2s ease;
       }
 
-      .profile-dropdown {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        min-width: 220px;
-        background: rgba(255, 255, 255, 0.98);
-        border: 1px solid rgba(200, 230, 201, 0.8);
-        border-radius: 14px;
-        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-8px);
-        pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        z-index: 10;
+      .icon-btn:hover,
+      .icon-btn:focus-visible {
+        background: rgba(63, 192, 204, 0.12);
+        outline: none;
+        transform: translateY(-1px);
       }
 
-      .profile-dropdown.show {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
+      .page-main {
+        flex: 1;
+        padding: 4rem 0 3rem;
       }
 
-      .profile-menu-item {
+      .medicaments-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.45rem;
+      }
+
+      .panel-card {
+        background: var(--hga-panel);
+        border-radius: 1.9rem;
+        padding: 1.7rem 1rem 1.25rem;
+        box-shadow: 0 12px 32px rgba(31, 78, 81, 0.08);
+      }
+
+      .panel-title {
+        margin: 0 0 1rem;
+        padding-inline: 0.85rem;
+        color: var(--hga-primary);
+        font-size: clamp(1.6rem, 2vw, 2.1rem);
+        font-weight: 700;
+        line-height: 1.05;
+      }
+
+      .panel-body {
+        min-height: 17.5rem;
+        background: linear-gradient(180deg, #f7faf7 0%, #f0f5f1 100%);
+        border: 1.5px solid rgba(68, 219, 81, 0.78);
+        border-radius: 1.25rem;
+        padding: 1.35rem 1.2rem;
+      }
+
+      .medication-list-header,
+      .medication-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(88px, 0.75fr) auto;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .medication-list-header {
+        margin-bottom: 1rem;
+        padding-inline: 0.15rem;
+        color: #161616;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .medication-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.95rem;
+      }
+
+      .medication-row {
+        padding: 0.2rem 0;
+      }
+
+      .medication-name,
+      .medication-stock {
+        font-size: 0.98rem;
+      }
+
+      .medication-actions {
+        display: inline-flex;
+        justify-content: flex-end;
+        gap: 0.4rem;
+      }
+
+      .medication-action {
+        border: none;
+        border-radius: 999px;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.75rem;
+        line-height: 1;
+        color: #111;
+        box-shadow: 0 6px 12px rgba(37, 62, 40, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .medication-action:hover,
+      .medication-action:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 14px rgba(37, 62, 40, 0.12);
+        outline: none;
+      }
+
+      .medication-action.edit {
+        background: var(--hga-success);
+      }
+
+      .medication-action.delete {
+        background: var(--hga-danger);
+      }
+
+      .medication-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem 0.85rem;
+      }
+
+      .form-field.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-label {
+        display: inline-block;
+        margin-bottom: 0.45rem;
+        color: var(--hga-primary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .form-label::before {
+        content: "•";
+        margin-right: 0.45rem;
+      }
+
+      .medication-input,
+      .medication-textarea {
         width: 100%;
-        border: 0;
-        background: transparent;
-        color: #2e7d32;
-        text-align: left;
-        padding: 12px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background-color 0.2s ease, color 0.2s ease;
+        border: 1px solid rgba(86, 183, 94, 0.7);
+        border-radius: 0.6rem;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(33, 67, 44, 0.1);
+        color: #1b1b1b;
       }
 
-      .profile-menu-item:hover {
-        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
-        color: #1b5e20;
+      .medication-input {
+        height: 2rem;
+        padding: 0.35rem 0.75rem;
       }
 
-      .profile-menu-item + .profile-menu-item {
-        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      .medication-textarea {
+        min-height: 3.5rem;
+        padding: 0.65rem 0.75rem;
+        resize: vertical;
       }
 
-      /* Responsive */
-      @media (max-width: 768px) {
-        .card-oval {
-          padding: 20px !important;
+      .medication-input:focus,
+      .medication-textarea:focus {
+        outline: none;
+        border-color: var(--hga-secondary);
+        box-shadow: 0 0 0 0.2rem rgba(63, 192, 204, 0.18);
+      }
+
+      .form-footnote {
+        margin: 0;
+        color: var(--hga-muted);
+        font-size: 0.8rem;
+        line-height: 1.35;
+      }
+
+      .form-hint {
+        margin: 0.35rem 0 0;
+        color: var(--hga-muted);
+        font-size: 0.72rem;
+        line-height: 1.3;
+      }
+
+      .form-status {
+        min-height: 1.05rem;
+        margin-top: 0.28rem;
+        font-size: 0.72rem;
+        line-height: 1.3;
+      }
+
+      .form-status.warn {
+        color: #8a5a00;
+      }
+
+      .form-status.error {
+        color: #8c2f2f;
+      }
+
+      .form-panel-body {
+        max-height: 33rem;
+        overflow-y: auto;
+      }
+
+      .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin-top: 0.15rem;
+      }
+
+      .save-button,
+      .cancel-button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.55rem 1rem;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        box-shadow: 0 8px 18px rgba(32, 98, 92, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .save-button {
+        background: linear-gradient(90deg, #5dc493, #4ca8a4);
+        color: #112522;
+      }
+
+      .cancel-button {
+        background: #eef4f3;
+        color: #35615f;
+      }
+
+      .save-button:hover,
+      .save-button:focus-visible,
+      .cancel-button:hover,
+      .cancel-button:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(32, 98, 92, 0.2);
+        outline: none;
+      }
+
+      .save-button:disabled,
+      .cancel-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.72;
+        transform: none;
+        box-shadow: 0 8px 18px rgba(32, 98, 92, 0.1);
+      }
+
+      .cancel-button[hidden] {
+        display: none !important;
+      }
+
+      .novelty-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .novelty-card {
+        background: #fff;
+        border: 1px solid rgba(76, 168, 164, 0.55);
+        border-radius: 0.55rem;
+        box-shadow: 0 8px 14px rgba(31, 78, 81, 0.12);
+        padding: 0.8rem 0.75rem;
+      }
+
+      .novelty-title {
+        margin: 0 0 0.15rem;
+        font-size: 0.98rem;
+        font-weight: 700;
+      }
+
+      .novelty-meta {
+        margin: 0;
+        color: #404a47;
+        font-size: 0.82rem;
+      }
+
+      .empty-state {
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--hga-muted);
+        font-size: 0.92rem;
+      }
+
+      .footer-strip {
+        background: rgba(255, 255, 255, 0.96);
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 1100px) {
+        .medicaments-grid {
+          grid-template-columns: 1fr;
         }
 
-        .inner-slot {
-          height: 250px;
+        .panel-card {
+          padding-inline: 1.15rem;
         }
 
-        header {
-          padding: 15px 0 !important;
+        .panel-body {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .top-bar {
+          margin-top: 1rem;
+          padding: 0.85rem 0.95rem;
+        }
+
+        .brand-title {
+          font-size: 1.3rem;
+        }
+
+        .header-actions {
+          gap: 0.35rem;
+        }
+
+        .medication-list-header,
+        .medication-row {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .medication-list-header {
+          display: none;
+        }
+
+        .medication-actions {
+          justify-content: flex-start;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
-  <body class="d-flex flex-column min-vh-100">
-    <!-- Header -->
-    <header class="py-3">
-      <div class="container">
-        <div class="d-flex align-items-center gap-3">
-          <a href="home.html" class="d-flex align-items-center gap-2 text-decoration-none">
-            <div class="logo-icon-med">LG</div>
-            <span class="fw-bold fs-5">HGA</span>
+  <body>
+    <div class="page-shell">
+      <div class="content-shell">
+        <header class="top-bar">
+          <a href="home.html" class="brand-block">
+            <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo" />
+            <h1 class="brand-title">Medicamentos</h1>
           </a>
-          <nav class="flex-grow-1 d-none d-md-flex justify-content-center">
-            <ul class="nav">
-              <li class="nav-item"><a class="nav-link fw-semibold" href="reuniones.html">Reuniones</a></li>
-              <li class="nav-item"><a class="nav-link" href="Visitas.html">Visitas</a></li>
-              <li class="nav-item"><a class="nav-link" href="Informes.html">Informes</a></li>
-            </ul>
-          </nav>
-          <div class="ms-auto d-flex align-items-center gap-2">
-            <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
-            <div class="profile-menu-wrapper">
-              <button class="btn btn-outline-secondary rounded-circle profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">👤</button>
-              <div class="profile-dropdown" id="profileDropdown">
-                <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
-                <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+          <div class="header-actions">
+            <button class="icon-btn" type="button" aria-label="Notificaciones" title="Notificaciones">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg>
+            </button>
+            <button class="icon-btn" type="button" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+              <svg width="25" height="25" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2.25c-4.14 0-7.5 2.43-7.5 5.43a.57.57 0 0 0 .57.57h13.86a.57.57 0 0 0 .57-.57c0-3-3.36-5.43-7.5-5.43Z"></path></svg>
+            </button>
+            <button class="icon-btn" type="button" aria-label="Menu" title="Menu">
+              <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#35bfd2" stroke-width="2" stroke-linecap="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg>
+            </button>
+          </div>
+        </header>
+      </div>
+
+      <main class="page-main">
+        <div class="content-shell">
+          <div class="medicaments-grid">
+            <section class="panel-card">
+              <h2 class="panel-title">LISTA MEDICAMENTOS</h2>
+              <div class="panel-body">
+                <div class="medication-list-header">
+                  <span>NOMBRE</span>
+                  <span>STOCK</span>
+                  <span class="text-end">ACCIONES</span>
+                </div>
+                <div class="medication-list" id="medicationList">
+                  <div class="empty-state">Cargando medicamentos...</div>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <section class="panel-card">
+              <h2 class="panel-title">REGISTRAR MEDICAMENTOS</h2>
+              <div class="panel-body form-panel-body">
+                <form class="medication-form" id="medicationForm">
+                  <input type="hidden" id="medicationEditingId" />
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label class="form-label" for="medicationStock">Stock</label>
+                      <input class="medication-input" id="medicationStock" name="stock" type="number" min="0" step="1" required />
+                    </div>
+                    <div class="form-field full-width">
+                      <label class="form-label" for="medicationName">Nombre</label>
+                      <input class="medication-input" id="medicationName" name="nombre_medic" type="text" maxlength="10" autocomplete="off" required />
+                      <p class="form-hint">`nombre_medic` en la base permite hasta 10 caracteres.</p>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="medicationEntryDate">Fecha entrada</label>
+                      <input class="medication-input" id="medicationEntryDate" name="fecha_entrada" type="date" required />
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="medicationExpiryDate">Fecha vencimiento</label>
+                      <input class="medication-input" id="medicationExpiryDate" name="fecha_vencimiento" type="date" required />
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="medicationUserDisplay">Usuario autenticado</label>
+                      <input type="hidden" id="medicationUserCode" name="cod_usuario" />
+                      <input class="medication-input" id="medicationUserDisplay" type="text" readonly />
+                      <p class="form-hint">Se asigna automaticamente con la sesion actual.</p>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="medicationResidentCode">Residente</label>
+                      <select class="medication-input" id="medicationResidentCode" name="cod_residente" required>
+                        <option value="">Selecciona un residente</option>
+                      </select>
+                      <p class="form-status" id="medicationResidentStatus" aria-live="polite"></p>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="medicationNoveltyDate">Fecha novedad</label>
+                      <input class="medication-input" id="medicationNoveltyDate" name="fecha_novedad" type="date" />
+                      <p class="form-hint">Si lo dejas vacio, el backend usara la fecha actual.</p>
+                    </div>
+                    <div class="form-field full-width">
+                      <label class="form-label" for="medicationDescription">Descripcion novedad</label>
+                      <textarea class="medication-textarea" id="medicationDescription" name="descrip_novedad" maxlength="100"></textarea>
+                      <p class="form-hint">`descrip_novedad` en la base permite hasta 100 caracteres.</p>
+                    </div>
+                  </div>
+                  <div class="form-actions">
+                    <button class="save-button" type="submit" id="medicationSubmitButton">Guardar medicamentos</button>
+                    <button class="cancel-button" type="button" id="medicationCancelButton" hidden>Cancelar edicion</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+            <section class="panel-card">
+              <h2 class="panel-title">NOVEDAD MEDICAMENTOS</h2>
+              <div class="panel-body">
+                <div class="novelty-list" id="noveltyList">
+                  <div class="empty-state">Sin novedades registradas.</div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
-      </div>
-    </header>
+      </main>
 
-    <!-- Main -->
-    <main class="flex-grow-1">
-      <div class="container py-5">
-        <div class="d-flex justify-content-end mb-4">
-          <a href="#" class="btn-gestionar">Gestionar Medicamentos</a>
-        </div>
+      <footer class="footer-strip">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</footer>
+    </div>
 
-        <div class="row g-4">
-          <div class="col-12 col-md-4">
-            <div class="card-oval h-100">
-              <div class="fw-semibold mb-3">Medicamentos</div>
-              <div class="inner-slot">Contenido de medicamentos</div>
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="card-oval h-100">
-              <div class="fw-semibold mb-3">Entrega Medicamentos</div>
-              <div class="inner-slot">Registro de entregas</div>
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="card-oval h-100">
-              <div class="fw-semibold mb-3">Novedad Medicamentos</div>
-              <div class="inner-slot">Novedades y alertas</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-auto py-4 footer">
-      <div class="container text-center">
-        <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
-      </div>
-    </footer>
     <script src="./js/alerts.js"></script>
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
     <script src="./js/medicamentos.js"></script>
   </body>
 </html>

@@ -1,37 +1,31 @@
 <?php
 
 namespace App\Repositories\Eloquent;
+
 use App\Models\actividades;
 use App\Repositories\Interfaces\actividadesInterface;
+use RuntimeException;
 
 class actividadesRepository implements actividadesInterface
 {
-    public function getAllactividades()
+    public function all()
     {
-        return actividades::all();
+        return actividades::query()->orderBy('Cod_acti_ludi')->get();
     }
 
-    public function getactividadesById($id)
+    public function find(int $id)
     {
-        $actividades = actividades::find($id);
-
-        return !$actividades ? null : $actividades;
+        return actividades::find($id);
     }
 
-    public function createactividades(array $data)
+    public function create(array $data)
     {
         return actividades::create($data);
     }
 
-    // Alias estándar para create
-    public function create(array $data)
+    public function update(int $id, array $data)
     {
-        return $this->createactividades($data);
-    }
-
-    public function updateactividades($id, array $data)
-    {
-        $actividades = actividades::find($id);
+        $actividades = $this->find($id);
 
         if (!$actividades) {
             return null;
@@ -41,27 +35,27 @@ class actividadesRepository implements actividadesInterface
         return $actividades;
     }
 
-    // Alias estándar para update
-    public function update($id, array $data)
+    public function delete(int $id)
     {
-        return $this->updateactividades($id, $data);
-    }
-
-    public function deleteactividades($id)
-    {
-        $actividades = actividades::find($id);
+        $actividades = $this->find($id);
 
         if (!$actividades) {
             return null;
         }
 
-        $actividades ->delete();
+        $actividades->delete();
         return true;
     }
 
-    // Alias estándar para delete
-    public function delete($id)
+    public function getNextCodActiLudi(): int
     {
-        return $this->deleteactividades($id);
+        $lastCode = actividades::query()->max('Cod_acti_ludi');
+        $nextCode = $lastCode ? ((int) $lastCode + 1) : 1;
+
+        if ($nextCode > 2147483647) {
+            throw new RuntimeException('No hay más códigos disponibles para actividades_ludicas.');
+        }
+
+        return $nextCode;
     }
 }

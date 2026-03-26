@@ -1,78 +1,81 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
- 
+
 use App\Http\Requests\actividadesRequest;
 use App\Services\actividadesService;
-
+use Illuminate\Http\JsonResponse;
 
 class actividadesController extends Controller
 {
-    protected $actividadesService;
+    protected actividadesService $actividadesService;
 
     public function __construct(actividadesService $actividadesService)
     {
         $this->actividadesService = $actividadesService;
     }
 
-    public function index()
+    public function index(): JsonResponse
     {
         $actividades = $this->actividadesService->getAllActividades();
+
         return response()->json([
-            'message' => 'actividades retrieved successfully',
+            'message' => 'Actividades retrieved successfully',
             'data' => $actividades
         ]);
     }
 
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-       $actividades = $this->actividadesService->getActividadesById($id);
+        $actividades = $this->actividadesService->getActividadesById($id);
         if (!$actividades) {
             return response()->json([
-                'message' => 'actividades not found'
+                'message' => 'Actividad not found'
             ], 404);
         }
+
         return response()->json([
-            'message' => 'actividades retrieved successfully',
+            'message' => 'Actividad retrieved successfully',
             'data' => $actividades
         ]);
-
     }
-    
-    public function store(actividadesRequest $request)
+
+    public function store(actividadesRequest $request): JsonResponse
     {
-        $actividades = $this->actividadesService->create($request);
+        $actividades = $this->actividadesService->create($request->validated());
+
         return response()->json([
-            'message' => 'actividades created successfully',
+            'message' => 'Actividad created successfully',
             'data' => $actividades
         ], 201);
     }
 
-    public function update($id, actividadesRequest $request)
+    public function update(actividadesRequest $request, int $id): JsonResponse
     {
-        $actividades = $this->actividadesService->update($id, $request);
+        $actividades = $this->actividadesService->update($id, $request->validated());
         if (!$actividades) {
             return response()->json([
-                'message' => 'actividades not found'
+                'message' => 'Actividad not found'
             ], 404);
         }
+
         return response()->json([
-            'message' => 'actividades updated successfully',
+            'message' => 'Actividad updated successfully',
             'data' => $actividades
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $result = $this->actividadesService->delete($id);
         if (!$result) {
             return response()->json([
-                'message' => 'actividades not found'
+                'message' => 'Actividad not found'
             ], 404);
         }
+
         return response()->json([
-            'message' => 'actividades deleted successfully'
+            'message' => 'Actividad deleted successfully'
         ]);
     }
 }

@@ -5,141 +5,350 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Visitas</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-
   <style>
+    :root {
+      --visitas-bg-1: #8fc5c5;
+      --visitas-bg-2: #6fb1b1;
+      --visitas-surface: rgba(255, 255, 255, 0.96);
+      --visitas-surface-soft: rgba(255, 255, 255, 0.82);
+      --visitas-border: rgba(255, 255, 255, 0.55);
+      --visitas-primary: #2e7d32;
+      --visitas-primary-strong: #1b5e20;
+      --visitas-accent: #5fbf7f;
+      --visitas-accent-strong: #417c55;
+      --visitas-text: #1f3a33;
+    }
 
     body {
-      background: linear-gradient(135deg, #8fc5c5, #6fb1b1);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.28), transparent 30%),
+        linear-gradient(135deg, var(--visitas-bg-1), var(--visitas-bg-2));
+      color: var(--visitas-text);
     }
 
-    /* LOGO */
     .logo-img {
       width: 40px;
       height: 40px;
       object-fit: cover;
     }
 
-    /* HEADER */
     .header {
-      background: #eaeaea;
-      border-radius: 30px;
-      padding: 10px 20px;
-      margin: 20px auto;
-      max-width: 1000px;
-      width: 95%;
+      background: var(--visitas-surface-soft);
+      border: 1px solid var(--visitas-border);
+      border-radius: 28px;
+      padding: 10px 18px;
+      margin: 20px auto 14px;
+      max-width: 1180px;
+      width: calc(100% - 24px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 32px rgba(34, 84, 78, 0.14);
     }
 
-    /* CONTENEDOR PRINCIPAL */
-    .container-main {
-      background: #f3f3f3;
-      border-radius: 25px;
-      padding: 25px;
+    .page-shell {
       width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
+      max-width: 1180px;
+      margin: 0 auto 28px;
+      padding: 0 12px;
+      display: grid;
+      gap: 18px;
+      flex: 1;
     }
 
-    /* PANEL VISITAS */
-    .panel-informes {
-      background: #b3ddbf;
-      border-radius: 20px;
-      padding: 20px;
+    .hero-card,
+    .panel-main {
+      background: var(--visitas-surface);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 24px;
+      box-shadow: 0 20px 44px rgba(33, 89, 82, 0.12);
     }
 
-    /* TARJETAS */
-    .card-informe {
-      background: #fff;
-      border-radius: 10px;
-      padding: 12px 15px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .hero-card {
+      padding: 22px 24px;
+      overflow: hidden;
+      position: relative;
     }
 
-    .card-informe:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -80px auto;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(95, 191, 127, 0.26), transparent 70%);
+      pointer-events: none;
     }
 
-    /* BOTON NUEVA VISITA */
-    .btn-nuevo-container {
-      margin: 0 0 15px 50px;
+    .hero-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      color: var(--visitas-primary);
+      font-weight: 700;
+    }
+
+    .hero-title {
+      margin: 4px 0 6px;
+      color: var(--visitas-primary-strong);
+      font-weight: 800;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+      margin: 0;
+      color: rgba(31, 58, 51, 0.88);
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(232, 245, 233, 0.95);
+      color: var(--visitas-primary-strong);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .panel-main {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toolbar .form-control {
+      border-radius: 999px;
+    }
+
+    .btn-soft {
+      border-radius: 999px;
+      background: #eef7ef;
+      color: var(--visitas-primary-strong);
+      border: 1px solid rgba(95, 191, 127, 0.28);
+    }
+
+    .btn-soft:hover {
+      background: #e4f3e7;
+      color: var(--visitas-primary-strong);
     }
 
     .btn-nuevo {
-      border-radius: 20px;
-      background: #417c55;
-      color: white;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--visitas-accent-strong), var(--visitas-accent));
+      color: #fff;
       border: none;
-      padding: 8px 20px;
+      padding-inline: 18px;
+      box-shadow: 0 10px 18px rgba(65, 124, 85, 0.18);
     }
 
     .btn-nuevo:hover {
-      background: #3ccc78;
-      color: white;
+      color: #fff;
+      filter: brightness(1.03);
     }
 
-    /* PANEL FORM */
-    .panel-form {
-      color: #166e34;
+    .visitas-banner {
+      border-radius: 18px;
+    }
+
+    .visitas-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .visita-card {
+      background: linear-gradient(180deg, #fff, #fbfffc);
+      border: 1px solid rgba(95, 191, 127, 0.16);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 20px rgba(31, 58, 51, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .visita-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(31, 58, 51, 0.1);
+    }
+
+    .visita-card__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .visita-code {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--visitas-primary);
+      margin-bottom: 4px;
+    }
+
+    .visita-title {
+      margin: 0;
+      color: #1d4037;
+      font-weight: 700;
+    }
+
+    .visita-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .visita-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #edf8ee;
+      color: var(--visitas-primary-strong);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .visita-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 34px 18px;
+      color: rgba(31, 58, 51, 0.78);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px dashed rgba(95, 191, 127, 0.35);
+      border-radius: 18px;
+    }
+
+    .form-backdrop {
       position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 380px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 25px;
-      display: none;
-      z-index: 999;
-      box-shadow: 0px 5px 20px rgba(151, 14, 14, 0.2);
+      inset: 0;
+      background: rgba(18, 42, 38, 0.42);
+      backdrop-filter: blur(4px);
+      z-index: 1040;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
 
-    /* BOTON CONFIRMAR */
+    .form-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .panel-form {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -48%) scale(0.98);
+      width: min(92vw, 560px);
+      max-height: 88vh;
+      overflow: auto;
+      z-index: 1045;
+      background: var(--visitas-surface);
+      border-radius: 24px;
+      box-shadow: 0 24px 52px rgba(31, 58, 51, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      padding: 20px;
+    }
+
+    .panel-form.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .panel-form__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel-form__title {
+      margin: 0;
+      color: var(--visitas-primary-strong);
+      font-weight: 800;
+    }
+
+    .panel-form__subtitle {
+      margin: 4px 0 0;
+      color: rgba(31, 58, 51, 0.75);
+      font-size: 0.95rem;
+    }
+
+    .session-pill {
+      display: inline-flex;
+      margin-top: 10px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #edf8ee;
+      color: var(--visitas-primary-strong);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
     .btn-confirmar {
-      background: #5fbf7f;
+      background: linear-gradient(135deg, var(--visitas-accent-strong), var(--visitas-accent));
       color: white;
       border: none;
-      padding: 8px 20px;
-      border-radius: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 18px rgba(65, 124, 85, 0.16);
     }
 
     .btn-confirmar:hover {
-      background: #4da86a;
       color: white;
+      filter: brightness(1.02);
     }
 
-    /* FILTRO */
-    #filtro {
-      min-width: 200px;
-    }
-
-    /* FOOTER */
     footer {
-      background: #eaeaea;
+      background: var(--visitas-surface-soft);
+      border-top: 1px solid rgba(255, 255, 255, 0.55);
       padding: 12px;
       text-align: center;
       margin-top: auto;
     }
 
-    /* BOTONES NOTIFICACION Y PERFIL */
     .btn-outline-secondary {
-      color: #2e7d32 !important;
-      border-color: #c8e6c9 !important;
+      color: var(--visitas-primary) !important;
+      border-color: rgba(95, 191, 127, 0.3) !important;
       transition: all 0.3s;
     }
 
     .btn-outline-secondary:hover {
-      background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
+      background: linear-gradient(135deg, #e8f5e9, #d9f0ee) !important;
       border-color: #66bb6a !important;
-      color: #2e7d32 !important;
+      color: var(--visitas-primary) !important;
     }
 
-    /* MENU PERFIL */
     .profile-menu-wrapper {
       position: relative;
     }
@@ -177,7 +386,7 @@
       width: 100%;
       border: 0;
       background: transparent;
-      color: #2e7d32;
+      color: var(--visitas-primary);
       text-align: left;
       padding: 12px 16px;
       font-size: 14px;
@@ -187,35 +396,50 @@
 
     .profile-menu-item:hover {
       background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
-      color: #1b5e20;
+      color: var(--visitas-primary-strong);
     }
 
     .profile-menu-item + .profile-menu-item {
       border-top: 1px solid rgba(200, 230, 201, 0.7);
     }
 
-    /* RESPONSIVE */
     @media (max-width: 768px) {
-      .container-main { max-width: 95%; padding: 20px; }
-      .btn-nuevo-container { margin-left: 20px; }
-      #filtro { min-width: 150px; }
-    }
+      .header {
+        width: calc(100% - 18px);
+        border-radius: 18px;
+        padding: 10px 12px;
+      }
 
-    @media (max-width: 480px) {
-      .header { border-radius: 15px; padding: 8px 12px; }
-      .container-main { padding: 15px; border-radius: 20px; }
-      .panel-informes { padding: 15px; }
-      .btn-nuevo-container { margin-left: 15px; }
-    }
+      .page-shell {
+        padding: 0 9px;
+      }
 
+      .hero-card,
+      .panel-main {
+        border-radius: 18px;
+      }
+
+      .hero-card,
+      .panel-main {
+        padding: 16px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .visita-card__top {
+        flex-direction: column;
+      }
+
+      .visita-actions {
+        justify-content: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <!-- ==================== HEADER ==================== -->
   <div class="header d-flex justify-content-between align-items-center">
-
-    <!-- IZQUIERDA -->
     <div class="d-flex align-items-center gap-2">
       <img src="img/LOGO_HGA.png" class="rounded-circle logo-img" alt="Logo">
       <button class="btn btn-link text-decoration-none text-primary fw-bold" onclick="location.reload()">
@@ -223,18 +447,9 @@
       </button>
     </div>
 
-    <!-- DERECHA -->
     <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
 
-      <!-- NOTIFICACIONES -->
-      <button
-        class="btn btn-outline-secondary rounded-circle"
-        aria-label="Notificaciones"
-        title="Notificaciones">
-        🔔
-      </button>
-
-      <!-- PERFIL -->
       <div class="profile-menu-wrapper">
         <button
           class="btn btn-outline-secondary rounded-circle profile-menu-btn"
@@ -251,126 +466,93 @@
         </div>
       </div>
 
-      <!-- MENU -->
-      <div class="dropdown">
-        <button class="btn btn-outline-secondary rounded-circle" data-bs-toggle="dropdown">☰</button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Inicio</a></li>
-          <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
-          <li><a class="dropdown-item" href="Notificaciones.html">Notificaciones</a></li>
-          <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
-          <li><a class="dropdown-item" href="date.html">Citas</a></li>
-          <li><a class="dropdown-item" href="recreational_activities.html">Actividades Ludicas</a></li>
-          <li><a class="dropdown-item" href="medicaments.html">Medicamentos</a></li>
-        </ul>
-      </div>
-
-    </div><!-- fin derecha -->
-  </div><!-- fin header -->
-
-  <!-- ==================== BOTON NUEVA VISITA ==================== -->
-  <div class="btn-nuevo-container">
-    <button class="btn btn-light btn-nuevo" onclick="toggleForm()">
-      + Registrar nueva Visita
-    </button>
+      <button class="btn btn-outline-secondary rounded-circle" type="button" aria-label="Menú" title="Menú" data-menu-hamburguesa>☰</button>
+    </div>
   </div>
 
-  <!-- ==================== CONTENIDO ==================== -->
-  <div class="container-main">
+  <main class="page-shell">
+    <section class="hero-card">
+      <div class="hero-kicker">Módulo operativo</div>
+      <h1 class="hero-title h3">Gestión de visitas</h1>
+      <p class="hero-copy">
+        Consulta, crea, edita y elimina visitas desde la API real. La sesión activa se toma del login y los residentes se cargan
+        automáticamente para evitar códigos internos innecesarios.
+      </p>
+      <div class="hero-badges">
+        <span class="hero-badge" id="visitasCountBadge">0 visitas</span>
+        <span class="hero-badge" id="residentesCountBadge">0 residentes</span>
+        <span class="hero-badge" id="sessionSummaryBadge">Sesión no cargada</span>
+      </div>
+    </section>
 
-    <h5 class="text-success text-center mb-3">Visitas</h5>
-
-    <div class="panel-informes">
-
-      <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+    <section class="panel-main">
+      <div class="toolbar">
         <input
-          type="text"
-          id="filtro"
+          type="search"
+          id="searchVisitas"
           class="form-control"
-          style="max-width:250px"
-          placeholder="Buscar..."
-          onkeyup="filtrar()"
+          placeholder="Buscar por visitante, residente, documento o fecha"
+          autocomplete="off"
         />
-        <button class="btn btn-light">🔍 BUSCAR</button>
+        <button id="btnLimpiarFiltro" class="btn btn-soft" type="button">Limpiar</button>
+        <button id="btnNuevaVisita" class="btn btn-nuevo" type="button">+ Nueva visita</button>
       </div>
 
-      <!-- LISTA DE VISITAS -->
-      <div id="listaVisitasContainer">
-        <div class="card-informe">Visita de rutina para el día 12...</div>
-        <div class="card-informe">Visita médica para el viernes 13...</div>
-        <div class="card-informe">Visita de seguimiento para el martes 14...</div>
-        <div class="card-informe">Visita de evaluación para el jueves 15...</div>
+      <div id="visitasBanner" class="visitas-banner alert d-none mb-3" role="alert"></div>
+      <div id="listaVisitasContainer" class="visitas-list"></div>
+    </section>
+  </main>
+
+  <div class="form-backdrop" id="formBackdrop" hidden></div>
+
+  <section id="formPanel" class="panel-form" aria-hidden="true">
+    <div class="panel-form__header">
+      <div>
+        <h2 class="panel-form__title h5" id="formTitle">Nueva visita</h2>
+        <p class="panel-form__subtitle" id="formSubtitle">Registra una visita real usando la sesion activa y un residente existente.</p>
+        <div class="session-pill" id="visitSessionSummary">Sesión no disponible</div>
+      </div>
+      <button class="btn btn-sm btn-soft" type="button" id="btnCerrarFormulario" aria-label="Cerrar formulario">✕</button>
+    </div>
+
+    <form id="formNuevaVisita" novalidate>
+      <input type="hidden" id="codVisitas" />
+      <input type="hidden" id="codUsuario" />
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Residente</label>
+        <select id="codResidente" class="form-select" required></select>
       </div>
 
-    </div>
-  </div>
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Documento del visitante</label>
+        <input id="docId" type="text" inputmode="numeric" class="form-control" placeholder="Documento de identidad" required />
+      </div>
 
-  <!-- ==================== FORMULARIO ==================== -->
-  <div id="formPanel" class="panel-form">
-    <form id="formNuevaVisita">
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Nombre del visitante</label>
+        <input id="nombVisitante" type="text" class="form-control" placeholder="Nombre completo" maxlength="50" required />
+      </div>
 
-    <h6 class="text-center mb-3 text-success">Nueva Visita</h6>
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Fecha de la visita</label>
+        <input id="fechaVisita" type="date" class="form-control" required />
+      </div>
 
-    <label class="form-label small">Cod Visitas</label>
-    <input id="codVisitas" type="number" min="1" class="form-control mb-2" placeholder="Código de visita" />
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-soft" id="btnCancelarVisita">Cancelar</button>
+        <button type="submit" class="btn btn-confirmar" id="btnGuardarVisita">Guardar visita</button>
+      </div>
+    </form>
+  </section>
 
-    <label class="form-label small">Fecha</label>
-    <input id="fechaVisita" type="date" class="form-control mb-2" />
-
-    <label class="form-label small">Hora</label>
-    <input id="hora" type="time" class="form-control mb-2" />
-
-    <label class="form-label small">Número de Documento</label>
-    <input id="docId" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el número de documento" />
-
-    <label class="form-label small">Código del Residente</label>
-    <input id="codResidente" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del residente" />
-
-    <label class="form-label small">Nombre del Visitante</label>
-    <input id="nombVisitante" type="text" class="form-control mb-2" placeholder="Ingrese el nombre del visitante" />
-
-    <label class="form-label small">Código del Usuario</label>
-    <input id="codUsuario" type="number" min="1" class="form-control mb-2" placeholder="Ingrese el código del usuario" />
-
-    <label class="form-label small">Descripción</label>
-    <textarea id="descripcionVisita" class="form-control mb-3" rows="3" placeholder="Descripción de la visita..."></textarea>
-
-    <div class="d-flex justify-content-center gap-2">
-      <button type="submit" class="btn btn-confirmar">Confirmar</button>
-      <button type="button" class="btn btn-secondary" onclick="toggleForm()">Descartar</button>
-    </div>
-
-  </form>
-  </div>
-
-  <!-- ==================== FOOTER ==================== -->
   <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-
-    /* FORMULARIO */
-    const formPanel = document.getElementById("formPanel");
-
-    function toggleForm() {
-      formPanel.style.display = formPanel.style.display === "block" ? "none" : "block";
-    }
-
-    /* FILTRO */
-    function filtrar() {
-      const val = document.getElementById("filtro").value.toLowerCase();
-      document.querySelectorAll(".card-informe").forEach(el => {
-        el.style.display = el.textContent.toLowerCase().includes(val) ? "block" : "none";
-      });
-    }
-
-  </script>
-
   <script src="./js/alerts.js"></script>
   <script src="./js/menu_notificacion.js"></script>
   <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
   <script src="./js/visitas.js"></script>
-
 </body>
 </html>

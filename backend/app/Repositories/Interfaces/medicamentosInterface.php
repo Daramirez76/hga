@@ -2,17 +2,17 @@
 
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Foundation\Http\FormRequest;
-
 interface medicamentosInterface
 {
     public function getAllmedicamentos();
 
-    public function getmedicamentosById($id);
+    public function getmedicamentosById(int $id);
 
-    public function createmedicamentos(array $data);
+    public function create(array $data);
 
-    public function updatemedicamentos($id, array $data);
+    public function update(int $id, array $data);
 
-    public function deletemedicamentos($id);
+    public function delete(int $id);
+
+    public function getNextCodMedicamento(): int;
 }

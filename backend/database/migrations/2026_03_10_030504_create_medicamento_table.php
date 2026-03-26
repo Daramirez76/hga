@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medicamento', function (Blueprint $table) {
-            $table->id();
-            $table->integer('cod_medicamento')->unique();
-            $table->string('nombre_medic', 255);
+        if (Schema::hasTable('medicamentos') || Schema::hasTable('medicamento')) {
+            return;
+        }
+
+        Schema::create('medicamentos', function (Blueprint $table) {
+            $table->integer('Cod_medicamento')->primary();
+            $table->string('nombre_medic', 10);
             $table->date('fecha_entrada');
             $table->date('fecha_vencimiento');
-            $table->integer('cod_usuario')->nullable();
-            $table->integer('cod_residente')->nullable();
-            $table->integer('cod_rol')->nullable();
-            $table->string('descrip_novedad', 500)->nullable();
+            $table->integer('cod_usuario');
+            $table->integer('cod_residente');
+            $table->integer('cod_rol');
+            $table->string('descrip_novedad', 100)->nullable();
             $table->date('fecha_novedad')->nullable();
             $table->integer('stock');
-            $table->timestamps();
         });
     }
 
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medicamento');
+        Schema::dropIfExists('medicamentos');
     }
 };

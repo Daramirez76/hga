@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            localStorage.setItem("usuario", JSON.stringify(sanitizarUsuario(data)));
+            localStorage.removeItem("usuario");
             await mostrarExitoRegistro(campos.correo.value.trim());
         } catch (error) {
             console.error("Error al registrar usuario:", error);
@@ -182,16 +182,32 @@ function obtenerCampos() {
         correo: document.getElementById("correo"),
         usuario: document.getElementById("usuario"),
         contrasena: document.getElementById("contrasena") || document.getElementById("contraseña"),
+        confirmacionContrasena: document.getElementById("password_confirmation"),
+        codRol: document.getElementById("cod_rol"),
+        parentesco: document.getElementById("parentesco"),
     };
 }
 
 function validarCampos(campos) {
-    const errores = [...validarPaso(campos, 1), ...validarPaso(campos, 2), ...validarPaso(campos, 3)];
-    const valorUsuario = valor(campos.usuario);
+    const errores = [
+        ...validarPaso(campos, 1),
+        ...validarPaso(campos, 2),
+        ...validarPaso(campos, 3),
+    ];
 
-    if (!valorUsuario) {
+    if (!valor(campos.usuario)) {
         errores.push(crearMensajeError("No fue posible generar el nombre de usuario desde el correo.", 1));
         marcarError(campos.correo);
+    }
+
+    if (valor(campos.confirmacionContrasena) && valor(campos.contrasena) && campos.confirmacionContrasena.value.trim() !== campos.contrasena.value.trim()) {
+        errores.push(crearMensajeError("Las contrasenas no coinciden.", 1));
+        marcarError(campos.confirmacionContrasena);
+    }
+
+    if (campos.codRol instanceof HTMLSelectElement && !valor(campos.codRol) && !campos.codRol.hidden) {
+        errores.push(crearMensajeError("Debes seleccionar un rol.", 3));
+        marcarError(campos.codRol);
     }
 
     return errores;
@@ -206,6 +222,7 @@ function validarPaso(campos, paso) {
             { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
             { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
             { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
+            { input: campos.confirmacionContrasena, mensaje: "Confirma la contraseña." },
         ]
         : paso === 2
             ? [
@@ -235,6 +252,11 @@ function validarPaso(campos, paso) {
         marcarError(campos.contrasena);
     }
 
+    if (paso === 1 && valor(campos.confirmacionContrasena) && valor(campos.contrasena) && campos.confirmacionContrasena.value.trim() !== campos.contrasena.value.trim()) {
+        errores.push(crearMensajeError("Las contrasenas no coinciden.", 1));
+        marcarError(campos.confirmacionContrasena);
+    }
+
     if (paso === 1 && valor(campos.numDoc) && !/^\d+$/.test(campos.numDoc.value.trim())) {
         errores.push(crearMensajeError("El numero de documento debe contener solo digitos.", 1));
         marcarError(campos.numDoc);
@@ -253,15 +275,19 @@ function validarPaso(campos, paso) {
         marcarError(campos.telefono);
     }
 
+    if (campos.codRol instanceof HTMLSelectElement && !campos.codRol.hidden && !valor(campos.codRol)) {
+        errores.push(crearMensajeError("Debes seleccionar un rol.", 3));
+        marcarError(campos.codRol);
+    }
+
     return errores;
 }
 
 function construirPayload(campos) {
-    const nombreCompleto = `${campos.nombre.value.trim()} ${campos.apellido.value.trim()}`.trim();
     const docId = normalizarNumero(campos.numDoc.value);
     const telefono = normalizarNumero(campos.telefono.value);
     const payload = {
-        name: nombreCompleto,
+        name: campos.nombre.value.trim(),
         apellido: campos.apellido.value.trim(),
         tipo_doc: campos.tipoDoc.value.trim(),
         doc_id: Number(docId),
@@ -270,21 +296,22 @@ function construirPayload(campos) {
         email: campos.correo.value.trim(),
         usuario: campos.usuario.value.trim(),
         password: campos.contrasena.value.trim(),
-        password_confirmation: campos.contrasena.value.trim(),
+        password_confirmation: campos.confirmacionContrasena?.value.trim() || campos.contrasena.value.trim(),
     };
 
     if (valor(campos.edad)) {
         payload.edad = Number(campos.edad.value.trim());
     }
 
-    return payload;
-}
-
-function sanitizarUsuario(data) {
-    if (data && data.user) {
-        return data.user;
+    if (campos.codRol && valor(campos.codRol)) {
+        payload.cod_rol = Number(campos.codRol.value);
     }
-    return data;
+
+    if (campos.parentesco && valor(campos.parentesco)) {
+        payload.parentesco = campos.parentesco.value.trim();
+    }
+
+    return payload;
 }
 
 function mostrarErroresBackend(data, campos) {
@@ -300,6 +327,8 @@ function mostrarErroresBackend(data, campos) {
         email: campos.correo,
         usuario: campos.usuario,
         password: campos.contrasena,
+        password_confirmation: campos.confirmacionContrasena,
+        cod_rol: campos.codRol,
     };
 
     if (data.errors && typeof data.errors === "object") {
@@ -334,7 +363,9 @@ function sincronizarUsuario(campos) {
         return;
     }
 
-    campos.usuario.value = campos.correo.value.trim().toLowerCase();
+    if (campos.usuario.type === "hidden") {
+        campos.usuario.value = campos.correo.value.trim().toLowerCase();
+    }
 }
 
 function esCorreoValido(correo) {

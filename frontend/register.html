@@ -362,8 +362,8 @@
 
                     <p class="wizard-note text-center mb-4" id="wizardStepMessage">Paso 1 de 3: ingresa tus datos de acceso y documento.</p>
 
-                    <div class="wizard-pane" data-step-pane="1">
-                        <div class="row g-4">
+	                    <div class="wizard-pane" data-step-pane="1">
+	                        <div class="row g-4">
                             <div class="col-12 col-lg-6">
                                 <label for="tipo_doc" class="form-label register-label">Tipo de Documento</label>
                                 <select id="tipo_doc" name="tipo_doc" class="form-select register-select">
@@ -384,12 +384,17 @@
                                 <input id="correo" name="correo" type="email" class="form-control register-input">
                             </div>
 
-                            <div class="col-12">
-                                <label for="contrasena" class="form-label register-label">Contraseña</label>
-                                <input id="contrasena" name="contrasena" type="password" class="form-control register-input">
-                            </div>
-                        </div>
-                    </div>
+	                            <div class="col-12">
+	                                <label for="contrasena" class="form-label register-label">Contraseña</label>
+	                                <input id="contrasena" name="contrasena" type="password" class="form-control register-input" autocomplete="new-password">
+	                            </div>
+
+	                            <div class="col-12">
+	                                <label for="password_confirmation" class="form-label register-label">Confirmar contraseña</label>
+	                                <input id="password_confirmation" name="password_confirmation" type="password" class="form-control register-input" autocomplete="new-password">
+	                            </div>
+	                        </div>
+	                    </div>
 
                     <div class="wizard-pane" data-step-pane="2" hidden>
                         <div class="row g-4">
@@ -421,7 +426,9 @@
                         </div>
                     </div>
 
-                    <input id="usuario" name="usuario" type="hidden" value="">
+	                    <input id="usuario" name="usuario" type="hidden" value="">
+	                    <input id="cod_rol" name="cod_rol" type="hidden" value="4">
+	                    <input id="parentesco" name="parentesco" type="hidden" value="">
 
                     <div class="row justify-content-center mt-4 mt-lg-5 g-3">
                         <div class="col-12 col-xl-10">

@@ -1,49 +1,64 @@
 <?php
 
 namespace App\Repositories\Eloquent;
+
 use App\Models\visitas;
 use App\Repositories\Interfaces\visitasInterface;
+use Illuminate\Support\Facades\DB;
 
 class visitasRepository implements visitasInterface
 {
-    public function getAllvisitas()
+    public function getAllVisitas()
     {
-        return visitas::all();
+        return visitas::query()->orderBy('id')->get();
     }
 
-    public function getvisitasById($id)
+    public function getVisitaById(int $id)
     {
-        $visitas = visitas::find($id);
-
-        return !$visitas ? null : $visitas;
+        return visitas::query()->find($id);
     }
 
-    public function createvisitas(array $data)
+    public function createVisita(array $data)
     {
-        return visitas::create($data);
+        return DB::transaction(function () use ($data) {
+            if (empty($data['cod_Visitas'])) {
+                $data['cod_Visitas'] = $this->nextVisitaCode();
+            }
+
+            return visitas::create($data);
+        });
     }
 
-    public function updatevisitas($id, array $data)
+    public function updateVisita(int $id, array $data)
     {
-        $visitas = visitas::find($id);
+        $visita = visitas::query()->find($id);
 
-        if (!$visitas) {
+        if (!$visita) {
             return null;
         }
 
-        $visitas->update($data);
-        return $visitas;
+        $visita->update($data);
+
+        return $visita->refresh();
     }
 
-    public function deletevisitas($id)
+    public function deleteVisita(int $id)
     {
-        $visitas = visitas::find($id);
+        $visita = visitas::query()->find($id);
 
-        if (!$visitas) {
+        if (!$visita) {
             return null;
         }
 
-        $visitas ->delete();
+        $visita->delete();
+
         return true;
+    }
+
+    protected function nextVisitaCode(): int
+    {
+        $currentMax = (int) visitas::query()->lockForUpdate()->max('cod_Visitas');
+
+        return $currentMax + 1;
     }
 }

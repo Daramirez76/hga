@@ -2,71 +2,145 @@
 
 namespace App\Services;
 
-use App\Http\Requests\informesRequest;
 use App\Repositories\Interfaces\informesInterface;
+use Illuminate\Support\Facades\Auth;
 
 class informesService
 {
-    protected $informesRepository;
+    protected informesInterface $informesRepository;
 
-    public function __construct(informesInterface $informesRepository)
-    {
+    public function __construct(
+        informesInterface $informesRepository,
+        protected notificacionesService $notificacionesService
+    ) {
         $this->informesRepository = $informesRepository;
     }
 
-    public function getAllinformes()
+    public function getAllInformes()
     {
-        return $this->informesRepository->getAllinformes();
+        return $this->informesRepository->getAllVisibleForUser($this->getAuthenticatedUser());
     }
 
-    public function getinformesById($id)
+    public function getInformeById(int $id)
     {
-        return $this->informesRepository->getinformesById($id);
+        return $this->informesRepository->findVisibleById($id, $this->getAuthenticatedUser());
     }
 
-    public function create(informesRequest $request)
+    public function create(array $data)
     {
-        $data = $request->validated();
-        
-        // Auto-generar cod_Informes si no viene
-        if (empty($data['cod_Informes'])) {
-            $data['cod_Informes'] = (int)(date('Ymd') . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT));
+        $user = $this->getAuthenticatedUser();
+        $payload = $this->normalizePayload($data);
+
+        if ($user) {
+            $payload['doc_id'] = $this->resolveAuthorDocument($user);
+            $payload['cod_rol'] = $this->resolveRoleCode($user);
         }
-        
-        // Asignar doc_id del usuario autenticado
-        if (!isset($data['doc_id']) || empty($data['doc_id'])) {
-            $user = auth()->user();
-            $data['doc_id'] = $user ? $user->id : 1;
+
+        if (!isset($payload['tipo']) || $payload['tipo'] === '') {
+            $payload['tipo'] = 'general';
         }
-        
-        // Valores por defecto
-        if (!isset($data['cod_Residente']) || empty($data['cod_Residente'])) {
-            $data['cod_Residente'] = 1;
+
+        if (!isset($payload['urgencia']) || $payload['urgencia'] === '') {
+            $payload['urgencia'] = 'normal';
         }
-        
-        if (!isset($data['cod_rol']) || empty($data['cod_rol'])) {
-            $data['cod_rol'] = 1;
-        }
-        
-        if (!isset($data['tipo']) || empty($data['tipo'])) {
-            $data['tipo'] = 'general';
-        }
-        
-        if (!isset($data['urgencia']) || empty($data['urgencia'])) {
-            $data['urgencia'] = 'normal';
-        }
-        
-        return $this->informesRepository->createinformes($data);
+
+        $informe = $this->informesRepository->create($payload);
+        $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyInformeCreated($informe));
+
+        return $informe;
     }
 
-    public function update($id, informesRequest $request)
+    public function update(int $id, array $data)
     {
-        $data = $request->validated();
-        return $this->informesRepository->updateinformes($id, $data);
+        $payload = $this->normalizePayload($data);
+        unset($payload['cod_Informes'], $payload['doc_id'], $payload['cod_rol']);
+
+        $informe = $this->informesRepository->update($id, $payload, $this->getAuthenticatedUser());
+
+        if ($informe) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyInformeUpdated($informe));
+        }
+
+        return $informe;
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
-        return $this->informesRepository->deleteinformes($id);
+        $informe = $this->getInformeById($id);
+
+        if (!$informe) {
+            return null;
+        }
+
+        $deleted = $this->informesRepository->delete($id, $this->getAuthenticatedUser());
+
+        if ($deleted) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyInformeDeleted($informe));
+        }
+
+        return $deleted;
+    }
+
+    protected function getAuthenticatedUser(): ?object
+    {
+        $user = Auth::guard('api')->user();
+
+        return is_object($user) ? $user : null;
+    }
+
+    protected function resolveAuthorDocument(object $user): int
+    {
+        $docId = (int) ($user->doc_id ?? 0);
+
+        if ($docId > 0) {
+            return $docId;
+        }
+
+        return (int) ($user->id ?? 0);
+    }
+
+    protected function resolveRoleCode(object $user): int
+    {
+        $roleCode = (int) ($user->cod_rol ?? 0);
+
+        return $roleCode > 0 ? $roleCode : 4;
+    }
+
+    protected function normalizePayload(array $data): array
+    {
+        if (isset($data['cod_Informes'])) {
+            $data['cod_Informes'] = (int) $data['cod_Informes'];
+        }
+
+        if (isset($data['cod_Residente'])) {
+            $data['cod_Residente'] = (int) $data['cod_Residente'];
+        }
+
+        if (isset($data['Titulo_Informes'])) {
+            $data['Titulo_Informes'] = trim((string) $data['Titulo_Informes']);
+        }
+
+        if (isset($data['descripcion'])) {
+            $data['descripcion'] = trim((string) $data['descripcion']);
+        }
+
+        if (isset($data['tipo'])) {
+            $data['tipo'] = trim((string) $data['tipo']);
+        }
+
+        if (isset($data['urgencia'])) {
+            $data['urgencia'] = trim((string) $data['urgencia']);
+        }
+
+        return $data;
+    }
+
+    protected function dispatchNotificationSafely(callable $callback): void
+    {
+        try {
+            $callback();
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }
