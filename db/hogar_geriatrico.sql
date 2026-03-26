@@ -97,17 +97,8 @@ INSERT INTO `citas` (`cod_cita`, `Fecha_cita`, `hora_inicio`, `hora_fin`, `Nombr
 (4, '2025-09-24', '10:30:00', '10:50:00', 'Maria Guasca', 'Clinica Meredy', 3),
 (5, '2025-10-01', '13:00:00', '13:25:00', 'David Muñoz', 'Hospital Universitario Corpas', 1);
 
---
--- Disparadores `citas`
---
-DELIMITER $$
-CREATE TRIGGER `tr_notificacion_cita` AFTER INSERT ON `citas` FOR EACH ROW BEGIN
-    INSERT INTO notificaciones (cod_usuario, cod_Residente, Descrip_Novedad)
-   VALUES ( NEW.hora_inicio, NEW.Lugar_cita, NEW.Nombre_acompañante); 
-   
-END
-$$
-DELIMITER ;
+-- La notificacion de citas ahora se gestiona desde Laravel y se almacena
+-- en `notificaciones_sistema`, por lo que este dump ya no crea triggers legacy.
 
 -- --------------------------------------------------------
 

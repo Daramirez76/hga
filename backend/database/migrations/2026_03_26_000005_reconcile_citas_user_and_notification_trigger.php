@@ -19,12 +19,12 @@ return new class extends Migration
             });
         }
 
-        $this->recreateNotificationTrigger();
+        $this->dropLegacyNotificationTrigger();
     }
 
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS tr_notificacion_cita');
+        $this->dropLegacyNotificationTrigger();
 
         if (Schema::hasTable('citas') && Schema::hasColumn('citas', 'cod_usuario')) {
             Schema::table('citas', function (Blueprint $table) {
@@ -33,47 +33,10 @@ return new class extends Migration
         }
     }
 
-    protected function recreateNotificationTrigger(): void
+    protected function dropLegacyNotificationTrigger(): void
     {
+        // Notifications are handled by the application service layer and stored
+        // in notificaciones_sistema, so we only need to remove the legacy trigger.
         DB::unprepared('DROP TRIGGER IF EXISTS tr_notificacion_cita');
-
-        if (!Schema::hasTable('notificaciones')) {
-            return;
-        }
-
-        DB::unprepared(<<<'SQL'
-CREATE TRIGGER tr_notificacion_cita
-AFTER INSERT ON citas
-FOR EACH ROW
-BEGIN
-    DECLARE next_notification_code INT;
-
-    IF NEW.cod_usuario IS NOT NULL AND NEW.cod_usuario > 0 THEN
-        SELECT COALESCE(MAX(cod_Notificaciones), 0) + 1
-        INTO next_notification_code
-        FROM notificaciones;
-
-        INSERT INTO notificaciones (
-            cod_Notificaciones,
-            cod_usuario,
-            cod_Residente,
-            Descrip_Novedad
-        )
-        VALUES (
-            next_notification_code,
-            NEW.cod_usuario,
-            NEW.cod_Residente,
-            CONCAT(
-                'El residente con codigo ',
-                NEW.cod_Residente,
-                ' tiene una cita medica agendada para el ',
-                DATE_FORMAT(NEW.Fecha_cita, '%d/%m/%Y'),
-                ' a las ',
-                TIME_FORMAT(NEW.hora_inicio, '%H:%i')
-            )
-        );
-    END IF;
-END
-SQL);
     }
 };

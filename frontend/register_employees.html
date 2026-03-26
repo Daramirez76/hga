@@ -194,7 +194,7 @@
         }
     </style>
 </head>
-<body>
+<body data-register-source="employee">
     <div class="page-shell d-flex flex-column">
         <header class="container py-4 py-lg-5">
             <div class="top-bar px-3 px-lg-4 py-3">
@@ -279,15 +279,7 @@
                             <label for="correo" class="form-label register-label">Correo Electronico</label>
                             <input id="correo" name="correo" type="email" class="form-control register-input">
                         </div>
-	                        <div class="col-12 col-lg-6">
-	                            <label for="cod_rol" class="form-label register-label">Cargo / Rol</label>
-		                            <select id="cod_rol" name="cod_rol" class="form-select register-select">
-		                                <option value="">Seleccione un rol</option>
-		                                <option value="1">Administrador</option>
-		                                <option value="2">Enfermero</option>
-		                                <option value="3">Doctor</option>
-		                            </select>
-		                        </div>
+	                        <input id="cod_rol" name="cod_rol" type="hidden" value="2">
 
 	                        <div class="col-12 col-lg-6">
 	                            <label for="usuario" class="form-label register-label">Nombre de Usuario</label>

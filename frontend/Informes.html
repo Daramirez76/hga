@@ -5,65 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Informes</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/hga-home-shell.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
     <style>
       body {
-        background: linear-gradient(135deg, #8fc5c5, #6fb1b1);
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
       }
 
-      /* LOGO */
-      .logo-img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-      }
-
-      /* HEADER */
-      .header {
-        background: #eaeaea;
-        border-radius: 30px;
-        padding: 10px 20px;
-        margin: 20px auto;
-        max-width: 1000px;
-        width: 95%;
-      }
-
-      /* CONTENEDOR PRINCIPAL */
       .container-main {
-        background: #f3f3f3;
-        border-radius: 25px;
-        padding: 25px;
+        background: var(--hga-surface);
+        border-radius: var(--hga-radius-xl);
+        box-shadow: var(--hga-shadow);
+        padding: 1.5rem;
         width: 100%;
-        max-width: 1100px;
-        margin: 0 auto;
+        max-width: none;
+        margin: 0;
       }
 
-      /* PANEL INFORMES */
       .panel-informes {
-        background: #b3ddbf;
-        border-radius: 20px;
-        padding: 20px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(233, 246, 242, 0.98));
+        border: 1px solid rgba(41, 156, 76, 0.18);
+        border-radius: 1.6rem;
+        padding: 1.25rem;
       }
 
-      /* BOTON NUEVO INFORME */
       .btn-nuevo-container {
-        margin: 0 0 15px 50px;
+        margin: 0 0 1rem;
       }
 
       .btn-nuevo {
-        border-radius: 20px;
-        background: #417c55;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--hga-primary), var(--hga-secondary));
         color: white;
         border: none;
-        padding: 8px 20px;
+        padding: 0.8rem 1.3rem;
+        box-shadow: 0 12px 20px rgba(41, 156, 76, 0.18);
       }
 
       .btn-nuevo:hover {
-        background: #3ccc78;
         color: white;
+        filter: brightness(1.03);
       }
 
       .informes-summary {
@@ -179,28 +161,6 @@
         color: white;
       }
 
-      /* FOOTER */
-      footer {
-        background: #eaeaea;
-        padding: 12px;
-        text-align: center;
-        margin-top: auto;
-      }
-
-      /* BOTONES NOTIFICACION Y PERFIL */
-      .btn-outline-secondary {
-        color: #2e7d32 !important;
-        border-color: #c8e6c9 !important;
-        transition: all 0.3s;
-      }
-
-      .btn-outline-secondary:hover {
-        background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-        border-color: #66bb6a !important;
-        color: #2e7d32 !important;
-      }
-
-      /* MENU PERFIL */
       .profile-menu-wrapper {
         position: relative;
       }
@@ -259,117 +219,69 @@
         border-top: 1px solid rgba(200, 230, 201, 0.7);
       }
 
-      /* RESPONSIVE */
       @media (max-width: 768px) {
-        .container-main {
-          max-width: 95%;
-          padding: 20px;
-        }
         .btn-nuevo-container {
-          margin-left: 20px;
+          margin-bottom: 0.85rem;
         }
       }
 
       @media (max-width: 480px) {
-        .header {
-          border-radius: 15px;
-          padding: 8px 12px;
-        }
         .container-main {
-          padding: 15px;
-          border-radius: 20px;
+          padding: 1rem;
         }
         .panel-informes {
-          padding: 15px;
-        }
-        .btn-nuevo-container {
-          margin-left: 15px;
+          padding: 1rem;
         }
       }
     </style>
   </head>
-  <body>
-    <!-- ==================== HEADER ==================== -->
-    <div class="header d-flex justify-content-between align-items-center">
-      <!-- IZQUIERDA -->
-      <div class="d-flex align-items-center gap-2">
-        <img
-          src="img/LOGO_HGA.png"
-          class="rounded-circle logo-img"
-          alt="Logo"
-        />
-        <button
-          class="btn btn-link text-decoration-none text-primary fw-bold"
-          onclick="location.reload()"
-        >
-          Informes
-        </button>
-      </div>
+  <body class="hga-home-theme" data-allowed-roles="1,2" data-login-page="login_employees.html">
+    <div class="hga-page-shell">
+      <header class="hga-top-region">
+        <div class="hga-content-shell">
+          <div class="hga-top-bar">
+            <div class="hga-top-bar-inner">
+              <a href="Informes.html" class="hga-brand-link">
+                <img src="img/LOGO_HGA.png" class="hga-brand-logo" alt="Logo" />
+                <h1 class="hga-brand-title">Informes</h1>
+              </a>
 
-      <!-- DERECHA -->
-      <div class="d-flex align-items-center gap-2">
-        <!-- NOTIFICACIONES -->
-        <button
-          class="btn btn-outline-secondary rounded-circle"
-          aria-label="Notificaciones"
-          title="Notificaciones"
-        >
-          🔔
-        </button>
+              <div class="hga-icon-actions">
+                <button class="hga-icon-btn" aria-label="Notificaciones" title="Notificaciones">
+                  <i class="bi bi-bell"></i>
+                </button>
 
-        <!-- PERFIL -->
-        <div class="profile-menu-wrapper">
-          <button
-            class="btn btn-outline-secondary rounded-circle profile-menu-btn"
-            id="profileMenuButton"
-            aria-label="Perfil"
-            title="Perfil"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            👤
-          </button>
-          <div class="profile-dropdown" id="profileDropdown">
-            <button
-              class="profile-menu-item"
-              type="button"
-              id="viewUserProfile"
-            >
-              Ver perfil de usuario
-            </button>
-            <button class="profile-menu-item" type="button" id="logoutUser">
-              Cerrar sesión
-            </button>
+                <div class="profile-menu-wrapper">
+                  <button class="hga-icon-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                  </button>
+                  <div class="profile-dropdown" id="profileDropdown">
+                    <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                    <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                  </div>
+                </div>
+
+                <button class="hga-icon-btn is-menu" type="button" aria-label="Menú" title="Menú" data-menu-hamburguesa>
+                  <i class="bi bi-list"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      </header>
 
-        <!-- MENU -->
-        <button
-          class="btn btn-outline-secondary rounded-circle"
-          type="button"
-          aria-label="Menú"
-          title="Menú"
-          data-menu-hamburguesa
-        >
-          ☰
-        </button>
-      </div>
-      <!-- fin derecha -->
-    </div>
-    <!-- fin header -->
+      <main class="hga-main-region">
+        <div class="hga-content-shell">
+          <div class="btn-nuevo-container">
+            <button id="btnNuevoInforme" class="btn btn-light btn-nuevo">
+              + Nuevo informe
+            </button>
+          </div>
 
-    <!-- ==================== BOTON NUEVO INFORME ==================== -->
-    <div class="btn-nuevo-container">
-      <button id="btnNuevoInforme" class="btn btn-light btn-nuevo">
-        + Nuevo informe
-      </button>
-    </div>
-
-    <!-- ==================== CONTENIDO ==================== -->
-    <div class="container-main">
+          <div class="container-main">
       <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
         <div>
-          <h5 class="text-success mb-1">Historial de Informes</h5>
+          <h2 class="hga-section-title">Historial de informes</h2>
           <p class="mb-0 text-muted" id="informesContext">Cargando contexto de sesión...</p>
         </div>
         <div class="informes-summary d-flex gap-2 flex-wrap">
@@ -395,10 +307,12 @@
         <!-- LISTA DE INFORMES -->
         <div id="listaInformesContainer"></div>
       </div>
-    </div>
+          </div>
+        </div>
+      </main>
 
-    <!-- ==================== FOOTER ==================== -->
-    <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+      <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+    </div>
 
     <!-- ==================== MODAL INFORME ==================== -->
     <div class="modal fade" id="modalInforme" tabindex="-1" aria-hidden="true">
@@ -468,6 +382,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="./js/alerts.js"></script>
+    <script src="./js/role_access.js"></script>
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
     <script src="./js/menu_desplegable.js"></script>

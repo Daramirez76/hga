@@ -1,7 +1,6 @@
 (function (global) {
   const API_BASE = global.location.origin;
   const NOTIFICATIONS_ENDPOINT = `${API_BASE}/api/notificaciones`;
-  const LOGIN_HREF = "login.html";
   const VIEW_ALL_LABEL = "Ver todas las notificaciones";
   const VIEW_ALL_HREF = "notificaciones.html";
   const DEFAULT_LIMIT = 5;
@@ -175,7 +174,7 @@
 
   function redirectToLogin() {
     clearSession();
-    global.location.href = LOGIN_HREF;
+    global.location.href = document.body?.dataset?.loginPage?.trim() || "login.html";
   }
 
   function ensureToken() {

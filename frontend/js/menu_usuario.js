@@ -1,7 +1,7 @@
 (function (global) {
   const DEFAULT_CONFIG = {
     userPageHref: "user.html",
-    loginPageHref: "login.html",
+    loginPageHref: document.body?.dataset?.loginPage?.trim() || "login.html",
   };
 
   let currentConfig = { ...DEFAULT_CONFIG };

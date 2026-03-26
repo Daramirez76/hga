@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Log;
 
 class registrarseService
 {
+    private const SOURCE_PUBLIC = 'public';
+    private const SOURCE_EMPLOYEE = 'employee';
+    private const ROLE_NURSE = 2;
+    private const ROLE_TUTOR = 4;
+
     protected usuariosInterface $userRepository;
 
     public function __construct(usuariosInterface $userRepository)
@@ -14,7 +19,7 @@ class registrarseService
         $this->userRepository = $userRepository;
     }
 
-    public function register(array $data): array
+    public function register(array $data, string $registerSource = self::SOURCE_PUBLIC): array
     {
         try {
             $tipoDoc = strtolower((string) ($data['tipo_doc'] ?? ''));
@@ -38,7 +43,7 @@ class registrarseService
             $payload['email'] = trim((string) ($data['email'] ?? ''));
             $payload['usuario'] = trim((string) ($data['usuario'] ?? ''));
             $payload['password'] = (string) ($data['password'] ?? '');
-            $payload['cod_rol'] = (int) ($data['cod_rol'] ?? 4);
+            $payload['cod_rol'] = $this->resolveRoleCode($registerSource);
             $payload['parentesco'] = (string) ($data['parentesco'] ?? '');
 
             $user = $this->userRepository->create($payload);
@@ -64,5 +69,12 @@ class registrarseService
                 'message' => 'No fue posible registrar el usuario. Intenta nuevamente.',
             ];
         }
+    }
+
+    protected function resolveRoleCode(string $registerSource): int
+    {
+        return strtolower(trim($registerSource)) === self::SOURCE_EMPLOYEE
+            ? self::ROLE_NURSE
+            : self::ROLE_TUTOR;
     }
 }

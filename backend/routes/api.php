@@ -24,20 +24,48 @@ Route::get('/auth/google', [googleAuthController::class, 'redirectToGoogle'])
 
 Route::post('/register', [registrarseController::class, 'register']);
 Route::post('/login', [iniciarSesionController::class, 'login']);
-Route::post('/logout', [iniciarSesionController::class, 'logout'])->middleware('auth.api');
-Route::get('/me', [iniciarSesionController::class, 'me'])->middleware('auth.api');
-Route::put('/me', [iniciarSesionController::class, 'updateMe'])->middleware('auth.api');
-Route::get('/tutores', [iniciarSesionController::class, 'tutores'])->middleware('auth.api');
-Route::get('/dashboard', [dashboardController::class, 'index'])->middleware('auth.api');
-Route::get('/notificaciones', [notificacionesController::class, 'index'])->middleware('auth.api');
-Route::patch('/notificaciones/read-all', [notificacionesController::class, 'markAllAsRead'])->middleware('auth.api');
-Route::patch('/notificaciones/{id}/read', [notificacionesController::class, 'markAsRead'])->middleware('auth.api');
-Route::apiResource('/residentes', residentesController::class)->middleware('auth.api');
-Route::apiResource('/medicamentos', medicamentosController::class)->middleware('auth.api');
-Route::apiResource('/visitas', visitasController::class)->middleware('auth.api');
-Route::apiResource('/informes', informesController::class)->middleware('auth.api');
-Route::apiResource('/actividades', actividadesController::class)->middleware('auth.api');
-Route::apiResource('/citas', citasController::class)->middleware('auth.api');
+Route::post('/logout', [iniciarSesionController::class, 'logout'])->middleware(['auth.api', 'role:1,2,4']);
+Route::get('/me', [iniciarSesionController::class, 'me'])->middleware(['auth.api', 'role:1,2,4']);
+Route::put('/me', [iniciarSesionController::class, 'updateMe'])->middleware(['auth.api', 'role:1,2,4']);
+Route::get('/tutores', [iniciarSesionController::class, 'tutores'])->middleware(['auth.api', 'role:1,2']);
+Route::get('/dashboard', [dashboardController::class, 'index'])->middleware(['auth.api', 'role:1']);
+Route::get('/notificaciones', [notificacionesController::class, 'index'])->middleware(['auth.api', 'role:1,2,4']);
+Route::patch('/notificaciones/read-all', [notificacionesController::class, 'markAllAsRead'])->middleware(['auth.api', 'role:1,2,4']);
+Route::patch('/notificaciones/{id}/read', [notificacionesController::class, 'markAsRead'])->middleware(['auth.api', 'role:1,2,4']);
+
+Route::apiResource('/residentes', residentesController::class)
+    ->only(['index', 'show'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+Route::apiResource('/residentes', residentesController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware(['auth.api', 'role:1,2']);
+
+Route::apiResource('/medicamentos', medicamentosController::class)
+    ->middleware(['auth.api', 'role:1,2']);
+
+Route::apiResource('/visitas', visitasController::class)
+    ->only(['index', 'show'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+Route::apiResource('/visitas', visitasController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware(['auth.api', 'role:1,2']);
+
+Route::apiResource('/informes', informesController::class)
+    ->middleware(['auth.api', 'role:1,2']);
+
+Route::apiResource('/actividades', actividadesController::class)
+    ->only(['index', 'show'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+Route::apiResource('/actividades', actividadesController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware(['auth.api', 'role:1,2']);
+
+Route::apiResource('/citas', citasController::class)
+    ->only(['index', 'show'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+Route::apiResource('/citas', citasController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware(['auth.api', 'role:1,2']);
 
 // Ruta que Google llamará tras el login
 Route::get('/auth/google/callback', [googleAuthController::class, 'handleGoogleCallback'])
@@ -46,8 +74,8 @@ Route::get('/auth/google/callback', [googleAuthController::class, 'handleGoogleC
 // Legacy routes kept for backward compatibility with older frontend builds.
 Route::post('/user/register', [registrarseController::class, 'register']);
 Route::post('/user/login', [iniciarSesionController::class, 'login']);
-Route::post('/user/logout', [iniciarSesionController::class, 'logout'])->middleware('auth.api');
-Route::get('/user/me', [iniciarSesionController::class, 'me'])->middleware('auth.api');
+Route::post('/user/logout', [iniciarSesionController::class, 'logout'])->middleware(['auth.api', 'role:1,2,4']);
+Route::get('/user/me', [iniciarSesionController::class, 'me'])->middleware(['auth.api', 'role:1,2,4']);
 
 Route::post('/user/forgot_password', [olvideContrasenaController::class, 'forgotPassword'])
     ->name('password.forgot.request');

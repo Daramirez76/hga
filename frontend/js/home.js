@@ -18,7 +18,7 @@ function normalizeHomeUser(userData) {
     name: String(user.name || user.nombre || "").trim(),
     apellido: String(user.apellido || "").trim(),
     tipoDoc: String(user.tipo_doc || user.tipoDoc || "").trim(),
-    docId: Number(user.doc_id || user.docId || user.id || 0),
+    docId: Number(user.doc_id || user.docId || 0),
     email: String(user.email || "").trim(),
     username: String(user.username || user.usuario || "").trim(),
     telefono: String(user.telefono || "").trim(),
@@ -117,7 +117,7 @@ function fillGoogleProfileForm(user) {
   }
 
   form.elements.tipo_doc.value = user.tipoDoc || "";
-  form.elements.doc_id.value = user.docId > 0 ? String(user.docId) : "";
+  form.elements.doc_id.value = "";
   form.elements.name.value = user.name || "";
   form.elements.apellido.value = user.apellido || "";
   form.elements.telefono.value = user.telefono && user.telefono !== "0" ? user.telefono : "";

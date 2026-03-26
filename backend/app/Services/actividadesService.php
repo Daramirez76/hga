@@ -11,7 +11,8 @@ class actividadesService
 
     public function __construct(
         actividadesInterface $actividadesRepository,
-        protected notificacionesService $notificacionesService
+        protected notificacionesService $notificacionesService,
+        protected AccessScopeService $accessScopeService
     ) {
         $this->actividadesRepository = $actividadesRepository;
     }

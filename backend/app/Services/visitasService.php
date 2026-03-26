@@ -11,19 +11,29 @@ class visitasService
 
     public function __construct(
         visitasInterface $visitasRepository,
-        protected notificacionesService $notificacionesService
+        protected notificacionesService $notificacionesService,
+        protected AccessScopeService $accessScopeService
     ) {
         $this->visitasRepository = $visitasRepository;
     }
 
     public function getAllVisitas()
     {
-        return $this->visitasRepository->getAllVisitas();
+        return $this->accessScopeService->filterByResidentFields(
+            collect($this->visitasRepository->getAllVisitas()),
+            ['cod_Residente']
+        );
     }
 
     public function getVisitaById(int $id)
     {
-        return $this->visitasRepository->getVisitaById($id);
+        $visita = $this->visitasRepository->getVisitaById($id);
+
+        if (!$visita) {
+            return null;
+        }
+
+        return $this->accessScopeService->canAccessResidentId((int) ($visita->cod_Residente ?? 0)) ? $visita : null;
     }
 
     public function create(array $data)

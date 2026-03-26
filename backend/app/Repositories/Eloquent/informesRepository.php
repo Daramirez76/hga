@@ -90,7 +90,7 @@ class informesRepository implements informesInterface
             return $query->whereRaw('1 = 0');
         }
 
-        if ((int) ($user->cod_rol ?? 0) === 1) {
+        if (in_array((int) ($user->cod_rol ?? 0), [1, 2], true)) {
             return $query;
         }
 

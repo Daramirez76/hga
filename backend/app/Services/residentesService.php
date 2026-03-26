@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\residentesInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -10,19 +11,29 @@ class residentesService
 {
     protected $residentesRepository;
 
-    public function __construct(residentesInterface $residentesRepository)
-    {
+    public function __construct(
+        residentesInterface $residentesRepository,
+        protected AccessScopeService $accessScopeService
+    ) {
         $this->residentesRepository = $residentesRepository;
     }
   
     public function getAllresidentes()
     {
-        return $this->residentesRepository->getAllresidentes();
+        return $this->accessScopeService->filterResidents(
+            Collection::make($this->residentesRepository->getAllresidentes())
+        );
     }
 
     public function getresidentesById(int $id)
     {
-        return $this->residentesRepository->getresidentesById($id);
+        $residente = $this->residentesRepository->getresidentesById($id);
+
+        if (!$residente) {
+            return null;
+        }
+
+        return $this->accessScopeService->canAccessResidentRecord($residente) ? $residente : null;
     }
 
     public function create(array $data)

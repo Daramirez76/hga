@@ -9,6 +9,18 @@ const residentesState = {
   currentUser: null,
 };
 
+function getCurrentRoleCode() {
+  if (window.HgaRoleAccess && typeof window.HgaRoleAccess.getRoleCode === "function") {
+    return window.HgaRoleAccess.getRoleCode(residentesState.currentUser || undefined);
+  }
+
+  return Number(residentesState.currentUser?.cod_rol || 0);
+}
+
+function canManageResidentes() {
+  return [1, 2].includes(getCurrentRoleCode());
+}
+
 function getResidentesToken() {
   return localStorage.getItem("access_token") || localStorage.getItem("authToken") || "";
 }
@@ -74,43 +86,50 @@ function getTutorOptionsMarkup(selectedDocId) {
 }
 
 function buildResidenteCard(residente, index) {
+  const readOnly = !canManageResidentes();
   const wrapper = document.createElement("div");
   wrapper.className = "residentes-card";
   wrapper.dataset.index = String(index);
   wrapper.dataset.codResidente = residente.cod_residente ? String(residente.cod_residente) : "";
 
   const deleteLabel = residente.cod_residente ? "Eliminar residente" : "Quitar bloque";
+  const deleteButtonMarkup = readOnly
+    ? ""
+    : `<button type="button" class="residentes-delete-btn" data-action="delete">${deleteLabel}</button>`;
+  const textInputMode = readOnly ? 'readonly' : '';
+  const numberInputMode = readOnly ? 'readonly' : '';
+  const selectInputMode = readOnly ? 'disabled' : '';
 
   wrapper.innerHTML = `
     <div class="residentes-card-title">Residente</div>
     <div class="bloque-residente">
       <div class="residentes-actions">
-        <button type="button" class="residentes-delete-btn" data-action="delete">${deleteLabel}</button>
+        ${deleteButtonMarkup}
       </div>
       <div class="residentes-fields">
         <div class="residentes-field">
           <label class="form-label label-sm">Nombre</label>
-          <input type="text" class="form-control" data-field="nombre" value="${escapeHtml(residente.nombre)}" />
+          <input type="text" class="form-control" data-field="nombre" value="${escapeHtml(residente.nombre)}" ${textInputMode} />
         </div>
         <div class="residentes-field">
           <label class="form-label label-sm">Apellidos</label>
-          <input type="text" class="form-control" data-field="apellido" value="${escapeHtml(residente.apellido)}" />
+          <input type="text" class="form-control" data-field="apellido" value="${escapeHtml(residente.apellido)}" ${textInputMode} />
         </div>
         <div class="residentes-field">
           <label class="form-label label-sm">Patología</label>
-          <input type="text" class="form-control" data-field="patologia" value="${escapeHtml(residente.patologia)}" />
+          <input type="text" class="form-control" data-field="patologia" value="${escapeHtml(residente.patologia)}" ${textInputMode} />
         </div>
         <div class="residentes-field">
           <label class="form-label label-sm">Edad</label>
-          <input type="number" min="0" class="form-control" data-field="edad" value="${residente.edad === "" ? "" : escapeHtml(String(residente.edad))}" />
+          <input type="number" min="0" class="form-control" data-field="edad" value="${residente.edad === "" ? "" : escapeHtml(String(residente.edad))}" ${numberInputMode} />
         </div>
         <div class="residentes-field">
           <label class="form-label label-sm">RH</label>
-          <input type="text" maxlength="6" class="form-control" data-field="RH" value="${escapeHtml(residente.RH)}" />
+          <input type="text" maxlength="6" class="form-control" data-field="RH" value="${escapeHtml(residente.RH)}" ${textInputMode} />
         </div>
         <div class="residentes-field">
           <label class="form-label label-sm">Tutor responsable</label>
-          <select class="form-control" data-field="cod_usuario">
+          <select class="form-control" data-field="cod_usuario" ${selectInputMode}>
             ${getTutorOptionsMarkup(residente.cod_usuario)}
           </select>
         </div>
@@ -146,7 +165,9 @@ function renderResidentes() {
   if (residentesState.items.length === 0) {
     const empty = document.createElement("div");
     empty.className = "residentes-empty";
-    empty.textContent = "Aún no hay residentes cargados. Agrega el primero para comenzar.";
+    empty.textContent = canManageResidentes()
+      ? "Aún no hay residentes cargados. Agrega el primero para comenzar."
+      : "No hay residentes asociados a esta cuenta.";
     container.appendChild(empty);
     return;
   }
@@ -226,17 +247,18 @@ async function loadResidentes() {
   }
 
   try {
-    const [currentUser, tutores, residentes] = await Promise.all([
-      fetchCurrentUser(),
-      fetchTutores(),
-      fetchResidentes(),
-    ]);
-
+    const currentUser = await fetchCurrentUser();
     residentesState.currentUser = currentUser;
+
+    const residentes = await fetchResidentes();
+    const tutores = canManageResidentes() ? await fetchTutores() : [];
+
     residentesState.tutores = tutores;
     residentesState.items = residentes.map((item) => normalizeResidente(item));
 
-    if (residentesState.items.length === 0) {
+    applyRoleMode();
+
+    if (residentesState.items.length === 0 && canManageResidentes()) {
       const defaultTutor = currentUser && Number(currentUser.cod_rol) === 4 ? Number(currentUser.doc_id) : null;
       residentesState.items.push(normalizeResidente({ cod_usuario: defaultTutor }));
     }
@@ -249,6 +271,10 @@ async function loadResidentes() {
 }
 
 function addResidente() {
+  if (!canManageResidentes()) {
+    return;
+  }
+
   const currentUser = residentesState.currentUser;
   const defaultTutor = currentUser && Number(currentUser.cod_rol) === 4 ? Number(currentUser.doc_id) : null;
   residentesState.items.push(normalizeResidente({ cod_usuario: defaultTutor }));
@@ -441,6 +467,11 @@ function handleDeleteClick(event) {
 }
 
 async function handleDeleteConfirm() {
+  if (!canManageResidentes()) {
+    closeDeleteModal();
+    return;
+  }
+
   const index = residentesState.pendingDeleteIndex;
 
   if (typeof index !== "number" || index < 0) {
@@ -480,6 +511,10 @@ async function handleDeleteConfirm() {
 
 async function handleSubmit(event) {
   event.preventDefault();
+
+  if (!canManageResidentes()) {
+    return;
+  }
 
   const saveButton = document.getElementById("guardarResidentes");
   if (saveButton instanceof HTMLButtonElement) {
@@ -557,6 +592,20 @@ function bindResidentesEvents() {
       closeDeleteModal();
     }
   });
+}
+
+function applyRoleMode() {
+  const addButton = document.getElementById("agregarResidente");
+  const saveButton = document.getElementById("guardarResidentes");
+  const canManage = canManageResidentes();
+
+  if (addButton instanceof HTMLButtonElement) {
+    addButton.hidden = !canManage;
+  }
+
+  if (saveButton instanceof HTMLButtonElement) {
+    saveButton.hidden = !canManage;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
