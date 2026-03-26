@@ -24,36 +24,31 @@ class medicamentosFactory extends Factory
      */
     public function definition(): array
     {
-        $medicamentos_nombres = [
-            'Losartán',
+        $medicamentosNombres = [
+            'Losartan',
             'Metformina',
-            'Atorvastatina',
             'Amlodipina',
-            'Lisinopril',
             'Omeprazol',
-            'Levotiroxina',
-            'Paracetamol',
+            'Paracetam',
             'Ibuprofeno',
             'Donepezilo',
             'Memantina',
             'Fluoxetina',
-            'Sertraline',
             'Ampicilina',
-            'Ciprofloxacino',
         ];
-        
-        $fecha_entrada = $this->faker->dateTimeBetween('-6 months', 'now');
-        $fecha_vencimiento = $this->faker->dateTimeBetween($fecha_entrada, '+2 years');
-        
+
+        $fechaEntrada = $this->faker->dateTimeBetween('-6 months', 'now');
+        $fechaVencimiento = $this->faker->dateTimeBetween($fechaEntrada, '+2 years');
+
         return [
-            'cod_medicamento' => $this->faker->unique()->numberBetween(10000, 99999),
-            'nombre_medic' => $this->faker->randomElement($medicamentos_nombres),
-            'fecha_entrada' => $fecha_entrada,
-            'fecha_vencimiento' => $fecha_vencimiento,
+            'Cod_medicamento' => $this->faker->unique()->numberBetween(10000, 99999),
+            'nombre_medic' => $this->faker->randomElement($medicamentosNombres),
+            'fecha_entrada' => $fechaEntrada,
+            'fecha_vencimiento' => $fechaVencimiento,
             'cod_usuario' => $this->faker->numberBetween(1000000, 99999999),
             'cod_residente' => $this->faker->numberBetween(1000, 99999),
             'cod_rol' => $this->faker->numberBetween(1, 4),
-            'descrip_novedad' => $this->faker->optional()->sentence(),
+            'descrip_novedad' => $this->faker->optional()->text(80),
             'fecha_novedad' => $this->faker->optional()->dateTimeThisYear(),
             'stock' => $this->faker->numberBetween(5, 500),
         ];

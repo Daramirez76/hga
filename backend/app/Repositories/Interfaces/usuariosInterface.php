@@ -3,6 +3,7 @@
 namespace App\Repositories\Interfaces;
 
 use App\Models\usuarios;
+use Illuminate\Support\Collection;
 
 interface usuariosInterface
 {
@@ -17,6 +18,8 @@ interface usuariosInterface
     public function findByUsername(string $username): ?usuarios;
 
     public function getNextDocId(): int;
+
+    public function getUsersByRole(int $roleCode): Collection;
 
     public function update(int $id, array $data): ?usuarios;
 

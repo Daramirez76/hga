@@ -36,51 +36,56 @@
         pointer-events: none;
       }
 
-      /* Header mejorado */
-      header {
-        position: relative;
-        z-index: 2;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-bottom: none !important;
+      .top-bar,
+      .panel-residentes {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       }
 
-      .navbar-brand {
-        display: flex;
+      .top-bar {
+        border-radius: 1.8rem;
+      }
+
+      .brand-logo {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+      }
+
+      .brand-link {
+        display: inline-flex;
         align-items: center;
-        gap: 12px;
+        gap: 1rem;
         text-decoration: none;
       }
 
-      .logo-icon {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, #66bb6a, #4db6ac);
-        border-radius: 10px;
-        display: flex;
+      .brand-title {
+        margin: 0;
+        color: #33bdd2;
+        font-size: clamp(1.4rem, 2vw, 2rem);
+        font-weight: 400;
+      }
+
+      .header-actions .btn {
         align-items: center;
+        background: transparent;
+        border: none;
+        border-radius: 50%;
+        color: #1f1f1f;
+        display: inline-flex;
+        height: 42px;
         justify-content: center;
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
+        padding: 0;
+        width: 42px;
       }
 
-      .navbar-brand span {
-        color: #2e7d32 !important;
-        font-weight: 600 !important;
+      .header-actions .btn:hover,
+      .header-actions .btn:focus {
+        background: rgba(77, 182, 172, 0.12);
       }
 
-      /* Navegación */
-      .nav-center a {
-        color: #2e7d32 !important;
-        font-weight: 500 !important;
-        transition: color 0.3s;
-        font-size: 15px !important;
-      }
-
-      .nav-center a:hover {
-        color: #4db6ac !important;
+      .menu-trigger {
+        color: #33bdd2;
       }
 
       /* Main content */
@@ -94,7 +99,6 @@
         background: rgba(255, 255, 255, 0.98) !important;
         backdrop-filter: blur(15px);
         border-radius: 25px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         border: none !important;
       }
 
@@ -109,40 +113,56 @@
         font-size: 14px;
       }
 
+      .residentes-card {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .residentes-card-title {
+        color: #2e7257;
+        font-size: 1.1rem;
+        font-weight: 500;
+        padding-left: 0.15rem;
+      }
+
       /* Bloque residente mejorado */
       .bloque-residente {
-        background: rgba(102, 187, 106, 0.06) !important;
-        border-radius: 15px !important;
-        border: 1px solid rgba(102, 187, 106, 0.2) !important;
+        background: linear-gradient(180deg, #d8eee0 0%, #d2ead9 100%) !important;
+        border-radius: 18px !important;
+        border: 1px solid rgba(123, 190, 154, 0.75) !important;
+        padding: 18px 22px 22px !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
       }
 
       /* Inputs mejorados */
       .form-control {
-        border: 2px solid #c8e6c9 !important;
+        border: 1px solid rgba(110, 194, 151, 0.95) !important;
         border-radius: 10px !important;
-        padding: 12px !important;
+        padding: 14px 16px !important;
         font-size: 15px;
-        transition: all 0.3s;
-        background: white !important;
-        color: #333 !important;
+        min-height: 52px;
+        transition: all 0.25s ease;
+        background: rgba(255, 255, 255, 0.98) !important;
+        color: #2c3e37 !important;
+        box-shadow: 0 3px 8px rgba(33, 76, 60, 0.06);
       }
 
       .form-control:focus {
         outline: none;
-        border-color: #66bb6a !important;
-        box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1) !important;
+        border-color: #59bc7b !important;
+        box-shadow: 0 0 0 3px rgba(89, 188, 123, 0.12) !important;
       }
 
       .form-label {
-        color: #2e7d32;
+        color: #2b7a5c;
         font-weight: 500;
         margin-bottom: 8px;
         font-size: 14px;
       }
 
-      .label-sm { 
-        font-size: .95rem;
-        color: #2e7d32 !important;
+      .label-sm {
+        font-size: 0.95rem;
+        color: #2b7a5c !important;
       }
 
       /* Botón gestionar mejorado */
@@ -177,19 +197,6 @@
 
       .footer small {
         color: #2e7d32;
-      }
-
-      /* Alertas y notificaciones */
-      .btn-outline-secondary {
-        color: #2e7d32 !important;
-        border-color: #c8e6c9 !important;
-        transition: all 0.3s;
-      }
-
-      .btn-outline-secondary:hover {
-        background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-        border-color: #66bb6a !important;
-        color: #2e7d32 !important;
       }
 
       .profile-menu-wrapper {
@@ -246,12 +253,136 @@
         border-top: 1px solid rgba(200, 230, 201, 0.7);
       }
 
+      .residentes-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .btn-secundario {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(102, 187, 106, 0.28) !important;
+        color: #2e7d32 !important;
+        font-weight: 600;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        transition: all 0.3s;
+      }
+
+      .btn-secundario:hover {
+        background: #f4fbf6 !important;
+        color: #1b5e20 !important;
+        transform: translateY(-1px);
+      }
+
+      .residentes-grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .residentes-empty {
+        background: rgba(77, 182, 172, 0.08);
+        border: 1px dashed rgba(77, 182, 172, 0.45);
+        border-radius: 14px;
+        color: #2f6b66;
+        padding: 18px;
+        text-align: center;
+      }
+
+      .residentes-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 14px;
+      }
+
+      .residentes-delete-btn {
+        border: 0;
+        background: rgba(255, 255, 255, 0.88);
+        color: #b42318;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        padding: 8px 14px;
+        box-shadow: 0 4px 10px rgba(180, 35, 24, 0.08);
+      }
+
+      .residentes-delete-btn:hover {
+        background: rgba(255, 255, 255, 1);
+      }
+
+      .residentes-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 18px;
+      }
+
+      .residentes-field {
+        min-width: 0;
+      }
+
+      .residentes-field.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .residentes-helper {
+        color: #4d6b62;
+        font-size: 0.82rem;
+        margin-top: 6px;
+      }
+
+      .residentes-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(14, 24, 22, 0.52);
+        backdrop-filter: blur(3px);
+        z-index: 1100;
+      }
+
+      .residentes-modal-backdrop.show {
+        display: flex;
+      }
+
+      .residentes-modal-card {
+        width: min(100%, 460px);
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 22px;
+        box-shadow: 0 28px 60px rgba(15, 23, 42, 0.18);
+        overflow: hidden;
+      }
+
+      .residentes-modal-header {
+        background: linear-gradient(135deg, #e8f5e9, #cdeee4 55%, #bfe7d4);
+        color: #2e7d32;
+      }
+
+      .residentes-modal-copy {
+        color: #445a57;
+      }
+
+      .residentes-modal-btn {
+        border-radius: 12px !important;
+        font-weight: 600;
+        padding: 10px 18px !important;
+      }
+
+      .residentes-modal-confirm {
+        background: #c62828 !important;
+        border: none !important;
+        color: white !important;
+      }
+
+      .residentes-modal-confirm:hover {
+        background: #b71c1c !important;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
-        header {
-          padding: 15px 0 !important;
-        }
-
         .panel-residentes {
           padding: 20px !important;
         }
@@ -260,45 +391,54 @@
           font-size: 14px;
           padding: 10px 16px !important;
         }
-      }
 
-      /* Flex utilities */
-      .flex-grow-1 { flex-grow: 1; }
-      .nav-center { flex: 1 1 auto; }
+        .top-bar {
+          border-radius: 1.4rem;
+        }
+
+        .residentes-fields {
+          grid-template-columns: 1fr;
+        }
+      }
 
     </style>
   </head>
   <body class="d-flex flex-column min-vh-100">
-    <!-- Header -->
-    <header class="py-3">
-      <div class="container">
-        <div class="d-flex align-items-center gap-3">
-          <!-- Logo / Brand -->
-          <a href="home.html" class="navbar-brand text-decoration-none">
-            <div class="logo-icon">LG</div>
-            <span>HGA</span>
+    <header class="container py-4 py-lg-5">
+      <div class="top-bar px-3 px-lg-4 py-3">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+          <a href="home.html" class="brand-link">
+            <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle" />
+            <h1 class="brand-title">Residentes</h1>
           </a>
 
-          <!-- Centered nav -->
-          <nav class="nav-center d-none d-md-flex justify-content-center">
-            <ul class="nav">
-              <li class="nav-item"><a class="nav-link fw-semibold" href="medicaments.html">Medicamentos</a></li>
-              <li class="nav-item"><a class="nav-link" href="date.html">Citas</a></li>
-              <li class="nav-item"><a class="nav-link" href="recreational_activities.html">Actividades Lúdicas</a></li>
-              <li class="nav-item"><a class="nav-link" href="reuniones.html">Reuniones</a></li>
-            </ul>
-          </nav>
+          <div class="header-actions d-flex align-items-center gap-2">
+            <button class="btn" type="button" aria-label="Notificaciones" title="Notificaciones">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
+                <path d="M10 21a2 2 0 0 0 4 0"></path>
+              </svg>
+            </button>
 
-          <!-- Right quick actions -->
-          <div class="ms-auto d-flex align-items-center gap-2">
-            <button class="btn btn-outline-secondary rounded-circle" aria-label="Notificaciones" title="Notificaciones">🔔</button>
             <div class="profile-menu-wrapper">
-              <button class="btn btn-outline-secondary rounded-circle profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">👤</button>
+              <button class="btn profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                  <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 4a3.5 3.5 0 1 1-3.5 3.5A3.504 3.504 0 0 1 12 6Zm0 14a7.955 7.955 0 0 1-5.58-2.27 5.99 5.99 0 0 1 11.16 0A7.955 7.955 0 0 1 12 20Z"></path>
+                </svg>
+              </button>
               <div class="profile-dropdown" id="profileDropdown">
                 <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
                 <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
               </div>
             </div>
+
+            <button class="btn menu-trigger" type="button" aria-label="Menú" title="Menú">
+              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 7h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 17h16"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -307,70 +447,15 @@
     <!-- Main -->
     <main class="flex-grow-1">
       <div class="container py-5">
-        <div style="margin-bottom: 20px; display: flex; justify-content: flex-end;">
-          <a href="#" class="btn btn-gestionar">Gestionar Residentes</a>
+        <div class="residentes-toolbar">
+          <button type="button" class="btn btn-secundario" id="agregarResidente">Agregar residente</button>
+          <button type="submit" form="formResidentes" class="btn btn-gestionar" id="guardarResidentes">Gestionar Residentes</button>
         </div>
 
         <form class="panel-residentes p-4 p-md-5" id="formResidentes">
           <div class="tab-residentes mb-4">Residentes</div>
-
-          <!-- Residente 01 -->
-          <div class="mb-4">
-            <div class="fw-semibold mb-2" style="color: #2e7d32;">Residente 01</div>
-            <div class="bloque-residente p-3 p-md-4">
-              <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Nombre</label>
-                  <input type="text" class="form-control" name="nombre_r1" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Apellido</label>
-                  <input type="text" class="form-control" name="apellido_r1" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Patología</label>
-                  <input type="text" class="form-control" name="patologia_r1" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Edad</label>
-                  <input type="text" class="form-control" name="edad_r1" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">RH</label>
-                  <input type="text" class="form-control" name="rh_r1" placeholder="" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Residente 02 -->
-          <div class="mb-2">
-            <div class="fw-semibold mb-2" style="color: #2e7d32;">Residente 02</div>
-            <div class="bloque-residente p-3 p-md-4">
-              <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Nombre</label>
-                  <input type="text" class="form-control" name="nombre_r2" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Apellido</label>
-                  <input type="text" class="form-control" name="apellido_r2" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Patología</label>
-                  <input type="text" class="form-control" name="patologia_r2" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">Edad</label>
-                  <input type="text" class="form-control" name="edad_r2" placeholder="" />
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="form-label label-sm">RH</label>
-                  <input type="text" class="form-control" name="rh_r2" placeholder="" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <p class="residentes-helper mb-4">Cada residente debe quedar asociado a un tutor responsable para que las notificaciones lleguen a la persona correcta.</p>
+          <div class="residentes-grid" id="residentesContainer"></div>
         </form>
       </div>
     </main>
@@ -381,9 +466,29 @@
         <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
       </div>
     </footer>
+
+    <div class="residentes-modal-backdrop" id="residentesDeleteModal" aria-hidden="true">
+      <div class="residentes-modal-card">
+        <div class="residentes-modal-header px-4 py-4">
+          <h2 class="h4 mb-2">¿Eliminar residente?</h2>
+          <p class="mb-0">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="px-4 py-4">
+          <p class="residentes-modal-copy mb-4" id="residentesDeleteMessage">
+            ¿Estás seguro de que quieres eliminar este residente?
+          </p>
+          <div class="d-flex justify-content-end gap-2 flex-wrap">
+            <button type="button" class="btn btn-secundario residentes-modal-btn" id="residentesDeleteCancel">Cancelar</button>
+            <button type="button" class="btn residentes-modal-btn residentes-modal-confirm" id="residentesDeleteConfirm">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="./js/alerts.js"></script>
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
     <script src="./js/resident_validate.js"></script>
   </body>
 </html>

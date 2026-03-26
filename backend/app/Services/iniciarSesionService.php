@@ -35,11 +35,16 @@ class iniciarSesionService
 
             $storedPassword = (string) $user->password;
             $passwordOk = false;
+            $storedPasswordInfo = password_get_info($storedPassword);
 
             // Soportar contraseñas en texto plano y en hash.
             if ($password === $storedPassword) {
                 $passwordOk = true;
-            } elseif (str_starts_with($storedPassword, '$2y$') || str_starts_with($storedPassword, '$2a$')) {
+                if (($storedPasswordInfo['algo'] ?? 0) === 0) {
+                    $this->userRepository->updatePasswordByEmail($user->email, $password);
+                    $user = $this->userRepository->findByEmail($identifier) ?? $user;
+                }
+            } elseif (($storedPasswordInfo['algo'] ?? 0) !== 0) {
                 $passwordOk = Hash::check($password, $storedPassword);
             }
 
@@ -60,6 +65,8 @@ class iniciarSesionService
             } elseif ($roleCode === 2) {
                 $roleName = 'Enfermero';
             } elseif ($roleCode === 3) {
+                $roleName = 'Doctor';
+            } elseif ($roleCode === 4) {
                 $roleName = 'Tutor';
             }
 
@@ -76,14 +83,18 @@ class iniciarSesionService
                     'email' => $user->email,
                     'username' => $user->usuario,
                     'telefono' => $user->telefono,
+                    'direccion' => $user->direccion,
+                    'edad' => $user->edad,
                     'cod_rol' => $roleCode,
                     'rol' => $roleName,
+                    'google_id' => $user->google_id,
+                    'profile_completed' => $this->isProfileCompleted($user),
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'message' => 'Error al iniciar sesión: ' . $e->getMessage(),
+                'message' => 'No fue posible iniciar sesión. Intenta nuevamente.',
             ];
         }
     }
@@ -97,11 +108,21 @@ class iniciarSesionService
                 'success' => true,
                 'message' => 'Sesión cerrada exitosamente',
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'message' => 'Error al cerrar sesión: ' . $e->getMessage(),
+                'message' => 'No fue posible cerrar sesión. Intenta nuevamente.',
             ];
         }
+    }
+
+    protected function isProfileCompleted(object $user): bool
+    {
+        return trim((string) ($user->name ?? '')) !== ''
+            && trim((string) ($user->apellido ?? '')) !== ''
+            && trim((string) ($user->direccion ?? '')) !== ''
+            && trim((string) ($user->telefono ?? '')) !== ''
+            && trim((string) ($user->usuario ?? '')) !== ''
+            && (int) ($user->edad ?? 0) >= 18;
     }
 }

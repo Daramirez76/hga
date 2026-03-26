@@ -475,6 +475,41 @@
     }
     .btn-cerrar-detalle:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
 
+    .detalle-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-detalle-secundario,
+    .btn-detalle-peligro {
+      flex: 1;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.6px;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn-detalle-secundario {
+      background: #eef8f1;
+      color: var(--verde-texto);
+      border: 2px solid var(--verde-borde);
+    }
+
+    .btn-detalle-peligro {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-detalle-secundario:hover,
+    .btn-detalle-peligro:hover {
+      transform: translateY(-1px);
+    }
+
     /* ===== FOOTER ===== */
     footer {
       background: var(--gris-header);
@@ -502,32 +537,21 @@
     </div>
     <div class="header-icons">
       <!-- Campana -->
-      <button class="icon-btn" title="Notificaciones" onclick="window.location.href='Notificaciones.html'">
+      <button class="icon-btn" type="button" title="Notificaciones" aria-label="Notificaciones" onclick="window.location.href='notificaciones.html'">
         🔔
       </button>
 
       <!-- Perfil -->
       <div class="profile-menu-wrapper">
-        <button class="icon-btn" id="profileBtn" title="Perfil">👤</button>
-        <div class="profile-dropdown" id="profileDrop">
+        <button class="icon-btn" type="button" id="profileMenuButton" title="Perfil" aria-label="Perfil" aria-haspopup="true" aria-expanded="false">👤</button>
+        <div class="profile-dropdown" id="profileDropdown">
           <button class="profile-menu-item" onclick="window.location.href='user.html'">Ver perfil de usuario</button>
           <button class="profile-menu-item" onclick="window.location.href='login.html'">Cerrar sesión</button>
         </div>
       </div>
 
       <!-- Menú hamburguesa -->
-      <div class="dropdown">
-        <button class="icon-btn" data-bs-toggle="dropdown" title="Menú">☰</button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Inicio</a></li>
-          <li><a class="dropdown-item" href="Informes.html">Informes</a></li>
-          <li><a class="dropdown-item" href="Notificaciones.html">Notificaciones</a></li>
-          <li><a class="dropdown-item" href="Visitas.html">Visitas</a></li>
-          <li><a class="dropdown-item" href="date.html">Citas</a></li>
-          <li><a class="dropdown-item" href="Crear_actividad.html">Actividades Lúdicas</a></li>
-          <li><a class="dropdown-item" href="medicaments.html">Medicamentos</a></li>
-        </ul>
-      </div>
+      <button class="icon-btn" type="button" title="Menú" aria-label="Menú" data-menu-hamburguesa>☰</button>
     </div>
   </div>
 
@@ -591,10 +615,19 @@
       <hr class="ov-divider" />
 
       <div class="ov-field">
-        <label class="ov-label">• Codigo Usuario</label>
+        <label class="ov-label">• Codigo Cita:</label>
+        <div class="input-wrap" style="margin-top:3px;">
+          <span class="input-icon">🔖</span>
+          <input type="number" class="ov-input-full" id="regCodCita" min="1" step="1" readonly />
+        </div>
+        <small style="display:block; margin-top:4px; color:#7a8a7f; font-size:10px;">Se completa automáticamente antes de guardar.</small>
+      </div>
+
+      <div class="ov-field">
+        <label class="ov-label">• Nombre Acompañante:</label>
         <div class="input-wrap" style="margin-top:3px;">
           <span class="input-icon">👤</span>
-          <input type="text" class="ov-input-full" id="regCodUsuario" placeholder="Código del usuario" />
+          <input type="text" class="ov-input-full" id="regNombreAcompanante" placeholder="Nombre del acompañante" maxlength="50" />
         </div>
       </div>
 
@@ -602,7 +635,7 @@
         <label class="ov-label">• Codigo Residente:</label>
         <div class="input-wrap" style="margin-top:3px;">
           <span class="input-icon">👤</span>
-          <input type="text" class="ov-input-full" id="regCodResidente" placeholder="Código del residente" />
+          <input type="number" class="ov-input-full" id="regCodResidente" placeholder="Código del residente" min="1" step="1" />
         </div>
       </div>
 
@@ -610,7 +643,7 @@
         <label class="ov-label">• Lugar de la Cita Medica:</label>
         <div class="input-wrap" style="margin-top:3px;">
           <span class="input-icon">🏥</span>
-          <input type="text" class="ov-input-full" id="regLugar" placeholder="Lugar de la cita" />
+          <input type="text" class="ov-input-full" id="regLugar" placeholder="Lugar de la cita" maxlength="30" />
         </div>
       </div>
 
@@ -630,174 +663,18 @@
         <button onclick="cerrarDetalle()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#999;line-height:1;">×</button>
       </div>
       <div id="detalleContenido"></div>
+      <div class="detalle-actions">
+        <button class="btn-detalle-secundario" onclick="editarCitaDesdeDetalle()">EDITAR</button>
+        <button class="btn-detalle-peligro" onclick="eliminarCitaDesdeDetalle()">ELIMINAR</button>
+      </div>
       <button class="btn-cerrar-detalle" onclick="cerrarDetalle()">CERRAR</button>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    let citas = [
-      {
-        id: 1,
-        texto: "El residente diego padece de artritis y se esta medicando desde hace ya 2 años y su situacion no parace mejorable......",
-        fecha: "2025-11-10", horaInicio: "09:00", horaFin: "10:00",
-        codUsuario: "USR001", codResidente: "RES003", lugar: "Consultorio 2", codCita: "CIT001"
-      },
-      {
-        id: 2,
-        texto: "La hija de la residente vanessa cancelo su visita para el dia 12 de diciembre por problemas de trasporte ......",
-        fecha: "2025-12-12", horaInicio: "14:00", horaFin: "15:00",
-        codUsuario: "USR002", codResidente: "RES007", lugar: "Sala de espera", codCita: "CIT002"
-      },
-      {
-        id: 3,
-        texto: "El Enfermero David no asitio el dia viernes 13 de noviembre del 2025 a la institucion por problemas domesticos ......",
-        fecha: "2025-11-13", horaInicio: "08:00", horaFin: "09:00",
-        codUsuario: "USR004", codResidente: "RES010", lugar: "Piso 3 - Hab 12", codCita: "CIT003"
-      }
-    ];
-
-    let contadorId = 4;
-    let filtroActivo = false;
-
-    function renderCitas(lista) {
-      const container = document.getElementById("listaCitas");
-      if (!lista || lista.length === 0) {
-        container.innerHTML = '<div class="sin-resultados">No se encontraron citas.</div>';
-        return;
-      }
-      container.innerHTML = lista.map(c => `
-        <div class="cita-item" onclick="abrirDetalle(${c.id})">
-          <span class="cita-bullet">•</span>
-          <div>
-            <div>${c.texto}</div>
-            <div class="cita-meta">
-              ${c.fecha      ? `<span class="cita-badge badge-fecha">📅 ${c.fecha}</span>` : ''}
-              ${c.horaInicio ? `<span class="cita-badge badge-hora">🕐 ${c.horaInicio} - ${c.horaFin}</span>` : ''}
-              ${c.lugar      ? `<span class="cita-badge badge-lugar">📄 ${c.lugar}</span>` : ''}
-              ${c.codCita    ? `<span class="cita-badge badge-codigo">🔗 ${c.codCita}</span>` : ''}
-            </div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function abrirDetalle(id) {
-      const c = citas.find(x => x.id === id);
-      if (!c) return;
-      document.getElementById("detalleContenido").innerHTML = `
-        <div class="detalle-fila"><span class="detalle-icono">📝</span><span class="detalle-key">Descripción</span><span class="detalle-val">${c.texto}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">📅</span><span class="detalle-key">Fecha</span><span class="detalle-val">${c.fecha || '—'}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">🕐</span><span class="detalle-key">Hora</span><span class="detalle-val">${c.horaInicio && c.horaFin ? c.horaInicio + ' — ' + c.horaFin : '—'}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">🏥</span><span class="detalle-key">Lugar</span><span class="detalle-val">${c.lugar || '—'}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">👤</span><span class="detalle-key">Cod. Usuario</span><span class="detalle-val">${c.codUsuario || '—'}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">👤</span><span class="detalle-key">Cod. Residente</span><span class="detalle-val">${c.codResidente || '—'}</span></div>
-        <div class="detalle-fila"><span class="detalle-icono">🔖</span><span class="detalle-key">Cod. Cita</span><span class="detalle-val">${c.codCita || '—'}</span></div>
-      `;
-      document.getElementById("overlayDetalle").classList.add("show");
-    }
-
-    function cerrarDetalle() {
-      document.getElementById("overlayDetalle").classList.remove("show");
-    }
-
-    function clickFueraDetalle(e) {
-      if (e.target === document.getElementById("overlayDetalle")) cerrarDetalle();
-    }
-
-    function toggleFiltro() {
-      const wrap = document.getElementById("filtroWrap");
-      const input = document.getElementById("filtroInput");
-      filtroActivo = !filtroActivo;
-      wrap.classList.toggle("show", filtroActivo);
-      if (filtroActivo) { input.focus(); }
-      else { input.value = ""; renderCitas(citas); }
-    }
-
-    function filtrarCitas() {
-      const q = document.getElementById("filtroInput").value.toLowerCase().trim();
-      if (!q) { renderCitas(citas); return; }
-      const filtradas = citas.filter(c =>
-        c.texto.toLowerCase().includes(q) ||
-        (c.lugar      && c.lugar.toLowerCase().includes(q)) ||
-        (c.codCita    && c.codCita.toLowerCase().includes(q)) ||
-        (c.codUsuario && c.codUsuario.toLowerCase().includes(q)) ||
-        (c.fecha      && c.fecha.includes(q))
-      );
-      renderCitas(filtradas);
-    }
-
-    function abrirOverlay() {
-      document.getElementById("overlayFondo").classList.add("show");
-      limpiarFormulario();
-    }
-
-    function cerrarOverlay() {
-      document.getElementById("overlayFondo").classList.remove("show");
-    }
-
-    function clickFuera(e) {
-      if (e.target === document.getElementById("overlayFondo")) cerrarOverlay();
-    }
-
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") { cerrarOverlay(); cerrarDetalle(); }
-    });
-
-    function generarCodCita() {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      let cod = "CIT-";
-      for (let i = 0; i < 6; i++) cod += chars[Math.floor(Math.random() * chars.length)];
-      return cod;
-    }
-
-    function limpiarFormulario() {
-      ["regFecha","regHoraInicio","regHoraFin","regCodUsuario","regCodResidente","regLugar"]
-        .forEach(id => { document.getElementById(id).value = ""; });
-    }
-
-    function confirmarCita() {
-      const fecha        = document.getElementById("regFecha").value;
-      const horaInicio   = document.getElementById("regHoraInicio").value;
-      const horaFin      = document.getElementById("regHoraFin").value;
-      const codUsuario   = document.getElementById("regCodUsuario").value.trim();
-      const codResidente = document.getElementById("regCodResidente").value.trim();
-      const lugar        = document.getElementById("regLugar").value.trim();
-      const codCita      = generarCodCita();
-
-      if (!fecha || !horaInicio || !horaFin || !codUsuario || !codResidente || !lugar) {
-        alert("Por favor, complete todos los campos.");
-        return;
-      }
-
-      const texto = `Nueva cita registrada — Residente: ${codResidente} | Usuario: ${codUsuario} | Lugar: ${lugar}`;
-      citas.push({ id: contadorId++, texto, fecha, horaInicio, horaFin, codUsuario, codResidente, lugar, codCita });
-
-      if (filtroActivo && document.getElementById("filtroInput").value) {
-        filtrarCitas();
-      } else {
-        renderCitas(citas);
-      }
-
-      cerrarOverlay();
-    }
-
-    // Menú perfil
-    const profileBtn  = document.getElementById("profileBtn");
-    const profileDrop = document.getElementById("profileDrop");
-
-    profileBtn.addEventListener("click", e => {
-      e.stopPropagation();
-      profileDrop.classList.toggle("show");
-    });
-
-    document.addEventListener("click", e => {
-      if (!profileDrop.contains(e.target) && !profileBtn.contains(e.target)) {
-        profileDrop.classList.remove("show");
-      }
-    });
-
-    renderCitas(citas);
-  </script>
+  <script src="./js/alerts.js"></script>
+  <script src="./js/menu_notificacion.js"></script>
+  <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
+  <script src="./js/cita_validate.js"></script>
 </body>
 </html>

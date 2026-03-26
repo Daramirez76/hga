@@ -1,4 +1,5 @@
 const RESET_PASSWORD_ENDPOINT = "/api/user/forgot_password/reset";
+const DEFAULT_RETURN_TO = "login.html";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("resetPasswordForm");
@@ -7,21 +8,62 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPasswordInput = document.getElementById("confirmPassword");
     const submitButton = document.getElementById("submitButton");
     const statusMessage = document.getElementById("statusMessage");
+    const resetTokenInput = document.getElementById("resetToken");
+    const returnToInput = document.getElementById("returnTo");
+    const backLink = document.getElementById("backLink");
+    const secondaryLink = document.getElementById("secondaryLink");
 
     if (!form || !emailInput || !newPasswordInput || !confirmPasswordInput || !submitButton || !statusMessage) {
         return;
     }
 
-    precargarEmail(emailInput);
+    const params = new URLSearchParams(window.location.search);
+    const token = (params.get("token") || "").trim();
+    const email = (params.get("email") || "").trim();
+    const returnTo = obtenerDestinoRetorno(params.get("return_to"));
+
+    if (backLink) {
+        backLink.href = returnTo;
+    }
+
+    if (secondaryLink) {
+        secondaryLink.href = `forgot_password.html?return_to=${encodeURIComponent(returnTo)}`;
+    }
+
+    if (returnToInput) {
+        returnToInput.value = returnTo;
+    }
+
+    if (resetTokenInput) {
+        resetTokenInput.value = token;
+    }
+
+    if (!token || !email) {
+        mostrarEstado(
+            statusMessage,
+            "Este enlace de recuperación no es válido o expiró. Solicita uno nuevo desde el formulario de recuperación.",
+            "error"
+        );
+        submitButton.disabled = true;
+        newPasswordInput.disabled = true;
+        confirmPasswordInput.disabled = true;
+        emailInput.readOnly = true;
+        if (!email) {
+            emailInput.value = "";
+        }
+        return;
+    }
+
+    emailInput.value = email;
+    emailInput.readOnly = true;
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
         limpiarEstado(statusMessage, [emailInput, newPasswordInput, confirmPasswordInput]);
 
-        const email = emailInput.value.trim();
         const nuevaContraseña = newPasswordInput.value.trim();
         const confirmarContraseña = confirmPasswordInput.value.trim();
-        const mensajeError = validarFormulario(email, nuevaContraseña, confirmarContraseña);
+        const mensajeError = validarFormulario(email, token, nuevaContraseña, confirmarContraseña);
 
         if (mensajeError) {
             mostrarEstado(statusMessage, mensajeError, "error");
@@ -41,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({
                     email,
+                    token,
                     nueva_contraseña: nuevaContraseña,
                     confirmar_contraseña: confirmarContraseña,
                 }),
@@ -65,11 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             mostrarEstado(
                 statusMessage,
-                data.mensaje || "Contraseña actualizada exitosamente.",
+                data.mensaje || "Contraseña actualizada exitosamente. Redirigiendo al inicio de sesión...",
                 "success"
             );
-            form.reset();
-            precargarEmail(emailInput);
+
+            setTimeout(() => {
+                window.location.href = returnTo;
+            }, 1500);
         } catch (error) {
             console.error("Error al restablecer contraseña:", error);
             mostrarEstado(statusMessage, "Error al conectar con el servidor.", "error");
@@ -80,17 +125,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function precargarEmail(emailInput) {
-    const params = new URLSearchParams(window.location.search);
-    const email = params.get("email");
-    if (email) {
-        emailInput.value = email;
-    }
+function obtenerDestinoRetorno(returnTo) {
+    const normalized = (returnTo || DEFAULT_RETURN_TO).trim();
+    const allowed = new Set(["login.html", "login_employees.html"]);
+
+    return allowed.has(normalized) ? normalized : DEFAULT_RETURN_TO;
 }
 
-function validarFormulario(email, nuevaContraseña, confirmarContraseña) {
+function validarFormulario(email, token, nuevaContraseña, confirmarContraseña) {
     if (!email) {
         return "Ingresa tu correo electrónico.";
+    }
+
+    if (!token) {
+        return "Este enlace de recuperación no es válido o expiró.";
     }
 
     if (!nuevaContraseña || !confirmarContraseña) {
@@ -141,14 +189,14 @@ function obtenerMensajeError(data) {
     }
 
     if (data.errors && typeof data.errors === "object") {
-        for (const clave of ["email", "nueva_contraseña", "confirmar_contraseña"]) {
+        for (const clave of ["email", "token", "nueva_contraseña", "confirmar_contraseña"]) {
             if (Array.isArray(data.errors[clave]) && data.errors[clave].length > 0) {
                 return data.errors[clave].join(", ");
             }
         }
     }
 
-    for (const clave of ["email", "nueva_contraseña", "confirmar_contraseña"]) {
+    for (const clave of ["email", "token", "nueva_contraseña", "confirmar_contraseña"]) {
         if (Array.isArray(data[clave]) && data[clave].length > 0) {
             return data[clave].join(", ");
         }

@@ -4,6 +4,8 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\usuarios;
 use App\Repositories\Interfaces\usuariosInterface;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Collection;
 
 class usuariosRepository implements usuariosInterface
 {
@@ -15,20 +17,22 @@ class usuariosRepository implements usuariosInterface
      */
     public function create(array $data): usuarios
     {
+        $payload = $this->preparePayload($data);
+
         return usuarios::create([
-            'tipo_doc' => $data['tipo_doc'],
-            'doc_id' => $data['doc_id'],
-            'nombre' => $data['name'],
-            'apellido' => $data['apellido'],
-            'edad' => $data['edad'],
-            'direccion' => $data['direccion'],
-            'telefono' => $data['telefono'],
-            'email' => $data['email'],
-            'usuario' => $data['usuario'],
-            'contraseña' => $data['password'],
-            'cod_rol' => $data['cod_rol'] ?? 4,
-            'parentesco' => $data['parentesco'] ?? '',
-            'google_id' => $data['google_id'] ?? null,
+            'tipo_doc' => $payload['tipo_doc'],
+            'doc_id' => $payload['doc_id'],
+            'nombre' => $payload['name'],
+            'apellido' => $payload['apellido'],
+            'edad' => $payload['edad'],
+            'direccion' => $payload['direccion'],
+            'telefono' => $payload['telefono'],
+            'email' => $payload['email'],
+            'usuario' => $payload['usuario'],
+            'contraseña' => $payload['contraseña'],
+            'cod_rol' => $payload['cod_rol'],
+            'parentesco' => $payload['parentesco'],
+            'google_id' => $payload['google_id'] ?? null,
         ]);
     }
 
@@ -88,6 +92,15 @@ class usuariosRepository implements usuariosInterface
         return $lastDocId > 0 ? $lastDocId + 1 : 1;
     }
 
+    public function getUsersByRole(int $roleCode): Collection
+    {
+        return usuarios::query()
+            ->where('cod_rol', $roleCode)
+            ->orderBy('nombre')
+            ->orderBy('apellido')
+            ->get();
+    }
+
     /**
      * Update user
      *
@@ -99,7 +112,7 @@ class usuariosRepository implements usuariosInterface
     {
         $user = usuarios::find($id);
         if ($user) {
-            $user->update($data);
+            $user->update($this->preparePayload($data, true));
         }
         return $user;
     }
@@ -113,8 +126,10 @@ class usuariosRepository implements usuariosInterface
      */
     public function updatePasswordByEmail(string $email, string $password): bool
     {
+        $hashedPassword = $this->normalizePassword($password);
+
         return usuarios::where('email', $email)->update([
-            'contraseña' => $password,
+            'contraseña' => $hashedPassword,
         ]) > 0;
     }
 
@@ -127,5 +142,94 @@ class usuariosRepository implements usuariosInterface
     public function delete(int $id): bool
     {
         return usuarios::destroy($id) > 0;
+    }
+
+    /**
+     * Normalize the payload before persisting it.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function preparePayload(array $data, bool $isUpdate = false): array
+    {
+        $payload = $data;
+        $password = (string) ($payload['password'] ?? $payload['contraseña'] ?? '');
+
+        if ($password !== '') {
+            $payload['contraseña'] = $this->normalizePassword($password);
+        }
+
+        unset($payload['password']);
+
+        if (array_key_exists('name', $payload)) {
+            $payload['name'] = trim((string) $payload['name']);
+        }
+
+        if (array_key_exists('tipo_doc', $payload)) {
+            $payload['tipo_doc'] = trim((string) $payload['tipo_doc']);
+        }
+
+        if (array_key_exists('apellido', $payload)) {
+            $payload['apellido'] = trim((string) $payload['apellido']);
+        }
+
+        if (array_key_exists('direccion', $payload)) {
+            $payload['direccion'] = trim((string) $payload['direccion']);
+        }
+
+        if (array_key_exists('email', $payload)) {
+            $payload['email'] = trim((string) $payload['email']);
+        }
+
+        if (array_key_exists('usuario', $payload)) {
+            $payload['usuario'] = trim((string) $payload['usuario']);
+        }
+
+        if (array_key_exists('parentesco', $payload)) {
+            $payload['parentesco'] = trim((string) $payload['parentesco']);
+        }
+
+        if (array_key_exists('cod_rol', $payload)) {
+            $payload['cod_rol'] = (int) $payload['cod_rol'];
+        } elseif (!$isUpdate) {
+            $payload['cod_rol'] = 4;
+        }
+
+        if (array_key_exists('google_id', $payload)) {
+            $payload['google_id'] = $payload['google_id'] ?: null;
+        } elseif (!$isUpdate) {
+            $payload['google_id'] = null;
+        }
+
+        if (array_key_exists('doc_id', $payload)) {
+            $payload['doc_id'] = (int) $payload['doc_id'];
+        }
+
+        if (array_key_exists('edad', $payload)) {
+            $payload['edad'] = (int) $payload['edad'];
+        }
+
+        if (array_key_exists('telefono', $payload)) {
+            $payload['telefono'] = (int) $payload['telefono'];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Hash a password only when it is still stored as plain text.
+     */
+    protected function normalizePassword(string $password): string
+    {
+        if ($password === '') {
+            return $password;
+        }
+
+        $info = password_get_info($password);
+        if (($info['algo'] ?? 0) !== 0) {
+            return $password;
+        }
+
+        return Hash::make($password);
     }
 }

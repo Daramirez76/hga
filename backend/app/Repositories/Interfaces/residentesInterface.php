@@ -1,13 +1,17 @@
 <?php
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Foundation\Http\FormRequest;
-
 interface residentesInterface
 {
     public function getAllresidentes();
-    public function getresidentesById($id);
-    public function createresidentes(array $data);
-    public function updateresidentes($id, array $data);
-    public function deleteresidentes($id);
+
+    public function getresidentesById(int $id);
+
+    public function create(array $data);
+
+    public function update(int $id, array $data);
+
+    public function delete(int $id);
+
+    public function getNextCodResidente(): int;
 }

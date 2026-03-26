@@ -11,25 +11,19 @@ class residentesRepository implements residentesInterface
         return residentes::all();
     }
 
-    public function getresidentesById($id)
+    public function getresidentesById(int $id)
     {
         $residentes = residentes::find($id);
 
         return !$residentes ? null : $residentes;
     }
 
-    public function createresidentes(array $data)
+    public function create(array $data)
     {
         return residentes::create($data);
     }
 
-    // Alias estándar para create
-    public function create(array $data)
-    {
-        return $this->createresidentes($data);
-    }
-
-    public function updateresidentes($id, array $data)
+    public function update(int $id, array $data)
     {
         $residentes = residentes::find($id);
 
@@ -41,13 +35,7 @@ class residentesRepository implements residentesInterface
         return $residentes;
     }
 
-    // Alias estándar para update
-    public function update($id, array $data)
-    {
-        return $this->updateresidentes($id, $data);
-    }
-
-    public function deleteresidentes($id)
+    public function delete(int $id)
     {
         $residentes = residentes::find($id);
 
@@ -55,13 +43,14 @@ class residentesRepository implements residentesInterface
             return null;
         }
 
-        $residentes ->delete();
+        $residentes->delete();
         return true;
     }
 
-    // Alias estándar para delete
-    public function delete($id)
+    public function getNextCodResidente(): int
     {
-        return $this->deleteresidentes($id);
+        $lastCode = (int) residentes::max('cod_residente');
+
+        return $lastCode > 0 ? $lastCode + 1 : 1;
     }
 }

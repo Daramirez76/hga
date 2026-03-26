@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('_actividades', function (Blueprint $table) {
-            $table->id();
-            $table->integer('Cod_acti_ludi')->unique();
-            $table->integer('doc_id')->nullable();
-            $table->string('Nombre');
+        if (Schema::hasTable('actividades_ludicas') || Schema::hasTable('_actividades')) {
+            return;
+        }
+
+        Schema::create('actividades_ludicas', function (Blueprint $table) {
+            $table->integer('Cod_acti_ludi')->primary();
+            $table->string('Nombre', 50);
             $table->date('Fecha');
             $table->time('Hora_ini');
             $table->time('Hora_fin');
             $table->integer('cod_residente');
             $table->integer('cod_rol');
-            $table->string('Lugar');
-            $table->timestamps();
+            $table->string('Lugar', 50);
         });
     }
 
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_actividades');
+        Schema::dropIfExists('actividades_ludicas');
     }
 };

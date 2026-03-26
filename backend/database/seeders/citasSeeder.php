@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\citas;
 
 class citasSeeder extends Seeder
 {
@@ -12,6 +13,6 @@ class citasSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\citas::factory(10)->create();
+        citas::factory(10)->create();
     }
 }

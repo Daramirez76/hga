@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\visitas;
 
 class visitasSeeder extends Seeder
 {
@@ -12,6 +12,6 @@ class visitasSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\visitas::factory(10)->create();
+        visitas::factory(10)->create();
     }
 }

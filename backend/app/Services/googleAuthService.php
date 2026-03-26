@@ -11,6 +11,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class googleAuthService
 {
+    private const GENERIC_ERROR_MESSAGE = 'No fue posible completar la autenticación con Google.';
+    private const EMAIL_NOT_VERIFIED_MESSAGE = 'La cuenta de Google debe tener un correo verificado.';
+    private const ACCOUNT_ALREADY_LINKED_MESSAGE = 'Esta cuenta ya está vinculada a otro acceso de Google.';
+
     public function __construct(
         protected usuariosInterface $userRepository
     ) {
@@ -20,12 +24,13 @@ class googleAuthService
      * Resolve the Google OAuth callback and issue a local JWT.
      *
      * @param string $authorizationCode
+     * @param string $redirectUri
      * @return array<string, mixed>
      */
-    public function handleCallback(string $authorizationCode): array
+    public function handleCallback(string $authorizationCode, string $redirectUri): array
     {
         try {
-            $googleUser = $this->fetchGoogleUser($authorizationCode);
+            $googleUser = $this->fetchGoogleUser($authorizationCode, $redirectUri);
             $user = $this->resolveLocalUser($googleUser);
             $roleCode = (int) ($user->cod_rol ?? 4);
             $expiresIn = (int) config('jwt.ttl', 60) * 60;
@@ -44,28 +49,34 @@ class googleAuthService
                     'email' => $user->email,
                     'username' => $user->usuario,
                     'telefono' => $user->telefono,
+                    'direccion' => $user->direccion,
+                    'edad' => $user->edad,
                     'cod_rol' => $roleCode,
                     'rol' => $this->resolveRoleName($roleCode),
                     'google_id' => $user->google_id,
+                    'profile_completed' => $this->isProfileCompleted($user),
                 ],
             ];
         } catch (\Throwable $exception) {
+            report($exception);
+
             return [
                 'success' => false,
-                'message' => $exception->getMessage(),
+                'message' => $this->resolvePublicErrorMessage($exception),
+                'internal_message' => $exception->getMessage(),
             ];
         }
     }
 
     /**
      * @param string $authorizationCode
+     * @param string $redirectUri
      * @return array<string, mixed>
      */
-    protected function fetchGoogleUser(string $authorizationCode): array
+    protected function fetchGoogleUser(string $authorizationCode, string $redirectUri): array
     {
         $clientId = (string) config('services.google.client_id');
         $clientSecret = (string) config('services.google.client_secret');
-        $redirectUri = (string) config('services.google.redirect');
 
         if ($clientId === '' || $clientSecret === '' || $redirectUri === '') {
             throw new \RuntimeException('Falta configurar GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET o GOOGLE_REDIRECT_URI');
@@ -106,6 +117,10 @@ class googleAuthService
             throw new \RuntimeException('La respuesta de Google no incluye los datos mínimos del usuario');
         }
 
+        if (!$this->isEmailVerified($profile['email_verified'] ?? null)) {
+            throw new \RuntimeException(self::EMAIL_NOT_VERIFIED_MESSAGE);
+        }
+
         return $profile;
     }
 
@@ -127,6 +142,10 @@ class googleAuthService
         $user = $this->userRepository->findByEmail($email);
 
         if ($user) {
+            if ($user->google_id && $user->google_id !== $googleId) {
+                throw new \RuntimeException(self::ACCOUNT_ALREADY_LINKED_MESSAGE);
+            }
+
             return $this->userRepository->update((int) $user->id, [
                 'google_id' => $googleId,
             ]) ?? $user;
@@ -173,6 +192,30 @@ class googleAuthService
         return trim(implode(' ', $parts));
     }
 
+    /**
+     * Determine whether Google confirmed the email address.
+     *
+     * @param mixed $value
+     */
+    protected function isEmailVerified(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (is_string($value)) {
+            $normalized = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+            return $normalized === true;
+        }
+
+        return false;
+    }
+
     protected function generateUsername(string $email, string $fullName): string
     {
         $base = Str::lower((string) Str::before($email, '@'));
@@ -201,7 +244,29 @@ class googleAuthService
         return match ($roleCode) {
             1 => 'Administrador',
             2 => 'Enfermero',
+            3 => 'Doctor',
             default => 'Tutor',
         };
+    }
+
+    protected function isProfileCompleted(usuarios $user): bool
+    {
+        return trim((string) ($user->name ?? '')) !== ''
+            && trim((string) ($user->apellido ?? '')) !== ''
+            && trim((string) ($user->direccion ?? '')) !== ''
+            && trim((string) ($user->telefono ?? '')) !== ''
+            && trim((string) ($user->usuario ?? '')) !== ''
+            && (int) ($user->edad ?? 0) >= 18;
+    }
+
+    protected function resolvePublicErrorMessage(\Throwable $exception): string
+    {
+        $message = trim($exception->getMessage());
+
+        if ($message === self::EMAIL_NOT_VERIFIED_MESSAGE || $message === self::ACCOUNT_ALREADY_LINKED_MESSAGE) {
+            return $message;
+        }
+
+        return self::GENERIC_ERROR_MESSAGE;
     }
 }

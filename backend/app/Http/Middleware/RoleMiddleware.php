@@ -69,7 +69,8 @@ class RoleMiddleware
         return match ($roleCode) {
             1 => 'administrador',
             2 => 'enfermero',
-            3 => 'tutor',
+            3 => 'doctor',
+            4 => 'tutor',
             default => 'tutor',
         };
     }

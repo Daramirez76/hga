@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notificaciones - HGA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(160deg, #a8d5c2 0%, #c9e8dc 50%, #d9f0e8 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* NAVBAR */
+    .navbar-custom {
+      background: #fff;
+      border-radius: 50px;
+      margin: 18px 30px 0 30px;
+      padding: 10px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .navbar-brand-text {
+      color: #3aaa7a;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .navbar-icons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .navbar-icon-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      color: #555;
+      font-size: 1.3rem;
+      transition: color 0.2s, background-color 0.2s;
+      cursor: pointer;
+    }
+    .navbar-icon-btn:hover { color: #3aaa7a; background: rgba(58,170,122,0.08); }
+
+    /* CONTENIDO */
+    .main-content {
+      padding: 20px 30px;
+      flex: 1;
+    }
+
+    .btn-nueva-notif {
+      background: #fff;
+      color: #333;
+      border: 1.5px solid #ccc;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+    .btn-nueva-notif:hover {
+      background: #e8f5ee;
+      border-color: #3aaa7a;
+      color: #2e7d5e;
+    }
+
+    /* CARD PRINCIPAL */
+    .card-panel {
+      background: #fff;
+      border-radius: 24px;
+      padding: 30px 36px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    }
+
+    .panel-title {
+      color: #2e7d5e;
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+
+    /* BUSCADOR */
+    .search-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+    .input-buscar {
+      border-radius: 20px;
+      border: 1.5px solid #b5ddc8;
+      padding: 7px 16px;
+      font-size: 0.88rem;
+      width: 220px;
+      color: #2e7d5e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-buscar:focus { border-color: #3aaa7a; }
+    .btn-buscar {
+      background: #fff;
+      border: 1.5px solid #b5ddc8;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 0.88rem;
+      color: #2e7d5e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-buscar:hover { background: #e8f5ee; }
+
+    /* ZONA DE TARJETAS */
+    .cards-zone {
+      background: #e8f5ee;
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 260px;
+    }
+
+    /* TARJETA NOTIFICACION */
+    .notif-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: #333;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: box-shadow 0.2s;
+    }
+    .notif-card:hover { box-shadow: 0 3px 12px rgba(58,170,122,0.15); }
+    .notif-card.is-unread {
+      border-left: 4px solid #3aaa7a;
+    }
+    .notif-card.is-read {
+      opacity: 0.92;
+    }
+    .notif-card .notif-icon {
+      font-size: 1.3rem;
+      min-width: 28px;
+      color: #3aaa7a;
+    }
+    .notif-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .notif-title {
+      font-weight: 700;
+      color: #245b43;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    .notif-message {
+      color: #344c3f;
+      word-break: break-word;
+    }
+    .notif-card .notif-date {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+    .notif-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+    .notif-badge-read {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef7f1;
+      color: #2e7d5e;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .notif-card-empty {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 0.9rem;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #fff;
+      text-align: center;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: auto;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar-custom">
+    <div class="navbar-left">
+      <img src="img/LOGO_HGA.png" alt="Logo" style="border-radius:50%; width:40px; height:40px;"/>
+      <span class="navbar-brand-text">Notificaciones</span>
+    </div>
+    <div class="navbar-icons">
+      <button class="navbar-icon-btn" type="button" aria-label="Notificaciones" title="Notificaciones">
+        <i class="bi bi-bell"></i>
+      </button>
+      <button class="navbar-icon-btn" type="button" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+        <i class="bi bi-person-circle"></i>
+      </button>
+      <button class="navbar-icon-btn" type="button" aria-label="Menú" title="Menú">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="main-content">
+
+    <button class="btn-nueva-notif" id="btnActualizarNotificaciones" type="button">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar listado
+    </button>
+    <button class="btn-nueva-notif" id="btnMarcarTodasLeidas" type="button">
+      <i class="bi bi-check2-all"></i> Marcar todas como leídas
+    </button>
+
+    <div class="card-panel">
+      <h2 class="panel-title">Panel de Notificaciones</h2>
+
+      <!-- BUSCADOR -->
+      <div class="search-wrapper">
+        <div class="d-flex gap-2 align-items-center">
+          <input type="text" class="input-buscar" id="inputBuscar" placeholder="Buscar..." oninput="filtrarNotificaciones()"/>
+          <button class="btn-buscar" onclick="filtrarNotificaciones()">
+            <i class="bi bi-search"></i> Buscar
+          </button>
+        </div>
+      </div>
+
+      <!-- ZONA DE TARJETAS -->
+      <div class="cards-zone" id="cardsZone">
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+  <script src="./js/menu_notificacion.js"></script>
+  <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
+  <script src="./js/notificaciones.js"></script>
+</body>
+</html>

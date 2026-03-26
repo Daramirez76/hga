@@ -1,22 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
- 
+
 use App\Http\Requests\citasRequest;
 use App\Services\citasService;
+use Illuminate\Http\JsonResponse;
 
 
 class citasController extends Controller
 {
-    protected $citasService;
+    protected citasService $citasService;
 
     public function __construct(citasService $citasService)
     {
         $this->citasService = $citasService;
     }
 
-    public function index()
+    public function index(): JsonResponse
     {
         $citas = $this->citasService->getAllcitas();
         return response()->json([
@@ -25,7 +25,7 @@ class citasController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
        $citas = $this->citasService->getcitasById($id);
         if (!$citas) {
@@ -40,18 +40,18 @@ class citasController extends Controller
 
     }
     
-    public function store(citasRequest $request)
+    public function store(citasRequest $request): JsonResponse
     {
-        $citas = $this->citasService->create($request);
+        $citas = $this->citasService->create($request->validated());
         return response()->json([
             'message' => 'citas created successfully',
             'data' => $citas
         ], 201);
     }
 
-    public function update($id, citasRequest $request)
+    public function update(citasRequest $request, int $id): JsonResponse
     {
-        $citas = $this->citasService->update($id, $request);
+        $citas = $this->citasService->update($id, $request->validated());
         if (!$citas) {
             return response()->json([
                 'message' => 'citas not found'
@@ -63,7 +63,7 @@ class citasController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $result = $this->citasService->delete($id);
         if (!$result) {

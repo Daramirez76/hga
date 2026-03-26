@@ -12,10 +12,11 @@ class medicamentos extends Model
     protected $table = 'medicamentos';
     protected $primaryKey = 'Cod_medicamento';
     public $incrementing = false;
+    protected $keyType = 'int';
     public $timestamps = false;
 
     protected $fillable = [
-        'cod_medicamento',
+        'Cod_medicamento',
         'nombre_medic',
         'fecha_entrada',
         'fecha_vencimiento',
@@ -25,5 +26,14 @@ class medicamentos extends Model
         'descrip_novedad',
         'fecha_novedad',
         'stock',
+    ];
+
+    protected $casts = [
+        'Cod_medicamento' => 'integer',
+        'cod_medicamento' => 'integer',
+        'cod_usuario' => 'integer',
+        'cod_residente' => 'integer',
+        'cod_rol' => 'integer',
+        'stock' => 'integer',
     ];
 }       

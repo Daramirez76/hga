@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\usuariosInterface;
+use Illuminate\Support\Facades\Log;
 
 class registrarseService
 {
@@ -52,10 +53,15 @@ class registrarseService
                     'username' => $user->usuario,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('Error al registrar usuario', [
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
             return [
                 'success' => false,
-                'message' => 'Error al registrar el usuario: ' . $e->getMessage(),
+                'message' => 'No fue posible registrar el usuario. Intenta nuevamente.',
             ];
         }
     }

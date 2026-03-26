@@ -1,13 +1,11 @@
 <?php
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Foundation\Http\FormRequest;
-
 interface visitasInterface
 {
-    public function getAllvisitas();
-    public function getvisitasById($id);
-    public function createvisitas(array $data);
-    public function updatevisitas($id, array $data);
-    public function deletevisitas($id);
+    public function getAllVisitas();
+    public function getVisitaById(int $id);
+    public function createVisita(array $data);
+    public function updateVisita(int $id, array $data);
+    public function deleteVisita(int $id);
 }
