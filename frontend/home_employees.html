@@ -141,7 +141,7 @@
         font-style: italic;
       }
 
-      /* MENU PERFIL */
+      /* MENÚ PERFIL */
       .profile-menu-wrapper {
         position: relative;
       }
@@ -152,7 +152,7 @@
         justify-content: center;
       }
 
-      .profile-dropdown, .profile-dropdown-notif {
+      .profile-dropdown {
         position: absolute;
         top: calc(100% + 10px);
         right: 0;
@@ -162,17 +162,7 @@
         border-radius: 14px;
         box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
         overflow: hidden;
-        opacity: 0;
-        transform: translateY(-8px);
-        pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease;
         z-index: 10;
-      }
-
-      .profile-dropdown.show, .profile-dropdown-notif.show {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
       }
 
       .profile-menu-item {
