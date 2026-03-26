@@ -43,6 +43,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
+      - app_vendor:/var/www/html/vendor
     depends_on:
       db:
         condition: service_healthy
@@ -123,6 +124,7 @@ services:
 
 volumes:
   db_data:
+  app_vendor:
   sonarqube_data:
   sonarqube_logs:
   sonarqube_extensions:
