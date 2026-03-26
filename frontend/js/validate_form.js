@@ -3,6 +3,10 @@ const REGISTER_ENDPOINT = `${API_BASE_URL}/api/register`;
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/login`;
 const LOGOUT_ENDPOINT = `${API_BASE_URL}/api/logout`;
 
+function obtenerOrigenRegistro() {
+    return document.body?.dataset?.registerSource?.trim() || "public";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("formRegister");
     const resendLink = document.getElementById("resendVerificationLink");
@@ -51,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                     "X-Requested-With": "XMLHttpRequest",
-                    "X-Register-Source": "public",
+                    "X-Register-Source": obtenerOrigenRegistro(),
                 },
                 body: JSON.stringify(payload),
             });

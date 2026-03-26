@@ -12,19 +12,29 @@ class citasService
 
     public function __construct(
         citasInterface $citasRepository,
-        protected notificacionesService $notificacionesService
+        protected notificacionesService $notificacionesService,
+        protected AccessScopeService $accessScopeService
     ) {
         $this->citasRepository = $citasRepository;
     }
 
     public function getAllcitas()
     {
-        return $this->citasRepository->getAllcitas();
+        return $this->accessScopeService->filterByResidentFields(
+            collect($this->citasRepository->getAllcitas()),
+            ['cod_Residente']
+        );
     }
 
     public function getcitasById($id)
     {
-        return $this->citasRepository->getcitasById((int) $id);
+        $cita = $this->citasRepository->getcitasById((int) $id);
+
+        if (!$cita) {
+            return null;
+        }
+
+        return $this->accessScopeService->canAccessResidentId((int) ($cita->cod_Residente ?? 0)) ? $cita : null;
     }
 
     public function create(array $data)

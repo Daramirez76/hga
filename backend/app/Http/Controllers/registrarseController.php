@@ -23,7 +23,10 @@ class registrarseController extends Controller
      */
     public function register(registrarseRequest $request): JsonResponse
     {
-        $result = $this->registrarseService->register($request->validated());
+        $result = $this->registrarseService->register(
+            $request->validated(),
+            (string) $request->header('X-Register-Source', 'public')
+        );
 
         if ($result['success']) {
             return response()->json($result, 201);

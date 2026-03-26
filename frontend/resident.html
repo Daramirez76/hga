@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HGA - Residentes</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/hga-home-shell.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
     <style>
       * {
         margin: 0;
@@ -403,9 +405,9 @@
 
     </style>
   </head>
-  <body class="d-flex flex-column min-vh-100">
+  <body class="hga-home-theme d-flex flex-column min-vh-100" data-allowed-roles="1,2,4" data-login-page="login.html">
     <header class="container py-4 py-lg-5">
-      <div class="top-bar px-3 px-lg-4 py-3">
+      <div class="top-bar hga-top-bar px-3 px-lg-4 py-3">
         <div class="d-flex align-items-center justify-content-between gap-3">
           <a href="home.html" class="brand-link">
             <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle" />
@@ -414,17 +416,12 @@
 
           <div class="header-actions d-flex align-items-center gap-2">
             <button class="btn" type="button" aria-label="Notificaciones" title="Notificaciones">
-              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
-                <path d="M10 21a2 2 0 0 0 4 0"></path>
-              </svg>
+              <i class="bi bi-bell"></i>
             </button>
 
             <div class="profile-menu-wrapper">
               <button class="btn profile-menu-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
-                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-                  <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 4a3.5 3.5 0 1 1-3.5 3.5A3.504 3.504 0 0 1 12 6Zm0 14a7.955 7.955 0 0 1-5.58-2.27 5.99 5.99 0 0 1 11.16 0A7.955 7.955 0 0 1 12 20Z"></path>
-                </svg>
+                <i class="bi bi-person-circle"></i>
               </button>
               <div class="profile-dropdown" id="profileDropdown">
                 <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
@@ -433,11 +430,7 @@
             </div>
 
             <button class="btn menu-trigger" type="button" aria-label="Menú" title="Menú">
-              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <path d="M4 7h16"></path>
-                <path d="M4 12h16"></path>
-                <path d="M4 17h16"></path>
-              </svg>
+              <i class="bi bi-list"></i>
             </button>
           </div>
         </div>
@@ -445,23 +438,21 @@
     </header>
 
     <!-- Main -->
-    <main class="flex-grow-1">
+    <main class="flex-grow-1 hga-main-region">
       <div class="container py-5">
         <div class="residentes-toolbar">
           <button type="button" class="btn btn-secundario" id="agregarResidente">Agregar residente</button>
           <button type="submit" form="formResidentes" class="btn btn-gestionar" id="guardarResidentes">Gestionar Residentes</button>
         </div>
 
-        <form class="panel-residentes p-4 p-md-5" id="formResidentes">
-          <div class="tab-residentes mb-4">Residentes</div>
-          <p class="residentes-helper mb-4">Cada residente debe quedar asociado a un tutor responsable para que las notificaciones lleguen a la persona correcta.</p>
+        <form class="panel-residentes hga-surface-panel p-4 p-md-5" id="formResidentes">
           <div class="residentes-grid" id="residentesContainer"></div>
         </form>
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="mt-auto py-4 footer">
+    <footer class="mt-auto py-4 footer hga-footer-strip">
       <div class="container text-center">
         <small class="text-muted">derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
       </div>
@@ -486,6 +477,7 @@
     </div>
 
     <script src="./js/alerts.js"></script>
+    <script src="./js/role_access.js"></script>
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
     <script src="./js/menu_desplegable.js"></script>

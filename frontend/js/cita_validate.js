@@ -483,7 +483,7 @@ function abrirOverlay() {
   setSuggestedCodCita();
 }
 
-function abrirEdicionDesdeDetalle() {
+function editarCitaDesdeDetalle() {
   const cita = findCitaById(citasState.detalleId);
   const overlay = document.getElementById("overlayFondo");
 
@@ -491,11 +491,11 @@ function abrirEdicionDesdeDetalle() {
     return;
   }
 
+  cerrarDetalle();
   fillFormFromCita(cita);
   citasState.editandoId = String(cita.id);
   setOverlayMode("edit");
   overlay.classList.add("show");
-  cerrarDetalle();
 }
 
 function cerrarOverlay() {

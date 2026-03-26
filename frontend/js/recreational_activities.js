@@ -6,6 +6,16 @@ let isSubmitting = false;
 let currentFilter = '';
 let actividadesCache = [];
 
+function getCurrentRoleCode() {
+  return window.HgaRoleAccess && typeof window.HgaRoleAccess.getRoleCode === 'function'
+    ? window.HgaRoleAccess.getRoleCode()
+    : 0;
+}
+
+function canManageActividades() {
+  return [1, 2].includes(getCurrentRoleCode());
+}
+
 function getStoredToken() {
   return localStorage.getItem('access_token') || localStorage.getItem('authToken') || '';
 }
@@ -234,6 +244,10 @@ function openForm() {
 }
 
 function toggleForm(forceOpen) {
+  if (!canManageActividades()) {
+    return;
+  }
+
   const { panel } = getFormElements();
   if (!panel) {
     return;
@@ -346,16 +360,21 @@ function renderActividades(items) {
     const card = document.createElement('div');
     card.className = 'card-informe';
     card.dataset.id = actividad.id;
+    const actionsMarkup = canManageActividades()
+      ? `
+      <div class="mt-2">
+        <button type="button" class="btn btn-sm btn-info btn-editar">Editar</button>
+        <button type="button" class="btn btn-sm btn-danger btn-eliminar">Eliminar</button>
+      </div>
+    `
+      : '';
     card.innerHTML = `
       <strong>${escapeHtml(actividad.nombre || 'Sin nombre')}</strong><br>
       <small>Código: ${escapeHtml(actividad.id || '---')}</small><br>
       <small>${escapeHtml(parseDateForDisplay(actividad.fecha))} ${escapeHtml(actividad.horaInicio || '')} - ${escapeHtml(actividad.horaFin || '')}</small><br>
       <span>Lugar: ${escapeHtml(actividad.lugar || '---')}</span><br>
       <span>Residente: ${escapeHtml(String(actividad.codResidente || '---'))}</span><br>
-      <div class="mt-2">
-        <button type="button" class="btn btn-sm btn-info btn-editar">Editar</button>
-        <button type="button" class="btn btn-sm btn-danger btn-eliminar">Eliminar</button>
-      </div>
+      ${actionsMarkup}
     `;
 
     const editarButton = card.querySelector('.btn-editar');
@@ -460,6 +479,10 @@ function editarActividad(actividad) {
 async function handleSubmit(event) {
   event.preventDefault();
 
+  if (!canManageActividades()) {
+    return;
+  }
+
   if (isSubmitting) {
     return;
   }
@@ -526,6 +549,20 @@ function bindEvents() {
   }
 }
 
+function applyRoleMode() {
+  const { panel } = getFormElements();
+  const newButton = document.querySelector('.btn-nuevo-container');
+  const canManage = canManageActividades();
+
+  if (newButton instanceof HTMLElement) {
+    newButton.hidden = !canManage;
+  }
+
+  if (panel instanceof HTMLElement && !canManage) {
+    panel.style.display = 'none';
+  }
+}
+
 async function init() {
   if (!getStoredToken()) {
     window.location.href = LOGIN_URL;
@@ -537,6 +574,7 @@ async function init() {
     panel.style.display = 'none';
   }
 
+  applyRoleMode();
   bindEvents();
   await cargarActividades();
 }

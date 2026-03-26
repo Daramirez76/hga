@@ -6,7 +6,7 @@
     { label: "Citas", href: "citas_medicas.html" },
     { label: "Actividades Ludicas", href: "recreational_activities.html" },
     { label: "Medicamentos", href: "medicaments.html" },
-    
+    { label: "dashboard", href: "dashboard.html" },
   ];
 
   function ensureStyles() {
@@ -183,7 +183,14 @@
   }
 
   function init(options = {}) {
-    const items = Array.isArray(options.items) && options.items.length > 0 ? options.items : DEFAULT_ITEMS;
+    const roleItems = global.HgaRoleAccess && typeof global.HgaRoleAccess.getMenuItems === "function"
+      ? global.HgaRoleAccess.getMenuItems()
+      : [];
+    const items = Array.isArray(options.items) && options.items.length > 0
+      ? options.items
+      : roleItems.length > 0
+        ? roleItems
+        : DEFAULT_ITEMS;
     const buttons = document.querySelectorAll('[data-menu-hamburguesa], [aria-label="Menu"], [aria-label="Menú"]');
 
     buttons.forEach((button) => {
@@ -206,9 +213,20 @@
     closeAll,
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => init());
-  } else {
+  function boot() {
+    if (global.HgaRoleAccess && typeof global.HgaRoleAccess.ready === "function") {
+      Promise.resolve(global.HgaRoleAccess.ready())
+        .catch(() => null)
+        .finally(() => init());
+      return;
+    }
+
     init();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
   }
 })(window);
