@@ -138,20 +138,62 @@
       margin-top: auto;
     }
 
-    /* BOTONES NOTIFICACION Y PERFIL */
+    /* ================= MENÚ HEADER ================= */
+
+    /* Botones del header */
     .btn-outline-secondary {
-      color: #2e7d32 !important;
-      border-color: #c8e6c9 !important;
-      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #c8e6c9;
+      color: #2e7d32;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .btn-outline-secondary:hover {
-      background: linear-gradient(135deg, #e8f5e9, #c8e6c9) !important;
-      border-color: #66bb6a !important;
-      color: #2e7d32 !important;
+      background: #e8f5e9;
+      border-color: #66bb6a;
+      color: #1b5e20;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* MENU PERFIL */
+    /* Dropdown menú ☰ */
+    .dropdown-menu {
+      border-radius: 12px;
+      border: 1px solid #c8e6c9;
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
+    }
+
+    .dropdown-menu .dropdown-item {
+      padding: 10px 20px;
+      font-weight: 500;
+      color: #2e7d32;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-menu .dropdown-item:hover {
+      background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+      color: #1b5e20;
+      transform: translateX(5px);
+    }
+
+    /* Animación de entrada unificada para ambos dropdowns */
+    .dropdown-menu,
+    .profile-dropdown {
+      opacity: 0;
+      transform: translateY(-5px) scale(0.98);
+      pointer-events: none;
+    }
+
+    .dropdown-menu.show,
+    .profile-dropdown.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* MENÚ PERFIL */
     .profile-menu-wrapper {
       position: relative;
     }
@@ -172,17 +214,7 @@
       border-radius: 14px;
       box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
       overflow: hidden;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
       z-index: 10;
-    }
-
-    .profile-dropdown.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
     }
 
     .profile-menu-item {
