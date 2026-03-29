@@ -459,7 +459,7 @@
 
   function subscribe(listener, options = {}) {
     if (typeof listener !== "function") {
-      return function noop() {};
+      return function noop() { };
     }
 
     state.subscribers.add(listener);
@@ -932,7 +932,10 @@
       event.preventDefault();
       event.stopPropagation();
 
-      closeProfileDropdownIfOpen();
+      // reparacion menu notificaciones
+      if (global.HgaUserMenu?.closeAll) global.HgaUserMenu.closeAll();
+      if (global.HgaHamburgerMenu?.closeAll) global.HgaHamburgerMenu.closeAll();
+      if (global.HgaNotificationMenu?.closeAll) global.HgaNotificationMenu.closeAll();
 
       const isOpen = dropdown.classList.toggle("show");
       button.setAttribute("aria-expanded", String(isOpen));
@@ -1044,7 +1047,7 @@
     initReactiveSync();
 
     if (getToken()) {
-      loadNotifications({ silent: true }).catch(() => {});
+      loadNotifications({ silent: true }).catch(() => { });
     } else {
       stopAutoRefresh();
     }

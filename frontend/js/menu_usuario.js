@@ -188,7 +188,10 @@
       event.preventDefault();
       event.stopPropagation();
 
-      closeNotificationsMenuIfOpen();
+      // reparacion menu usuario
+      if (global.HgaNotificationMenu?.closeAll) global.HgaNotificationMenu.closeAll();
+      if (global.HgaHamburgerMenu?.closeAll) global.HgaHamburgerMenu.closeAll();
+      if (global.HgaUserMenu?.closeAll) global.HgaUserMenu.closeAll();
 
       const isOpen = elements.dropdown.classList.toggle("show");
       elements.button.setAttribute("aria-expanded", String(isOpen));
