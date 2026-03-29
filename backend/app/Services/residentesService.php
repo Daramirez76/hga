@@ -13,16 +13,38 @@ class residentesService
 
     public function __construct(
         residentesInterface $residentesRepository,
-        protected AccessScopeService $accessScopeService
+        protected AccessScopeService $accessScopeService,
+        protected notificacionesService $notificacionesService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->residentesRepository = $residentesRepository;
     }
   
-    public function getAllresidentes()
+    public function getAllresidentes(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->accessScopeService->filterResidents(
+        $residentes = $this->accessScopeService->filterResidents(
             Collection::make($this->residentesRepository->getAllresidentes())
         );
+
+        $residentes = $this->paginationService->filterCollection($residentes, $search, [
+            'cod_residente',
+            'nombre',
+            'apellido',
+            'edad',
+            'patologia',
+            'RH',
+            'cod_usuario',
+            'cod_rol',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $residentes->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($residentes, $page, $perPage, [], $search);
     }
 
     public function getresidentesById(int $id)
@@ -50,7 +72,10 @@ class residentesService
             $data['cod_rol'] = 3;
         }
 
-        return $this->residentesRepository->create($data);
+        $residente = $this->residentesRepository->create($data);
+        $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyResidenteCreated($residente));
+
+        return $residente;
     }
 
     public function update(int $id, array $data)
@@ -61,12 +86,30 @@ class residentesService
             $data['cod_usuario'] = $this->resolveTutorCode($data['cod_usuario']);
         }
 
-        return $this->residentesRepository->update($id, $data);
+        $residente = $this->residentesRepository->update($id, $data);
+
+        if ($residente) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyResidenteUpdated($residente));
+        }
+
+        return $residente;
     }
 
     public function delete(int $id)
     {
-        return $this->residentesRepository->delete($id);
+        $residente = $this->getresidentesById($id);
+
+        if (!$residente) {
+            return null;
+        }
+
+        $deleted = $this->residentesRepository->delete($id);
+
+        if ($deleted) {
+            $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyResidenteDeleted($residente));
+        }
+
+        return $deleted;
     }
 
     protected function normalizePayload(array $data): array
@@ -115,5 +158,14 @@ class residentesService
         throw ValidationException::withMessages([
             'cod_usuario' => 'Debes seleccionar un tutor responsable para este residente.',
         ]);
+    }
+
+    protected function dispatchNotificationSafely(callable $callback): void
+    {
+        try {
+            $callback();
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

@@ -12,17 +12,37 @@ class visitasService
     public function __construct(
         visitasInterface $visitasRepository,
         protected notificacionesService $notificacionesService,
-        protected AccessScopeService $accessScopeService
+        protected AccessScopeService $accessScopeService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->visitasRepository = $visitasRepository;
     }
 
-    public function getAllVisitas()
+    public function getAllVisitas(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->accessScopeService->filterByResidentFields(
+        $visitas = $this->accessScopeService->filterByResidentFields(
             collect($this->visitasRepository->getAllVisitas()),
             ['cod_Residente']
         );
+
+        $visitas = $this->paginationService->filterCollection($visitas, $search, [
+            'id',
+            'cod_Visitas',
+            'doc_id',
+            'Nomb_visitante',
+            'cod_Residente',
+            'Fecha_Visita',
+            'cod_usuario',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $visitas->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($visitas, $page, $perPage, [], $search);
     }
 
     public function getVisitaById(int $id)

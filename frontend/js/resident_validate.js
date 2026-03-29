@@ -1,9 +1,21 @@
 const RESIDENTES_API_ENDPOINT = `${window.location.origin}/api/residentes`;
 const TUTORES_API_ENDPOINT = `${window.location.origin}/api/tutores`;
 const ME_API_ENDPOINT = `${window.location.origin}/api/me`;
+const RESIDENTES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const residentesState = {
   items: [],
+  allItems: [],
+  pagination: {
+    currentPage: 1,
+    perPage: RESIDENTES_PAGE_SIZE,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+    serverPaginated: false,
+  },
+  paginationHost: null,
   pendingDeleteIndex: null,
   tutores: [],
   currentUser: null,
@@ -27,6 +39,23 @@ function getResidentesToken() {
 
 function getResidentesContainer() {
   return document.getElementById("residentesContainer");
+}
+
+function getPaginationHost() {
+  if (residentesState.paginationHost instanceof HTMLElement) {
+    return residentesState.paginationHost;
+  }
+
+  const container = getResidentesContainer();
+  if (!(container instanceof HTMLElement)) {
+    return null;
+  }
+
+  residentesState.paginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(container, "residentesPagination")
+    : null;
+
+  return residentesState.paginationHost;
 }
 
 function getDeleteModalElements() {
@@ -169,18 +198,42 @@ function renderResidentes() {
       ? "Aún no hay residentes cargados. Agrega el primero para comenzar."
       : "No hay residentes asociados a esta cuenta.";
     container.appendChild(empty);
+    renderPaginationControls();
     return;
   }
 
   residentesState.items.forEach((residente, index) => {
     container.appendChild(buildResidenteCard(residente, index));
   });
+
+  renderPaginationControls();
 }
 
-async function fetchResidentes() {
-  const token = getResidentesToken();
+function renderPaginationControls() {
+  const host = getPaginationHost();
 
-  const response = await fetch(RESIDENTES_API_ENDPOINT, {
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, residentesState.pagination, (page) => {
+    void loadResidentes(page, { force: true });
+  }, {
+    itemLabel: "residentes",
+    ariaLabel: "Paginación de residentes",
+  });
+}
+
+async function fetchResidentes(page = 1) {
+  const token = getResidentesToken();
+  const url = window.HgaPagination?.buildUrl
+    ? window.HgaPagination.buildUrl(RESIDENTES_API_ENDPOINT, {
+        page,
+        per_page: RESIDENTES_PAGE_SIZE,
+      })
+    : `${RESIDENTES_API_ENDPOINT}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(RESIDENTES_PAGE_SIZE))}`;
+
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -194,7 +247,7 @@ async function fetchResidentes() {
     throw new Error(data.message || "No fue posible cargar los residentes.");
   }
 
-  return Array.isArray(data.data) ? data.data : [];
+  return data;
 }
 
 async function fetchCurrentUser() {
@@ -237,7 +290,7 @@ async function fetchTutores() {
   return Array.isArray(data.data) ? data.data : [];
 }
 
-async function loadResidentes() {
+async function loadResidentes(page = residentesState.pagination.currentPage || 1, options = {}) {
   const token = getResidentesToken();
 
   if (!token) {
@@ -250,15 +303,38 @@ async function loadResidentes() {
     const currentUser = await fetchCurrentUser();
     residentesState.currentUser = currentUser;
 
-    const residentes = await fetchResidentes();
     const tutores = canManageResidentes() ? await fetchTutores() : [];
+    const payload = await fetchResidentes(page);
 
     residentesState.tutores = tutores;
-    residentesState.items = residentes.map((item) => normalizeResidente(item));
+    const normalized = window.HgaPagination?.normalizeResponse
+      ? window.HgaPagination.normalizeResponse(payload, {
+          page,
+          perPage: RESIDENTES_PAGE_SIZE,
+        })
+      : {
+          items: Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [],
+          meta: {
+            currentPage: page,
+            perPage: RESIDENTES_PAGE_SIZE,
+            total: Array.isArray(payload?.data) ? payload.data.length : Array.isArray(payload) ? payload.length : 0,
+            lastPage: 1,
+            from: 0,
+            to: 0,
+            serverPaginated: false,
+          },
+        };
 
     applyRoleMode();
+    residentesState.pagination = normalized.meta;
+    residentesState.allItems = normalized.items.map(normalizeResidente);
+    residentesState.items = normalized.meta.serverPaginated
+      ? residentesState.allItems.slice()
+      : (window.HgaPagination?.slicePage
+        ? window.HgaPagination.slicePage(residentesState.allItems, normalized.meta.currentPage, normalized.meta.perPage)
+        : residentesState.allItems.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
 
-    if (residentesState.items.length === 0 && canManageResidentes()) {
+    if (residentesState.items.length === 0 && canManageResidentes() && normalized.meta.currentPage === 1) {
       const defaultTutor = currentUser && Number(currentUser.cod_rol) === 4 ? Number(currentUser.doc_id) : null;
       residentesState.items.push(normalizeResidente({ cod_usuario: defaultTutor }));
     }
@@ -494,6 +570,7 @@ async function handleDeleteConfirm() {
     await deleteResidente(index);
     closeDeleteModal();
     await window.HgaAlerts.success("Residente eliminado correctamente");
+    await loadResidentes(residentesState.pagination.currentPage || 1, { force: true });
   } catch (error) {
     console.error("Error al eliminar residente:", error);
     await window.HgaAlerts.error(error instanceof Error ? error.message : "No fue posible eliminar el residente.");
@@ -540,7 +617,7 @@ async function handleSubmit(event) {
       await saveResidente(item.payload);
     }
 
-    await loadResidentes();
+    await loadResidentes(residentesState.pagination.currentPage || 1, { force: true });
     await window.HgaAlerts.success("Residentes guardados correctamente");
   } catch (error) {
     console.error("Error al guardar residentes:", error);

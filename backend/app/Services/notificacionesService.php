@@ -11,21 +11,52 @@ use Illuminate\Support\Facades\Auth;
 class notificacionesService
 {
     public function __construct(
-        protected notificacionesInterface $notificacionesRepository
+        protected notificacionesInterface $notificacionesRepository,
+        protected QueryPaginationService $paginationService
     ) {
     }
 
     /**
-     * @return array{items: Collection<int, mixed>, unread_count: int}
+     * @return array{data: array<int, mixed>, meta: array<string, mixed>}
      */
-    public function getNotificationsForCurrentUser(?int $limit = null): array
+    public function getNotificationsForCurrentUser(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
         $docId = $this->getAuthenticatedUserDocId();
+        $notifications = collect($this->notificacionesRepository->getForRecipient($docId));
 
-        return [
-            'items' => $this->notificacionesRepository->getForRecipient($docId, $limit),
-            'unread_count' => $this->notificacionesRepository->countUnreadForRecipient($docId),
-        ];
+        $notifications = $this->paginationService->filterCollection($notifications, $search, [
+            'id',
+            'recipient_doc_id',
+            'actor_doc_id',
+            'module',
+            'event',
+            'entity_id',
+            'cod_residente',
+            'title',
+            'message',
+            'meta',
+        ]);
+
+        $unreadCount = $this->notificacionesRepository->countUnreadForRecipient($docId);
+
+        if (!$paginate) {
+            return [
+                'data' => $notifications->values()->all(),
+                'meta' => [
+                    'unread_count' => $unreadCount,
+                ],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection(
+            $notifications,
+            $page,
+            $perPage,
+            [
+                'unread_count' => $unreadCount,
+            ],
+            $search
+        );
     }
 
     public function markAsReadForCurrentUser(int $id)
@@ -111,6 +142,21 @@ class notificacionesService
     public function notifyActividadDeleted(object $actividad): void
     {
         $this->dispatchActividadNotification('deleted', $actividad);
+    }
+
+    public function notifyResidenteCreated(object $residente): void
+    {
+        $this->dispatchResidenteNotification('created', $residente);
+    }
+
+    public function notifyResidenteUpdated(object $residente): void
+    {
+        $this->dispatchResidenteNotification('updated', $residente);
+    }
+
+    public function notifyResidenteDeleted(object $residente): void
+    {
+        $this->dispatchResidenteNotification('deleted', $residente);
     }
 
     protected function dispatchCitaNotification(string $event, object $cita): void
@@ -288,6 +334,42 @@ class notificacionesService
         $this->notificacionesRepository->createMany($rows);
     }
 
+    protected function dispatchResidenteNotification(string $event, object $residente): void
+    {
+        $codResidente = (int) ($residente->cod_residente ?? 0);
+        $actorDocId = $this->resolveActorDocument($residente);
+        $fallbackTutorDocId = (int) ($residente->cod_usuario ?? 0);
+        $recipientDocIds = $this->resolveRecipientDocIds($codResidente, $fallbackTutorDocId);
+
+        if ($recipientDocIds === []) {
+            return;
+        }
+
+        [$title, $message] = $this->buildResidenteMessage($event, $residente, $codResidente);
+        $now = now();
+        $entityId = $codResidente;
+        $meta = $this->buildResidenteMeta($residente);
+        $rows = [];
+
+        foreach ($recipientDocIds as $recipientDocId) {
+            $rows[] = [
+                'recipient_doc_id' => $recipientDocId,
+                'actor_doc_id' => $actorDocId > 0 ? $actorDocId : null,
+                'module' => 'residentes',
+                'event' => $event,
+                'entity_id' => $entityId > 0 ? $entityId : null,
+                'cod_residente' => $codResidente > 0 ? $codResidente : null,
+                'title' => $title,
+                'message' => $message,
+                'meta' => json_encode($meta, JSON_UNESCAPED_UNICODE),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        $this->notificacionesRepository->createMany($rows);
+    }
+
     /**
      * @return array{0: string, 1: string}
      */
@@ -421,6 +503,34 @@ class notificacionesService
     }
 
     /**
+     * @return array{0: string, 1: string}
+     */
+    protected function buildResidenteMessage(string $event, object $residente, int $codResidente): array
+    {
+        $nombre = trim((string) ($residente->nombre ?? ''));
+        $apellido = trim((string) ($residente->apellido ?? ''));
+        $patologia = trim((string) ($residente->patologia ?? ''));
+        $nombreCompleto = trim($nombre . ' ' . $apellido);
+        $nombreLabel = $nombreCompleto !== '' ? $nombreCompleto : "residente #{$codResidente}";
+        $patologiaLabel = $patologia !== '' ? $patologia : 'sin patologia registrada';
+
+        return match ($event) {
+            'updated' => [
+                'Residente actualizado',
+                "Se actualizo la ficha del residente {$nombreLabel}. Patologia registrada: {$patologiaLabel}.",
+            ],
+            'deleted' => [
+                'Residente eliminado',
+                "Se elimino la ficha del residente {$nombreLabel}.",
+            ],
+            default => [
+                'Nuevo residente registrado',
+                "Se registro al residente {$nombreLabel}. Patologia registrada: {$patologiaLabel}.",
+            ],
+        };
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function buildCitaMeta(object $cita): array
@@ -495,9 +605,25 @@ class notificacionesService
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    protected function buildResidenteMeta(object $residente): array
+    {
+        return [
+            'cod_residente' => (int) ($residente->cod_residente ?? 0),
+            'nombre' => (string) ($residente->nombre ?? ''),
+            'apellido' => (string) ($residente->apellido ?? ''),
+            'edad' => (int) ($residente->edad ?? 0),
+            'patologia' => (string) ($residente->patologia ?? ''),
+            'rh' => (string) ($residente->RH ?? ''),
+            'cod_usuario' => (int) ($residente->cod_usuario ?? 0),
+        ];
+    }
+
+    /**
      * @return list<int>
      */
-    protected function resolveRecipientDocIds(int $codResidente): array
+    protected function resolveRecipientDocIds(int $codResidente, ?int $fallbackTutorDocId = null): array
     {
         $docIds = usuarios::query()
             ->whereIn('cod_rol', [1, 2])
@@ -523,6 +649,17 @@ class notificacionesService
                 if ($isTutor) {
                     $docIds[] = $tutorDocId;
                 }
+            }
+        }
+
+        if ($fallbackTutorDocId !== null && $fallbackTutorDocId > 0) {
+            $isTutor = usuarios::query()
+                ->where('doc_id', $fallbackTutorDocId)
+                ->where('cod_rol', 4)
+                ->exists();
+
+            if ($isTutor) {
+                $docIds[] = $fallbackTutorDocId;
             }
         }
 

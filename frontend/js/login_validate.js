@@ -2,6 +2,25 @@ const LOGIN_ENDPOINT = `${globalThis.location.origin}/api/login`;
 const DEFAULT_LOGIN_REDIRECT = "home.html";
 const JSON_CONTENT_TYPE = "application/json";
 
+function obtenerRolUsuario(user = {}) {
+    return Number(user?.cod_rol || user?.role_code || 0);
+}
+
+function obtenerHomePorRol(user = {}) {
+    return obtenerRolUsuario(user) === 4 ? "home.html" : "home_employees.html";
+}
+
+function resolverRedireccionPostLogin(user = {}) {
+    const fallbackRedirect = obtenerRedireccionLogin();
+    const roleCode = obtenerRolUsuario(user);
+
+    if (roleCode > 0) {
+        return obtenerHomePorRol(user);
+    }
+
+    return fallbackRedirect || DEFAULT_LOGIN_REDIRECT;
+}
+
 async function procesarRetornoGoogle() {
     const url = new URL(globalThis.location.href);
     const params = url.searchParams;
@@ -33,7 +52,7 @@ async function procesarRetornoGoogle() {
     });
 
     await window.HgaAlerts.success(message || "Login exitoso con Google");
-    const loginRedirectUrl = new URL(obtenerRedireccionLogin(), globalThis.location.href);
+    const loginRedirectUrl = new URL(resolverRedireccionPostLogin(parsearUsuario(userPayload)), globalThis.location.href);
     globalThis.location.replace(loginRedirectUrl.toString());
     return true;
 }
@@ -133,7 +152,7 @@ async function iniciarSesion(event) {
             user: data.user || {},
         });
         await window.HgaAlerts.success("Login exitoso");
-        const loginRedirectUrl = new URL(obtenerRedireccionLogin(), globalThis.location.href);
+        const loginRedirectUrl = new URL(resolverRedireccionPostLogin(data.user || {}), globalThis.location.href);
         globalThis.location.replace(loginRedirectUrl.toString());
     } catch (error) {
         console.error("Error al iniciar sesion:", error);

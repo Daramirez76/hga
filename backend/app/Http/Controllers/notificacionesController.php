@@ -15,17 +15,15 @@ class notificacionesController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $limit = $request->query('limit');
-        $limit = is_numeric($limit) ? max(1, (int) $limit) : null;
-        $notifications = $this->notificacionesService->getNotificationsForCurrentUser($limit);
+        $pagination = $this->resolvePaginationQuery($request, true);
+        $notifications = $this->notificacionesService->getNotificationsForCurrentUser(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
 
-        return response()->json([
-            'message' => 'notificaciones retrieved successfully',
-            'data' => $notifications['items'],
-            'meta' => [
-                'unread_count' => $notifications['unread_count'],
-            ],
-        ]);
+        return $this->paginatedJsonResponse('notificaciones retrieved successfully', $notifications);
     }
 
     public function markAsRead(int $id): JsonResponse

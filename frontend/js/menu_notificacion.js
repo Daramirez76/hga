@@ -4,13 +4,20 @@
   const VIEW_ALL_LABEL = "Ver todas las notificaciones";
   const VIEW_ALL_HREF = "notificaciones.html";
   const DEFAULT_LIMIT = 5;
+  const AUTO_REFRESH_MS = 5000;
+  const CROSS_TAB_SYNC_KEY = "hga.notifications.sync";
+  const RESOURCE_MUTATION_PATTERN = /^\/api\/(residentes|citas|visitas|medicamentos|informes|actividades)(\/|$)/;
 
   const state = {
     items: [],
+    unreadCount: 0,
     loading: false,
     loaded: false,
     error: "",
     promise: null,
+    subscribers: new Set(),
+    autoRefreshTimer: null,
+    refreshDebounceTimer: null,
   };
 
   function ensureStyles() {
@@ -23,6 +30,25 @@
     style.textContent = `
       .notification-menu-wrapper {
         position: relative;
+      }
+
+      .notification-trigger-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        background: #d92d20;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 18px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(217, 45, 32, 0.28);
+        pointer-events: none;
+        display: none;
       }
 
       .notification-dropdown {
@@ -361,6 +387,10 @@
   function getNotificationIcon(notification) {
     const type = notification?.type || "";
 
+    if (type.includes("resident") || type.includes("residente")) {
+      return "bi-person-vcard";
+    }
+
     if (type.includes("medic") || type.includes("pill") || type.includes("farm")) {
       return "bi-capsule";
     }
@@ -393,8 +423,194 @@
     return truncateText(base, 120);
   }
 
+  function countUnread(items) {
+    return items.reduce((total, item) => total + (item?.isRead ? 0 : 1), 0);
+  }
+
+  function getSnapshot() {
+    return {
+      items: state.items.slice(),
+      unreadCount: state.unreadCount,
+      loading: state.loading,
+      loaded: state.loaded,
+      error: state.error,
+    };
+  }
+
+  function notifySubscribers() {
+    const snapshot = getSnapshot();
+
+    state.subscribers.forEach((listener) => {
+      try {
+        listener(snapshot);
+      } catch (error) {
+        console.error("No fue posible notificar un cambio de notificaciones:", error);
+      }
+    });
+
+    renderAllDropdowns();
+    syncTriggerBadges();
+  }
+
+  function setItems(items) {
+    state.items = Array.isArray(items) ? items.slice() : [];
+    state.unreadCount = countUnread(state.items);
+  }
+
+  function subscribe(listener, options = {}) {
+    if (typeof listener !== "function") {
+      return function noop() {};
+    }
+
+    state.subscribers.add(listener);
+
+    if (options.emitCurrent !== false) {
+      listener(getSnapshot());
+    }
+
+    return function unsubscribe() {
+      state.subscribers.delete(listener);
+    };
+  }
+
+  function broadcastLocalMutation(kind) {
+    try {
+      localStorage.setItem(CROSS_TAB_SYNC_KEY, JSON.stringify({
+        kind,
+        at: Date.now(),
+      }));
+    } catch (error) {
+      console.warn("No fue posible propagar el cambio de notificaciones entre pestañas:", error);
+    }
+  }
+
+  function scheduleRefresh(options = {}) {
+    const silent = options.silent !== false;
+
+    if (state.refreshDebounceTimer !== null) {
+      global.clearTimeout(state.refreshDebounceTimer);
+    }
+
+    state.refreshDebounceTimer = global.setTimeout(() => {
+      state.refreshDebounceTimer = null;
+      refreshNotifications({ silent }).catch((error) => {
+        console.error("No fue posible sincronizar las notificaciones tras una mutacion:", error);
+      });
+    }, 250);
+  }
+
+  function resolveRequestUrl(input) {
+    if (typeof input === "string") {
+      return input;
+    }
+
+    if (input && typeof input.url === "string") {
+      return input.url;
+    }
+
+    return "";
+  }
+
+  function resolveRequestMethod(input, init) {
+    const method = init?.method || input?.method || "GET";
+    return String(method).toUpperCase();
+  }
+
+  function shouldSyncAfterMutation(input, init, response) {
+    if (!response?.ok) {
+      return false;
+    }
+
+    const method = resolveRequestMethod(input, init);
+    if (!["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      return false;
+    }
+
+    const rawUrl = resolveRequestUrl(input);
+    if (!rawUrl) {
+      return false;
+    }
+
+    try {
+      const requestUrl = new URL(rawUrl, global.location.origin);
+      return RESOURCE_MUTATION_PATTERN.test(requestUrl.pathname);
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function installFetchInterceptor() {
+    if (typeof global.fetch !== "function" || global.fetch.__hgaNotificationWrapped === true) {
+      return;
+    }
+
+    const originalFetch = global.fetch.bind(global);
+
+    async function wrappedFetch(input, init) {
+      const response = await originalFetch(input, init);
+
+      if (shouldSyncAfterMutation(input, init, response)) {
+        scheduleRefresh({ silent: true });
+      }
+
+      return response;
+    }
+
+    wrappedFetch.__hgaNotificationWrapped = true;
+    wrappedFetch.__hgaNotificationOriginal = originalFetch;
+    global.fetch = wrappedFetch;
+  }
+
+  function applyReadMutation(id) {
+    let changed = false;
+
+    setItems(state.items.map((item) => {
+      if (String(item.id) !== String(id) || item.isRead) {
+        return item;
+      }
+
+      changed = true;
+      return {
+        ...item,
+        isRead: true,
+        raw: {
+          ...(item.raw || {}),
+          read_at: item.raw?.read_at || new Date().toISOString(),
+          is_read: true,
+          read: true,
+        },
+      };
+    }));
+
+    if (changed) {
+      notifySubscribers();
+    }
+  }
+
+  function applyReadAllMutation() {
+    const hasUnread = state.items.some((item) => !item.isRead);
+
+    if (!hasUnread) {
+      return;
+    }
+
+    setItems(state.items.map((item) => ({
+      ...item,
+      isRead: true,
+      raw: {
+        ...(item.raw || {}),
+        read_at: item.raw?.read_at || new Date().toISOString(),
+        is_read: true,
+        read: true,
+      },
+    })));
+
+    notifySubscribers();
+  }
+
   async function loadNotifications(options = {}) {
     const force = options.force === true;
+    const silent = options.silent === true;
 
     if (state.loaded && !force) {
       return state.items;
@@ -404,12 +620,19 @@
       return state.promise;
     }
 
-    state.loading = true;
-    state.error = "";
+    if (!silent) {
+      state.loading = true;
+      state.error = "";
+      notifySubscribers();
+    } else {
+      state.loading = true;
+    }
+
     state.promise = requestJson(NOTIFICATIONS_ENDPOINT, { method: "GET" })
       .then((payload) => {
-        state.items = normalizeNotificationList(payload);
+        setItems(normalizeNotificationList(payload));
         state.loaded = true;
+        state.error = "";
         return state.items;
       })
       .catch((error) => {
@@ -419,9 +642,15 @@
       .finally(() => {
         state.loading = false;
         state.promise = null;
+        notifySubscribers();
       });
 
     return state.promise;
+  }
+
+  async function refreshNotifications(options = {}) {
+    state.loaded = false;
+    return loadNotifications({ ...options, force: true });
   }
 
   async function markNotificationAsRead(id) {
@@ -433,17 +662,18 @@
       method: "PATCH",
     });
 
-    const notification = state.items.find((item) => String(item.id) === String(id));
-    if (notification) {
-      notification.isRead = true;
-      notification.raw = {
-        ...(notification.raw || {}),
-        read_at: notification.raw?.read_at || new Date().toISOString(),
-        is_read: true,
-        read: true,
-      };
-    }
+    applyReadMutation(id);
+    broadcastLocalMutation("mark-as-read");
+    return true;
+  }
 
+  async function markAllNotificationsAsRead() {
+    await requestJson(`${NOTIFICATIONS_ENDPOINT}/read-all`, {
+      method: "PATCH",
+    });
+
+    applyReadAllMutation();
+    broadcastLocalMutation("mark-all-as-read");
     return true;
   }
 
@@ -499,7 +729,6 @@
       button.addEventListener("click", async () => {
         try {
           await markNotificationAsRead(notification.id);
-          renderDropdown(button.closest(".notification-dropdown"));
         } catch (error) {
           console.error("No fue posible marcar la notificacion como leida:", error);
         }
@@ -557,24 +786,30 @@
 
     list.innerHTML = "";
 
-    if (state.loading) {
+    if (state.loading && !state.loaded) {
       renderDropdownState(dropdown, "", "Cargando notificaciones...");
       return;
     }
 
-    if (state.error) {
+    if (state.error && state.items.length === 0) {
       renderDropdownState(dropdown, "is-error", state.error);
       return;
     }
 
     const items = state.items.slice(0, DEFAULT_LIMIT);
     if (items.length === 0) {
-      renderDropdownState(dropdown, "is-empty", "No tienes notificaciones pendientes.");
+      renderDropdownState(dropdown, "is-empty", "No tienes notificaciones.");
       return;
     }
 
     items.forEach((notification) => {
       list.appendChild(createMenuItem(notification));
+    });
+  }
+
+  function renderAllDropdowns() {
+    document.querySelectorAll(".notification-dropdown").forEach((dropdown) => {
+      renderDropdown(dropdown);
     });
   }
 
@@ -587,6 +822,41 @@
     wrapper.appendChild(button);
 
     return wrapper;
+  }
+
+  function ensureTriggerBadge(wrapper) {
+    if (!(wrapper instanceof HTMLElement)) {
+      return null;
+    }
+
+    const existing = wrapper.querySelector('[data-notification-trigger-badge="true"]');
+    if (existing instanceof HTMLElement) {
+      return existing;
+    }
+
+    const badge = document.createElement("span");
+    badge.className = "notification-trigger-badge";
+    badge.dataset.notificationTriggerBadge = "true";
+    badge.setAttribute("aria-hidden", "true");
+    wrapper.appendChild(badge);
+    return badge;
+  }
+
+  function syncTriggerBadges() {
+    document.querySelectorAll(".notification-menu-wrapper").forEach((wrapper) => {
+      const badge = ensureTriggerBadge(wrapper);
+      if (!(badge instanceof HTMLElement)) {
+        return;
+      }
+
+      if (state.unreadCount > 0) {
+        badge.textContent = state.unreadCount > 99 ? "99+" : String(state.unreadCount);
+        badge.style.display = "inline-block";
+      } else {
+        badge.textContent = "";
+        badge.style.display = "none";
+      }
+    });
   }
 
   function closeDropdown(dropdown, button) {
@@ -626,10 +896,8 @@
 
     try {
       await loadNotifications();
-      renderDropdown(dropdown);
     } catch (error) {
       console.error("No fue posible cargar notificaciones:", error);
-      renderDropdown(dropdown);
     }
   }
 
@@ -648,6 +916,8 @@
     const wrapper = button.parentElement && button.parentElement.classList.contains("notification-menu-wrapper")
       ? button.parentElement
       : wrapButton(button);
+
+    ensureTriggerBadge(wrapper);
 
     const existingDropdown = wrapper.querySelector(".notification-dropdown");
     const dropdown = existingDropdown || createDropdown();
@@ -701,6 +971,67 @@
         closeMenu();
       });
     }
+
+    renderDropdown(dropdown);
+    syncTriggerBadges();
+  }
+
+  function maybeRefreshInBackground() {
+    if (!getToken() || document.visibilityState !== "visible") {
+      return;
+    }
+
+    refreshNotifications({ silent: true }).catch((error) => {
+      console.error("No fue posible sincronizar las notificaciones:", error);
+    });
+  }
+
+  function startAutoRefresh() {
+    if (state.autoRefreshTimer !== null) {
+      return;
+    }
+
+    state.autoRefreshTimer = global.setInterval(() => {
+      maybeRefreshInBackground();
+    }, AUTO_REFRESH_MS);
+  }
+
+  function stopAutoRefresh() {
+    if (state.autoRefreshTimer === null) {
+      return;
+    }
+
+    global.clearInterval(state.autoRefreshTimer);
+    state.autoRefreshTimer = null;
+  }
+
+  function initReactiveSync() {
+    installFetchInterceptor();
+    startAutoRefresh();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        maybeRefreshInBackground();
+      }
+    });
+
+    global.addEventListener("focus", () => {
+      maybeRefreshInBackground();
+    });
+
+    global.addEventListener("storage", (event) => {
+      if (event.key !== CROSS_TAB_SYNC_KEY || !event.newValue) {
+        return;
+      }
+
+      refreshNotifications({ silent: true }).catch((error) => {
+        console.error("No fue posible resincronizar las notificaciones desde otra pestaña:", error);
+      });
+    });
+
+    global.addEventListener("hga:notifications:refresh", () => {
+      scheduleRefresh({ silent: true });
+    });
   }
 
   function init() {
@@ -709,6 +1040,14 @@
     buttons.forEach((button) => {
       setupButton(button);
     });
+
+    initReactiveSync();
+
+    if (getToken()) {
+      loadNotifications({ silent: true }).catch(() => {});
+    } else {
+      stopAutoRefresh();
+    }
   }
 
   function closeAll() {
@@ -724,24 +1063,24 @@
   global.HgaNotificationService = {
     getToken,
     loadNotifications,
+    refreshNotifications,
     markNotificationAsRead,
+    markAllNotificationsAsRead,
     normalizeNotificationList,
     formatNotificationDate,
     getNotificationIcon,
     clearSession,
     redirectToLogin,
     requestJson,
+    subscribe,
+    getSnapshot,
+    scheduleRefresh,
   };
 
   global.HgaNotificationMenu = {
     init,
     closeAll,
-    refresh: async () => {
-      state.loaded = false;
-      state.error = "";
-      await loadNotifications({ force: true });
-      return state.items;
-    },
+    refresh: () => refreshNotifications(),
   };
 
   if (document.readyState === "loading") {

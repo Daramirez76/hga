@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\medicamentosRequest;
 use App\Services\medicamentosService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class medicamentosController extends Controller
 {
@@ -15,14 +16,17 @@ class medicamentosController extends Controller
         $this->medicamentosService = $medicamentosService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $medicamentos = $this->medicamentosService->getAllmedicamentos();
+        $pagination = $this->resolvePaginationQuery($request);
+        $medicamentos = $this->medicamentosService->getAllmedicamentos(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
 
-        return response()->json([
-            'message' => 'medicamentos retrieved successfully',
-            'data' => $medicamentos,
-        ]);
+        return $this->paginatedJsonResponse('medicamentos retrieved successfully', $medicamentos);
     }
 
     public function show(int $id): JsonResponse

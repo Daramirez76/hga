@@ -1,10 +1,21 @@
 const API_BASE = `${window.location.origin}/api/actividades`;
 const LOGIN_URL = 'login.html';
+const ACTIVIDADES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 let actividadEditandoId = null;
 let isSubmitting = false;
 let currentFilter = '';
 let actividadesCache = [];
+let actividadesPagination = {
+  currentPage: 1,
+  perPage: ACTIVIDADES_PAGE_SIZE,
+  total: 0,
+  lastPage: 1,
+  from: 0,
+  to: 0,
+  serverPaginated: false,
+};
+let actividadesPaginationHost = null;
 
 function getCurrentRoleCode() {
   return window.HgaRoleAccess && typeof window.HgaRoleAccess.getRoleCode === 'function'
@@ -195,6 +206,23 @@ function getFormElements() {
   };
 }
 
+function getPaginationHost() {
+  if (actividadesPaginationHost instanceof HTMLElement) {
+    return actividadesPaginationHost;
+  }
+
+  const { lista } = getFormElements();
+  if (!(lista instanceof HTMLElement)) {
+    return null;
+  }
+
+  actividadesPaginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(lista, 'actividadesPagination')
+    : null;
+
+  return actividadesPaginationHost;
+}
+
 function setFormMode(mode) {
   const { title, submitButton } = getFormElements();
   if (title) {
@@ -343,20 +371,14 @@ function renderActividades(items) {
   lista.innerHTML = '';
 
   if (!Array.isArray(items) || items.length === 0) {
-    lista.innerHTML = '<p class="text-center text-muted mb-0">No hay actividades registradas.</p>';
+    lista.innerHTML = currentFilter
+      ? '<p class="text-center text-muted mb-0">No hay coincidencias para la búsqueda.</p>'
+      : '<p class="text-center text-muted mb-0">No hay actividades registradas.</p>';
+    renderActivitiesPagination();
     return;
   }
 
-  const filtered = currentFilter
-    ? items.filter((actividad) => getSearchText(actividad).includes(currentFilter))
-    : items;
-
-  if (filtered.length === 0) {
-    lista.innerHTML = '<p class="text-center text-muted mb-0">No hay coincidencias para la búsqueda.</p>';
-    return;
-  }
-
-  filtered.forEach((actividad) => {
+  items.forEach((actividad) => {
     const card = document.createElement('div');
     card.className = 'card-informe';
     card.dataset.id = actividad.id;
@@ -385,21 +407,71 @@ function renderActividades(items) {
 
     lista.appendChild(card);
   });
+
+  renderActivitiesPagination();
 }
 
-async function cargarActividades() {
+function renderActivitiesPagination() {
+  const host = getPaginationHost();
+
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, actividadesPagination, (page) => {
+    void cargarActividades(page, { force: true });
+  }, {
+    itemLabel: 'actividades',
+    ariaLabel: 'Paginación de actividades',
+  });
+}
+
+async function cargarActividades(page = actividadesPagination.currentPage || 1, options = {}) {
   const { lista } = getFormElements();
   if (lista) {
     lista.innerHTML = '<p class="text-center text-muted mb-0">Cargando actividades...</p>';
   }
 
   try {
-    const data = await requestJson(API_BASE, {
+    const url = window.HgaPagination?.buildUrl
+      ? window.HgaPagination.buildUrl(API_BASE, {
+          page,
+          per_page: ACTIVIDADES_PAGE_SIZE,
+          search: currentFilter,
+        })
+      : `${API_BASE}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(ACTIVIDADES_PAGE_SIZE))}&search=${encodeURIComponent(currentFilter)}`;
+
+    const data = await requestJson(url, {
       method: 'GET',
       headers: buildHeaders(false),
     });
 
-    actividadesCache = Array.isArray(data.data) ? data.data.map(normalizeActividad) : [];
+    const normalized = window.HgaPagination?.normalizeResponse
+      ? window.HgaPagination.normalizeResponse(data, {
+          page,
+          perPage: ACTIVIDADES_PAGE_SIZE,
+        })
+      : {
+          items: Array.isArray(data.data) ? data.data : [],
+          meta: {
+            currentPage: page,
+            perPage: ACTIVIDADES_PAGE_SIZE,
+            total: Array.isArray(data.data) ? data.data.length : 0,
+            lastPage: 1,
+            from: 0,
+            to: 0,
+            serverPaginated: false,
+          },
+        };
+
+    actividadesPagination = normalized.meta;
+    const collection = normalized.items.map(normalizeActividad);
+    actividadesCache = actividadesPagination.serverPaginated
+      ? collection.slice()
+      : (window.HgaPagination?.slicePage
+        ? window.HgaPagination.slicePage(collection, actividadesPagination.currentPage, actividadesPagination.perPage)
+        : collection.slice((actividadesPagination.currentPage - 1) * actividadesPagination.perPage, actividadesPagination.currentPage * actividadesPagination.perPage));
+
     renderActividades(actividadesCache);
   } catch (error) {
     if (error.message === 'Sesion expirada') {
@@ -450,7 +522,7 @@ async function eliminarActividad(id) {
     });
 
     await notify('success', 'Actividad eliminada.');
-    await cargarActividades();
+    await cargarActividades(actividadesPagination.currentPage || 1, { force: true });
   } catch (error) {
     if (error.message === 'Sesion expirada') {
       return;
@@ -510,7 +582,7 @@ async function handleSubmit(event) {
     }
 
     closeForm();
-    await cargarActividades();
+    await cargarActividades(actividadesPagination.currentPage || 1, { force: true });
   } catch (error) {
     if (error.message !== 'Sesion expirada') {
       console.error('Error al guardar actividad:', error);
@@ -526,8 +598,8 @@ async function handleSubmit(event) {
 
 function filtrarActividades() {
   const { filterInput } = getFormElements();
-  currentFilter = String(filterInput?.value ?? '').trim().toLowerCase();
-  renderActividades(actividadesCache);
+  currentFilter = String(filterInput?.value ?? '').trim();
+  void cargarActividades(1, { force: true });
 }
 
 function bindEvents() {
