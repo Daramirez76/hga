@@ -1,12 +1,25 @@
 (function (global) {
   const LOGIN_HREF = "login.html";
   const EMPTY_MESSAGE = "No se encontraron notificaciones.";
+  const NOTIFICATIONS_PAGE_SIZE = global.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
   const state = {
     notifications: [],
-    filteredNotifications: [],
     loading: false,
     error: "",
+    loaded: false,
+    searchQuery: "",
+    pagination: {
+      currentPage: 1,
+      perPage: NOTIFICATIONS_PAGE_SIZE,
+      total: 0,
+      lastPage: 1,
+      from: 0,
+      to: 0,
+      serverPaginated: false,
+    },
+    paginationHost: null,
+    unsubscribe: null,
   };
 
   function getService() {
@@ -54,6 +67,80 @@
 
   function getEmptyState() {
     return document.getElementById("sinResultados");
+  }
+
+  function getPaginationHost() {
+    if (state.paginationHost instanceof HTMLElement) {
+      return state.paginationHost;
+    }
+
+    const zone = getCardsZone();
+    if (!(zone instanceof HTMLElement)) {
+      return null;
+    }
+
+    state.paginationHost = global.HgaPagination?.ensureHost
+      ? global.HgaPagination.ensureHost(zone, "notificacionesPagination")
+      : null;
+
+    return state.paginationHost;
+  }
+
+  function compareNotifications(left, right) {
+    const leftTime = new Date(left?.createdAt || 0).getTime() || 0;
+    const rightTime = new Date(right?.createdAt || 0).getTime() || 0;
+    return rightTime - leftTime;
+  }
+
+  function normalizeNotification(raw, index) {
+    if (!raw || typeof raw !== "object") {
+      return null;
+    }
+
+    const id = raw.id ?? raw.notification_id ?? raw.notificationId ?? raw.uuid ?? raw._id ?? index;
+    const message = raw.message ?? raw.descripcion ?? raw.description ?? raw.text ?? raw.content ?? raw.contenido ?? raw.body ?? raw.title ?? "Notificación";
+    const title = raw.title ?? raw.titulo ?? raw.subject ?? raw.asunto ?? raw.name ?? String(message).slice(0, 72);
+    const author = raw.user_name ?? raw.usuario ?? raw.resident_name ?? raw.residente ?? raw.patient_name ?? raw.patient ?? raw.user?.name ?? raw.user?.full_name ?? raw.user?.nombre ?? "";
+    const createdAt = raw.created_at ?? raw.createdAt ?? raw.fecha ?? raw.date ?? raw.timestamp ?? raw.sent_at ?? raw.notified_at ?? raw.updated_at ?? "";
+    const isRead = Boolean(
+      raw.read_at ||
+      raw.leida === true ||
+      raw.read === true ||
+      raw.is_read === true ||
+      raw.seen === true ||
+      raw.visto === true ||
+      String(raw.estado || "").toLowerCase() === "leida" ||
+      String(raw.state || "").toLowerCase() === "read"
+    );
+
+    return {
+      id,
+      title,
+      message,
+      author,
+      createdAt,
+      isRead,
+      raw,
+    };
+  }
+
+  function normalizeNotificationList(payload) {
+    const list = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.notifications)
+          ? payload.notifications
+          : Array.isArray(payload?.items)
+            ? payload.items
+            : Array.isArray(payload?.results)
+              ? payload.results
+              : [];
+
+    return list
+      .map((item, index) => normalizeNotification(item, index))
+      .filter(Boolean)
+      .sort(compareNotifications);
   }
 
   function escapeText(value) {
@@ -187,11 +274,12 @@
     zone.innerHTML = "";
 
     if (notifications.length === 0) {
-      const empty = createStatusCard(EMPTY_MESSAGE, "empty");
+      const empty = createStatusCard(state.searchQuery ? "No hay notificaciones para esa búsqueda." : EMPTY_MESSAGE, "empty");
       zone.appendChild(empty);
       if (emptyState instanceof HTMLElement) {
         emptyState.style.display = "none";
       }
+      renderPaginationControls();
       return;
     }
 
@@ -202,58 +290,23 @@
     if (emptyState instanceof HTMLElement) {
       emptyState.style.display = "none";
     }
+
+    renderPaginationControls();
   }
 
-  async function loadNotifications(options = {}) {
-    const service = getService();
-    const force = options.force === true;
+  function renderPaginationControls() {
+    const host = getPaginationHost();
 
-    if (!ensureAuthenticated()) {
+    if (!(host instanceof HTMLElement) || !global.HgaPagination) {
       return;
     }
 
-    state.loading = true;
-    state.error = "";
-    renderLoading();
-
-    try {
-      let notifications = [];
-
-      if (service && typeof service.loadNotifications === "function") {
-        notifications = await service.loadNotifications({ force });
-      } else {
-        const response = await fetch(`${global.location.origin}/api/notificaciones`, {
-          credentials: "same-origin",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-
-        if (response.status === 401) {
-          redirectToLogin();
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("No fue posible cargar las notificaciones");
-        }
-
-        notifications = await response.json();
-        if (!Array.isArray(notifications)) {
-          notifications = notifications.data || notifications.notifications || [];
-        }
-      }
-
-      state.notifications = Array.isArray(notifications) ? notifications : [];
-      state.filteredNotifications = state.notifications.slice();
-      renderNotifications(state.filteredNotifications);
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : "No fue posible cargar las notificaciones";
-      renderError(state.error);
-    } finally {
-      state.loading = false;
-    }
+    global.HgaPagination.renderControls(host, state.pagination, (page) => {
+      void loadNotifications({ force: true, page });
+    }, {
+      itemLabel: "notificaciones",
+      ariaLabel: "Paginación de notificaciones",
+    });
   }
 
   function renderLoading() {
@@ -284,6 +337,94 @@
 
     card.appendChild(retry);
     zone.appendChild(card);
+    renderPaginationControls();
+  }
+
+  function buildNotificationsUrl(page) {
+    return global.HgaPagination?.buildUrl
+      ? global.HgaPagination.buildUrl(`${global.location.origin}/api/notificaciones`, {
+          page,
+          per_page: NOTIFICATIONS_PAGE_SIZE,
+          search: state.searchQuery,
+        })
+      : `${global.location.origin}/api/notificaciones?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(NOTIFICATIONS_PAGE_SIZE))}&search=${encodeURIComponent(state.searchQuery)}`;
+  }
+
+  async function loadNotifications(options = {}) {
+    const service = getService();
+    const force = options.force === true;
+    const page = Number.isInteger(options.page) && options.page > 0
+      ? options.page
+      : (state.pagination.currentPage || 1);
+    const silent = options.silent === true;
+
+    if (!ensureAuthenticated()) {
+      return;
+    }
+
+    state.loading = !silent;
+    state.error = "";
+
+    if (!silent) {
+      renderLoading();
+    }
+
+    try {
+      const response = await fetch(buildNotificationsUrl(page), {
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("No fue posible cargar las notificaciones");
+      }
+
+      const payload = await response.json();
+      const normalized = global.HgaPagination?.normalizeResponse
+        ? global.HgaPagination.normalizeResponse(payload, {
+            page,
+            perPage: NOTIFICATIONS_PAGE_SIZE,
+          })
+        : {
+            items: Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [],
+            meta: {
+              currentPage: page,
+              perPage: NOTIFICATIONS_PAGE_SIZE,
+              total: Array.isArray(payload?.data) ? payload.data.length : Array.isArray(payload) ? payload.length : 0,
+              lastPage: 1,
+              from: 0,
+              to: 0,
+              serverPaginated: false,
+            },
+          };
+
+      const normalizedItems = service && typeof service.normalizeNotificationList === "function"
+        ? service.normalizeNotificationList(payload)
+        : normalizeNotificationList(payload);
+
+      state.pagination = normalized.meta;
+      state.notifications = normalized.meta.serverPaginated
+        ? normalizedItems.slice()
+        : (global.HgaPagination?.slicePage
+          ? global.HgaPagination.slicePage(normalizedItems, normalized.meta.currentPage, normalized.meta.perPage)
+          : normalizedItems.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
+      state.loaded = true;
+      state.error = "";
+      renderNotifications(state.notifications);
+    } catch (error) {
+      state.error = error instanceof Error ? error.message : "No fue posible cargar las notificaciones";
+      renderError(state.error);
+    } finally {
+      state.loading = false;
+    }
   }
 
   async function marcarComoLeida(notification) {
@@ -297,43 +438,29 @@
     try {
       if (service && typeof service.markNotificationAsRead === "function") {
         await service.markNotificationAsRead(id);
-      } else {
-        const response = await fetch(`${global.location.origin}/api/notificaciones/${encodeURIComponent(id)}/read`, {
-          method: "PATCH",
-          credentials: "same-origin",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-
-        if (response.status === 401) {
-          redirectToLogin();
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("No fue posible marcar la notificacion como leida");
-        }
+        await loadNotifications({ force: true, page: state.pagination.currentPage, silent: true });
+        return;
       }
 
-      notification.isRead = true;
-      if (notification.raw && typeof notification.raw === "object") {
-        notification.raw.read_at = notification.raw.read_at || new Date().toISOString();
-        notification.raw.is_read = true;
-        notification.raw.read = true;
-      }
-
-      state.notifications = state.notifications.map((item) => {
-        if (normalizeId(item) === id) {
-          return { ...item, isRead: true };
-        }
-
-        return item;
+      const response = await fetch(`${global.location.origin}/api/notificaciones/${encodeURIComponent(id)}/read`, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
       });
 
-      state.filteredNotifications = filterNotificationsBySearch(state.notifications);
-      renderNotifications(state.filteredNotifications);
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("No fue posible marcar la notificacion como leida");
+      }
+
+      await loadNotifications({ force: true, page: state.pagination.currentPage, silent: true });
     } catch (error) {
       console.error("No fue posible marcar la notificacion como leida:", error);
       await loadNotifications({ force: true });
@@ -344,6 +471,12 @@
     const service = getService();
 
     try {
+      if (service && typeof service.markAllNotificationsAsRead === "function") {
+        await service.markAllNotificationsAsRead();
+        await loadNotifications({ force: true, page: state.pagination.currentPage, silent: true });
+        return;
+      }
+
       if (service && typeof service.requestJson === "function") {
         await service.requestJson(`${global.location.origin}/api/notificaciones/read-all`, {
           method: "PATCH",
@@ -368,45 +501,17 @@
         }
       }
 
-      state.notifications = state.notifications.map((notification) => ({
-        ...notification,
-        isRead: true,
-      }));
-
-      state.filteredNotifications = filterNotificationsBySearch(state.notifications);
-      renderNotifications(state.filteredNotifications);
+      await loadNotifications({ force: true, page: state.pagination.currentPage, silent: true });
     } catch (error) {
       console.error("No fue posible marcar todas las notificaciones como leidas:", error);
       await loadNotifications({ force: true });
     }
   }
 
-  function filterNotificationsBySearch(notifications) {
-    const searchInput = getSearchInput();
-    const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : "";
-
-    if (query === "") {
-      return notifications.slice();
-    }
-
-    return notifications.filter((notification) => {
-      const haystack = [
-        notification.title,
-        notification.message,
-        notification.author,
-        formatNotificationDate(notification.createdAt),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(query);
-    });
-  }
-
   function filtrarNotificaciones() {
-    state.filteredNotifications = filterNotificationsBySearch(state.notifications);
-    renderNotifications(state.filteredNotifications);
+    const searchInput = getSearchInput();
+    state.searchQuery = searchInput instanceof HTMLInputElement ? searchInput.value.trim() : "";
+    void loadNotifications({ force: true, page: 1 });
   }
 
   function bindEvents() {
@@ -432,8 +537,27 @@
     }
   }
 
+  function subscribeToReactiveStore() {
+    const service = getService();
+
+    if (!service || typeof service.subscribe !== "function") {
+      return;
+    }
+
+    if (typeof state.unsubscribe === "function") {
+      state.unsubscribe();
+    }
+
+    state.unsubscribe = service.subscribe((snapshot) => {
+      if (snapshot && !snapshot.loading && state.loaded) {
+        void loadNotifications({ force: true, page: state.pagination.currentPage, silent: true });
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     bindEvents();
+    subscribeToReactiveStore();
     loadNotifications();
   });
 

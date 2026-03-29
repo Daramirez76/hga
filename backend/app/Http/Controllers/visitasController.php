@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\visitasRequest;
 use App\Services\visitasService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class visitasController extends Controller
 {
@@ -15,13 +16,17 @@ class visitasController extends Controller
         $this->visitasService = $visitasService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $visitas = $this->visitasService->getAllVisitas();
-        return response()->json([
-            'message' => 'visitas retrieved successfully',
-            'data' => $visitas,
-        ]);
+        $pagination = $this->resolvePaginationQuery($request);
+        $visitas = $this->visitasService->getAllVisitas(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
+
+        return $this->paginatedJsonResponse('visitas retrieved successfully', $visitas);
     }
 
     public function show(int $id): JsonResponse
@@ -80,4 +85,3 @@ class visitasController extends Controller
         ]);
     }
 }
-

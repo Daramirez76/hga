@@ -39,6 +39,10 @@
   let currentUser = null;
   let readyPromise = null;
 
+  function markPageReady() {
+    global.document.documentElement.classList.remove("hga-access-pending");
+  }
+
   function getToken() {
     return localStorage.getItem("access_token") || localStorage.getItem("authToken") || "";
   }
@@ -150,16 +154,38 @@
     global.location.replace(roleHome);
   }
 
+  function applyUserToBody(user) {
+    if (!(document.body instanceof HTMLElement)) {
+      return;
+    }
+
+    document.body.dataset.roleCode = String(getRoleCode(user));
+    document.body.dataset.roleName = getRoleName(getRoleCode(user));
+  }
+
   async function enforcePageAccess() {
     const allowedRoles = parseAllowedRoles();
 
     if (allowedRoles.length === 0) {
+      markPageReady();
       return;
     }
 
     if (!getToken()) {
       redirectToLogin();
       return;
+    }
+
+    const storedUser = getStoredUser();
+
+    if (storedUser) {
+      if (!hasAnyRole(allowedRoles, storedUser)) {
+        redirectToRoleHome(storedUser);
+        return;
+      }
+
+      applyUserToBody(storedUser);
+      markPageReady();
     }
 
     const user = await fetchCurrentUser();
@@ -174,10 +200,8 @@
       return;
     }
 
-    if (document.body instanceof HTMLElement) {
-      document.body.dataset.roleCode = String(getRoleCode(user));
-      document.body.dataset.roleName = getRoleName(getRoleCode(user));
-    }
+    applyUserToBody(user);
+    markPageReady();
   }
 
   function ready() {

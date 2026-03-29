@@ -12,14 +12,34 @@ class actividadesService
     public function __construct(
         actividadesInterface $actividadesRepository,
         protected notificacionesService $notificacionesService,
-        protected AccessScopeService $accessScopeService
+        protected AccessScopeService $accessScopeService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->actividadesRepository = $actividadesRepository;
     }
 
-    public function getAllActividades()
+    public function getAllActividades(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->actividadesRepository->all();
+        $actividades = collect($this->actividadesRepository->all());
+        $actividades = $this->paginationService->filterCollection($actividades, $search, [
+            'Cod_acti_ludi',
+            'Nombre',
+            'Fecha',
+            'Hora_ini',
+            'Hora_fin',
+            'cod_residente',
+            'cod_rol',
+            'Lugar',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $actividades->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($actividades, $page, $perPage, [], $search);
     }
 
     public function getActividadesById($id)

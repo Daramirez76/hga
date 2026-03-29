@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\actividadesRequest;
 use App\Services\actividadesService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class actividadesController extends Controller
 {
@@ -15,14 +16,17 @@ class actividadesController extends Controller
         $this->actividadesService = $actividadesService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $actividades = $this->actividadesService->getAllActividades();
+        $pagination = $this->resolvePaginationQuery($request);
+        $actividades = $this->actividadesService->getAllActividades(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
 
-        return response()->json([
-            'message' => 'Actividades retrieved successfully',
-            'data' => $actividades
-        ]);
+        return $this->paginatedJsonResponse('Actividades retrieved successfully', $actividades);
     }
 
     public function show(int $id): JsonResponse

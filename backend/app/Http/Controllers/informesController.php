@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\informesRequest;
 use App\Services\informesService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class informesController extends Controller
 {
@@ -15,14 +16,17 @@ class informesController extends Controller
         $this->informesService = $informesService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $informes = $this->informesService->getAllInformes();
+        $pagination = $this->resolvePaginationQuery($request);
+        $informes = $this->informesService->getAllInformes(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
 
-        return response()->json([
-            'message' => 'informes retrieved successfully',
-            'data' => $informes,
-        ]);
+        return $this->paginatedJsonResponse('informes retrieved successfully', $informes);
     }
 
     public function show(int $id): JsonResponse

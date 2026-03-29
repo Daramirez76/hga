@@ -11,14 +11,37 @@ class medicamentosService
 
     public function __construct(
         medicamentosInterface $medicamentosRepository,
-        protected notificacionesService $notificacionesService
+        protected notificacionesService $notificacionesService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->medicamentosRepository = $medicamentosRepository;
     }
 
-    public function getAllmedicamentos()
+    public function getAllmedicamentos(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->medicamentosRepository->getAllmedicamentos();
+        $medicamentos = collect($this->medicamentosRepository->getAllmedicamentos());
+
+        $medicamentos = $this->paginationService->filterCollection($medicamentos, $search, [
+            'Cod_medicamento',
+            'nombre_medic',
+            'fecha_entrada',
+            'fecha_vencimiento',
+            'cod_usuario',
+            'cod_residente',
+            'cod_rol',
+            'descrip_novedad',
+            'fecha_novedad',
+            'stock',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $medicamentos->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($medicamentos, $page, $perPage, [], $search);
     }
 
     public function getmedicamentosById(int $id)

@@ -3,14 +3,26 @@ const RESIDENTES_API_BASE = `${window.location.origin}/api/residentes`;
 const PROFILE_API_ENDPOINT = `${window.location.origin}/api/me`;
 const MEDICATION_EMPTY_STATE = '<div class="empty-state">No hay medicamentos registrados.</div>';
 const NOVELTY_EMPTY_STATE = '<div class="empty-state">Sin novedades registradas.</div>';
+const MEDICATION_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const medicationState = {
   items: [],
+  allItems: [],
   residents: [],
   editingId: "",
   currentUser: null,
   isSubmitting: false,
   residentLoadError: "",
+  pagination: {
+    currentPage: 1,
+    perPage: MEDICATION_PAGE_SIZE,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+    serverPaginated: false,
+  },
+  paginationHost: null,
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -37,6 +49,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   void bootstrapMedicationModule();
 });
+
+function getMedicationPaginationHost() {
+  if (medicationState.paginationHost instanceof HTMLElement) {
+    return medicationState.paginationHost;
+  }
+
+  const medicationList = document.getElementById("medicationList");
+  if (!(medicationList instanceof HTMLElement)) {
+    return null;
+  }
+
+  medicationState.paginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(medicationList, "medicationPagination")
+    : null;
+
+  return medicationState.paginationHost;
+}
 
 async function bootstrapMedicationModule() {
   if (!getStoredToken()) {
@@ -144,14 +173,45 @@ async function cargarResidentes() {
   }
 }
 
-async function cargarMedicamentos() {
-  const payload = await fetchJson(MEDICAMENTOS_API_BASE, {
+async function cargarMedicamentos(page = medicationState.pagination.currentPage || 1, options = {}) {
+  const url = window.HgaPagination?.buildUrl
+    ? window.HgaPagination.buildUrl(MEDICAMENTOS_API_BASE, {
+        page,
+        per_page: MEDICATION_PAGE_SIZE,
+      })
+    : `${MEDICAMENTOS_API_BASE}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(MEDICATION_PAGE_SIZE))}`;
+
+  const payload = await fetchJson(url, {
     method: "GET",
     headers: buildHeaders(false),
   });
 
-  const collection = Array.isArray(payload.data) ? payload.data : [];
-  medicationState.items = collection.map(normalizeMedication);
+  const normalized = window.HgaPagination?.normalizeResponse
+    ? window.HgaPagination.normalizeResponse(payload, {
+        page,
+        perPage: MEDICATION_PAGE_SIZE,
+      })
+      : {
+        items: Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [],
+        meta: {
+          currentPage: page,
+          perPage: MEDICATION_PAGE_SIZE,
+          total: Array.isArray(payload?.data) ? payload.data.length : Array.isArray(payload) ? payload.length : 0,
+          lastPage: 1,
+          from: 0,
+          to: 0,
+          serverPaginated: false,
+        },
+      };
+
+  const collection = normalized.items.map(normalizeMedication);
+  medicationState.pagination = normalized.meta;
+  medicationState.allItems = collection;
+  medicationState.items = normalized.meta.serverPaginated
+    ? collection.slice()
+    : (window.HgaPagination?.slicePage
+      ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
+      : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
   renderMedicationList();
   renderNoveltyList();
 }
@@ -429,6 +489,8 @@ function renderMedicationList() {
       `;
     })
     .join("");
+
+  renderMedicationPagination();
 }
 
 function renderNoveltyList() {
@@ -438,7 +500,7 @@ function renderNoveltyList() {
     return;
   }
 
-  const noveltyItems = [...medicationState.items]
+  const noveltyItems = [...medicationState.allItems.length > 0 ? medicationState.allItems : medicationState.items]
     .filter((item) => item.description || item.noveltyDate || item.entryDate)
     .sort((left, right) => {
       const leftDate = parseDate(left.noveltyDate || left.entryDate || left.expiryDate);
@@ -465,6 +527,21 @@ function renderNoveltyList() {
       `;
     })
     .join("");
+}
+
+function renderMedicationPagination() {
+  const host = getMedicationPaginationHost();
+
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, medicationState.pagination, (page) => {
+    void cargarMedicamentos(page, { force: true });
+  }, {
+    itemLabel: "medicamentos",
+    ariaLabel: "Paginación de medicamentos",
+  });
 }
 
 function handleMedicationListClick(event) {
@@ -700,7 +777,7 @@ async function handleMedicationSubmit(event) {
     }
 
     resetMedicationForm();
-    await cargarMedicamentos();
+    await cargarMedicamentos(medicationState.pagination.currentPage || 1, { force: true });
   } catch (error) {
     console.error("Error al guardar medicamento:", error);
     mostrarError(`No fue posible guardar el medicamento: ${error.message}`);
@@ -731,7 +808,7 @@ async function eliminarMedicamento(id) {
     }
 
     await window.HgaAlerts.success("Medicamento eliminado correctamente");
-    await cargarMedicamentos();
+    await cargarMedicamentos(medicationState.pagination.currentPage || 1, { force: true });
   } catch (error) {
     console.error("Error al eliminar medicamento:", error);
     mostrarError(`Error al eliminar: ${error.message}`);

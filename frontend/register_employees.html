@@ -112,6 +112,75 @@
             background: linear-gradient(90deg, #f8fbfb, #d5ece8);
         }
 
+        .wizard-progress {
+            align-items: center;
+            display: flex;
+            gap: 0.85rem;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 560px;
+        }
+
+        .wizard-step {
+            align-items: center;
+            color: #6c8a84;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            font-weight: 700;
+            gap: 0.5rem;
+            text-align: center;
+            transition: color 0.2s ease;
+        }
+
+        .wizard-step.is-active,
+        .wizard-step.is-complete {
+            color: var(--hga-primary);
+        }
+
+        .wizard-badge {
+            align-items: center;
+            background: #d8ebe7;
+            border: 2px solid transparent;
+            border-radius: 999px;
+            color: #4f6b65;
+            display: inline-flex;
+            font-size: 1rem;
+            font-weight: 700;
+            height: 46px;
+            justify-content: center;
+            transition: all 0.2s ease;
+            width: 46px;
+        }
+
+        .wizard-step.is-active .wizard-badge,
+        .wizard-step.is-complete .wizard-badge {
+            background: linear-gradient(135deg, var(--hga-accent), var(--hga-secondary));
+            border-color: rgba(41, 156, 76, 0.4);
+            color: #ffffff;
+        }
+
+        .wizard-line {
+            background: linear-gradient(90deg, #d5e7e3, #c3dfdb);
+            border-radius: 999px;
+            flex: 1 1 60px;
+            height: 5px;
+            max-width: 90px;
+        }
+
+        .wizard-line.is-complete {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+        }
+
+        .wizard-pane[hidden] {
+            display: none !important;
+        }
+
+        .wizard-note {
+            color: #53706a;
+            font-size: 0.95rem;
+        }
+
         .footer-strip {
             background: rgba(255, 255, 255, 0.94);
         }
@@ -236,70 +305,100 @@
                 </div>
 
                 <form id="formRegister" novalidate>
-                    <div class="row g-4">
-                        <div class="col-12 col-lg-6">
-                            <label for="nombre" class="form-label register-label">Nombre</label>
-                            <input id="nombre" name="nombre" type="text" class="form-control register-input">
+                    <div class="wizard-progress mb-4 mb-lg-5" aria-label="Progreso del registro de empleados">
+                        <div class="wizard-step is-active" data-step-indicator="1">
+                            <span class="wizard-badge">1</span>
+                            <span>Acceso</span>
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <label for="apellido" class="form-label register-label">Apellidos</label>
-                            <input id="apellido" name="apellido" type="text" class="form-control register-input">
+                        <div class="wizard-line" data-step-line="1" aria-hidden="true"></div>
+                        <div class="wizard-step" data-step-indicator="2">
+                            <span class="wizard-badge">2</span>
+                            <span>Identidad</span>
                         </div>
-
-                        <div class="col-12 col-lg-6">
-                            <label for="tipo_doc" class="form-label register-label">Tipo de Documento</label>
-                            <select id="tipo_doc" name="tipo_doc" class="form-select register-select">
-                                <option value="">Seleccione una opcion</option>
-                                <option value="CC">Cedula de ciudadania</option>
-                                <option value="CE">Cedula de extranjeria</option>
-                                <option value="TI">Tarjeta de identidad</option>
-                                <option value="PP">Pasaporte</option>
-                            </select>
+                        <div class="wizard-line" data-step-line="2" aria-hidden="true"></div>
+                        <div class="wizard-step" data-step-indicator="3">
+                            <span class="wizard-badge">3</span>
+                            <span>Contacto</span>
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <label for="num_doc" class="form-label register-label">No. Documento</label>
-                            <input id="num_doc" name="num_doc" type="text" class="form-control register-input" inputmode="numeric">
+                    </div>
+
+                    <p class="wizard-note text-center mb-4" id="wizardStepMessage">Paso 1 de 3: crea los datos de acceso del empleado.</p>
+
+                    <div class="wizard-pane" data-step-pane="1">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="correo" class="form-label register-label">Correo Electronico</label>
+                                <input id="correo" name="correo" type="email" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="usuario" class="form-label register-label">Nombre de Usuario</label>
+                                <input id="usuario" name="usuario" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="contrasena" class="form-label register-label">Contrasena</label>
+                                <input id="contrasena" name="contrasena" type="password" class="form-control register-input" autocomplete="new-password">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="password_confirmation" class="form-label register-label">Confirmar contrasena</label>
+                                <input id="password_confirmation" name="password_confirmation" type="password" class="form-control register-input" autocomplete="new-password">
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="col-12 col-lg-6">
-                            <label for="direccion" class="form-label register-label">Direccion</label>
-                            <input id="direccion" name="direccion" type="text" class="form-control register-input">
+                    <div class="wizard-pane" data-step-pane="2" hidden>
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="tipo_doc" class="form-label register-label">Tipo de Documento</label>
+                                <select id="tipo_doc" name="tipo_doc" class="form-select register-select">
+                                    <option value="">Seleccione una opcion</option>
+                                    <option value="CC">Cedula de ciudadania</option>
+                                    <option value="CE">Cedula de extranjeria</option>
+                                    <option value="TI">Tarjeta de identidad</option>
+                                    <option value="PP">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="num_doc" class="form-label register-label">No. Documento</label>
+                                <input id="num_doc" name="num_doc" type="text" class="form-control register-input" inputmode="numeric">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="nombre" class="form-label register-label">Nombre</label>
+                                <input id="nombre" name="nombre" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="apellido" class="form-label register-label">Apellidos</label>
+                                <input id="apellido" name="apellido" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12">
+                                <label for="edad" class="form-label register-label">Edad</label>
+                                <input id="edad" name="edad" type="number" class="form-control register-input" min="18" max="120" inputmode="numeric">
+                            </div>
                         </div>
-	                        <div class="col-12 col-lg-6">
-	                            <label for="telefono" class="form-label register-label">Telefono</label>
-	                            <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
-	                        </div>
+                    </div>
 
-	                        <div class="col-12 col-lg-6">
-	                            <label for="edad" class="form-label register-label">Edad</label>
-	                            <input id="edad" name="edad" type="number" class="form-control register-input" min="18" max="120" inputmode="numeric">
-	                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <label for="correo" class="form-label register-label">Correo Electronico</label>
-                            <input id="correo" name="correo" type="email" class="form-control register-input">
+                    <div class="wizard-pane" data-step-pane="3" hidden>
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="direccion" class="form-label register-label">Direccion</label>
+                                <input id="direccion" name="direccion" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="telefono" class="form-label register-label">Telefono</label>
+                                <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
+                            </div>
                         </div>
-	                        <input id="cod_rol" name="cod_rol" type="hidden" value="2">
+                    </div>
 
-	                        <div class="col-12 col-lg-6">
-	                            <label for="usuario" class="form-label register-label">Nombre de Usuario</label>
-	                            <input id="usuario" name="usuario" type="text" class="form-control register-input">
-	                        </div>
-	                        <div class="col-12 col-lg-6">
-	                            <label for="contrasena" class="form-label register-label">Contrasena</label>
-	                            <input id="contrasena" name="contrasena" type="password" class="form-control register-input" autocomplete="new-password">
-	                        </div>
-	                        <div class="col-12 col-lg-6">
-	                            <label for="password_confirmation" class="form-label register-label">Confirmar contrasena</label>
-	                            <input id="password_confirmation" name="password_confirmation" type="password" class="form-control register-input" autocomplete="new-password">
-	                        </div>
-	                    </div>
-
-	                    <input id="parentesco" name="parentesco" type="hidden" value="">
+                    <input id="cod_rol" name="cod_rol" type="hidden" value="2">
+                    <input id="parentesco" name="parentesco" type="hidden" value="">
 
                     <div class="row justify-content-center mt-4 mt-lg-5 g-3">
                         <div class="col-12 col-xl-10">
-                            <button type="submit" class="btn register-cta w-100 text-white">Crear Cuenta</button>
+                            <button type="button" id="wizardNext" class="btn register-cta w-100 text-white">Siguiente</button>
+                            <button type="submit" id="wizardSubmit" class="btn register-cta w-100 text-white" hidden>Crear Cuenta</button>
+                        </div>
+                        <div class="col-12 col-xl-10">
+                            <button type="button" id="wizardPrev" class="btn register-secondary w-100" hidden>Atras</button>
                         </div>
                         <div class="col-12 col-xl-10">
                             <a href="index_employees.html" class="btn register-secondary w-100">Regresar</a>

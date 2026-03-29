@@ -93,11 +93,19 @@ function inicializarWizard() {
     let pasoActual = 1;
     const totalPasos = panes.length || 1;
 
-    const mensajes = {
-        1: "Paso 1 de 3: ingresa tus datos de acceso y documento.",
-        2: "Paso 2 de 3: completa tu nombre, apellido y edad.",
-        3: "Paso 3 de 3: agrega tu direccion y telefono para crear la cuenta.",
+    const mensajesPorOrigen = {
+        public: {
+            1: "Paso 1 de 3: ingresa tus datos de acceso y documento.",
+            2: "Paso 2 de 3: completa tu nombre, apellido y edad.",
+            3: "Paso 3 de 3: agrega tu direccion y telefono para crear la cuenta.",
+        },
+        employee: {
+            1: "Paso 1 de 3: crea los datos de acceso del empleado.",
+            2: "Paso 2 de 3: completa el documento y la identidad del empleado.",
+            3: "Paso 3 de 3: agrega direccion y telefono para finalizar el registro.",
+        },
     };
+    const mensajes = mensajesPorOrigen[obtenerOrigenRegistro()] || mensajesPorOrigen.public;
 
     function actualizarVista() {
         panes.forEach((pane) => {
@@ -200,8 +208,14 @@ function validarCampos(campos) {
     ];
 
     if (!valor(campos.usuario)) {
-        errores.push(crearMensajeError("No fue posible generar el nombre de usuario desde el correo.", 1));
-        marcarError(campos.correo);
+        const usuarioVisible = campos.usuario instanceof HTMLInputElement && campos.usuario.type !== "hidden";
+        errores.push(crearMensajeError(
+            usuarioVisible
+                ? "El nombre de usuario es obligatorio."
+                : "No fue posible generar el nombre de usuario desde el correo.",
+            1
+        ));
+        marcarError(usuarioVisible ? campos.usuario : campos.correo);
     }
 
     if (valor(campos.confirmacionContrasena) && valor(campos.contrasena) && campos.confirmacionContrasena.value.trim() !== campos.contrasena.value.trim()) {
@@ -219,25 +233,50 @@ function validarCampos(campos) {
 
 function validarPaso(campos, paso) {
     const errores = [];
+    const origen = obtenerOrigenRegistro();
 
-    const requeridos = paso === 1
-        ? [
-            { input: campos.tipoDoc, mensaje: "Debe seleccionar un tipo de documento." },
-            { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
-            { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
-            { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
-            { input: campos.confirmacionContrasena, mensaje: "Confirma la contraseña." },
-        ]
-        : paso === 2
+    let requeridos = [];
+
+    if (origen === "employee") {
+        requeridos = paso === 1
             ? [
-            { input: campos.nombre, mensaje: "El nombre es obligatorio." },
-            { input: campos.apellido, mensaje: "El apellido es obligatorio." },
-            { input: campos.edad, mensaje: "La edad es obligatoria." },
-        ]
-            : [
-            { input: campos.direccion, mensaje: "La direccion es obligatoria." },
-            { input: campos.telefono, mensaje: "El telefono es obligatorio." },
-        ];
+                { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
+                { input: campos.usuario, mensaje: "El nombre de usuario es obligatorio." },
+                { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
+                { input: campos.confirmacionContrasena, mensaje: "Confirma la contraseña." },
+            ]
+            : paso === 2
+                ? [
+                    { input: campos.tipoDoc, mensaje: "Debe seleccionar un tipo de documento." },
+                    { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
+                    { input: campos.nombre, mensaje: "El nombre es obligatorio." },
+                    { input: campos.apellido, mensaje: "El apellido es obligatorio." },
+                    { input: campos.edad, mensaje: "La edad es obligatoria." },
+                ]
+                : [
+                    { input: campos.direccion, mensaje: "La direccion es obligatoria." },
+                    { input: campos.telefono, mensaje: "El telefono es obligatorio." },
+                ];
+    } else {
+        requeridos = paso === 1
+            ? [
+                { input: campos.tipoDoc, mensaje: "Debe seleccionar un tipo de documento." },
+                { input: campos.numDoc, mensaje: "El numero de documento es obligatorio." },
+                { input: campos.correo, mensaje: "El correo electronico es obligatorio." },
+                { input: campos.contrasena, mensaje: "La contraseña es obligatoria." },
+                { input: campos.confirmacionContrasena, mensaje: "Confirma la contraseña." },
+            ]
+            : paso === 2
+                ? [
+                    { input: campos.nombre, mensaje: "El nombre es obligatorio." },
+                    { input: campos.apellido, mensaje: "El apellido es obligatorio." },
+                    { input: campos.edad, mensaje: "La edad es obligatoria." },
+                ]
+                : [
+                    { input: campos.direccion, mensaje: "La direccion es obligatoria." },
+                    { input: campos.telefono, mensaje: "El telefono es obligatorio." },
+                ];
+    }
 
     requeridos.forEach(({ input, mensaje }) => {
         if (!valor(input)) {
@@ -251,6 +290,11 @@ function validarPaso(campos, paso) {
         marcarError(campos.correo);
     }
 
+    if (origen === "employee" && paso === 1 && valor(campos.usuario) && campos.usuario.value.trim().length < 4) {
+        errores.push(crearMensajeError("El nombre de usuario debe tener al menos 4 caracteres.", 1));
+        marcarError(campos.usuario);
+    }
+
     if (paso === 1 && valor(campos.contrasena) && campos.contrasena.value.trim().length < 8) {
         errores.push(crearMensajeError("La contraseña debe tener al menos 8 caracteres.", 1));
         marcarError(campos.contrasena);
@@ -261,15 +305,19 @@ function validarPaso(campos, paso) {
         marcarError(campos.confirmacionContrasena);
     }
 
-    if (paso === 1 && valor(campos.numDoc) && !/^\d+$/.test(campos.numDoc.value.trim())) {
-        errores.push(crearMensajeError("El numero de documento debe contener solo digitos.", 1));
+    const pasoDocumento = origen === "employee" ? 2 : 1;
+
+    if (paso === pasoDocumento && valor(campos.numDoc) && !/^\d+$/.test(campos.numDoc.value.trim())) {
+        errores.push(crearMensajeError("El numero de documento debe contener solo digitos.", pasoDocumento));
         marcarError(campos.numDoc);
     }
 
-    if (paso === 2 && valor(campos.edad)) {
+    const pasoEdad = 2;
+
+    if (paso === pasoEdad && valor(campos.edad)) {
         const edad = Number(campos.edad.value.trim());
         if (!Number.isInteger(edad) || edad < 18 || edad > 120) {
-            errores.push(crearMensajeError("La edad debe ser un numero entre 18 y 120.", 2));
+            errores.push(crearMensajeError("La edad debe ser un numero entre 18 y 120.", pasoEdad));
             marcarError(campos.edad);
         }
     }

@@ -2,11 +2,23 @@ const VISITAS_API_URL = `${window.location.origin}/api/visitas`;
 const RESIDENTES_API_URL = `${window.location.origin}/api/residentes`;
 const PROFILE_API_URL = `${window.location.origin}/api/me`;
 const LOGIN_URL = "login.html";
+const VISITAS_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const visitasState = {
   items: [],
   residents: [],
   currentUser: null,
+  pagination: {
+    currentPage: 1,
+    perPage: VISITAS_PAGE_SIZE,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+    serverPaginated: false,
+  },
+  paginationHost: null,
+  searchQuery: "",
   editingId: null,
   isSubmitting: false,
   residentLoadError: "",
@@ -80,12 +92,13 @@ function wireEvents() {
       if (dom.searchInput instanceof HTMLInputElement) {
         dom.searchInput.value = "";
       }
-      renderVisits();
+      visitasState.searchQuery = "";
+      void loadVisits(1, { force: true });
     });
   }
 
   if (dom.searchInput instanceof HTMLInputElement) {
-    dom.searchInput.addEventListener("input", renderVisits);
+    dom.searchInput.addEventListener("input", filtrarVisitas);
   }
 
   if (dom.listContainer instanceof HTMLElement) {
@@ -387,22 +400,39 @@ function getUserLabel(code) {
 }
 
 function getSearchTerm() {
-  return dom.searchInput instanceof HTMLInputElement ? dom.searchInput.value.trim().toLowerCase() : "";
+  return dom.searchInput instanceof HTMLInputElement ? dom.searchInput.value.trim() : "";
 }
 
-function matchesSearch(visit, term) {
-  if (!term) {
-    return true;
+function getPaginationHost() {
+  if (visitasState.paginationHost instanceof HTMLElement) {
+    return visitasState.paginationHost;
   }
 
-  return [
-    visit.codeLabel,
-    visit.docId,
-    visit.visitorName,
-    getResidentLabel(visit.residentCode),
-    getUserLabel(visit.userCode),
-    visit.visitDate,
-  ].some((field) => String(field || "").toLowerCase().includes(term));
+  const list = dom.listContainer;
+  if (!(list instanceof HTMLElement)) {
+    return null;
+  }
+
+  visitasState.paginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(list, "visitasPagination")
+    : null;
+
+  return visitasState.paginationHost;
+}
+
+function renderVisitsPagination() {
+  const host = getPaginationHost();
+
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, visitasState.pagination, (page) => {
+    void loadVisits(page, { force: true });
+  }, {
+    itemLabel: "visitas",
+    ariaLabel: "Paginación de visitas",
+  });
 }
 
 function getNextVisitCode() {
@@ -418,7 +448,8 @@ function getNextVisitCode() {
 
 function updateCounters() {
   if (dom.visitsCountBadge instanceof HTMLElement) {
-    dom.visitsCountBadge.textContent = `${visitasState.items.length} ${visitasState.items.length === 1 ? "visita" : "visitas"}`;
+    const totalVisits = visitasState.pagination.total > 0 ? visitasState.pagination.total : visitasState.items.length;
+    dom.visitsCountBadge.textContent = `${totalVisits} ${totalVisits === 1 ? "visita" : "visitas"}`;
   }
 
   if (dom.residentsCountBadge instanceof HTMLElement) {
@@ -489,22 +520,24 @@ function renderVisits() {
     return;
   }
 
-  const term = getSearchTerm();
-  const visibleVisits = visitasState.items.filter((visit) => matchesSearch(visit, term));
-
   dom.listContainer.innerHTML = "";
 
-  if (visibleVisits.length === 0) {
+  if (visitasState.items.length === 0) {
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
-    emptyState.textContent = term ? "No hay visitas que coincidan con ese filtro." : "Aún no hay visitas registradas.";
+    emptyState.textContent = visitasState.searchQuery
+      ? "No hay visitas que coincidan con ese filtro."
+      : "Aún no hay visitas registradas.";
     dom.listContainer.appendChild(emptyState);
+    renderVisitsPagination();
     return;
   }
 
-  visibleVisits.forEach((visit) => {
+  visitasState.items.forEach((visit) => {
     dom.listContainer.appendChild(renderVisitCard(visit));
   });
+
+  renderVisitsPagination();
 }
 
 function renderVisitCard(visit) {
@@ -593,16 +626,52 @@ async function loadResidents() {
   updateCounters();
 }
 
-async function loadVisits() {
-  const payload = await requestJson(VISITAS_API_URL, {
+async function loadVisits(page = visitasState.pagination.currentPage || 1, options = {}) {
+  const url = window.HgaPagination?.buildUrl
+    ? window.HgaPagination.buildUrl(VISITAS_API_URL, {
+        page,
+        per_page: VISITAS_PAGE_SIZE,
+        search: visitasState.searchQuery,
+      })
+    : `${VISITAS_API_URL}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(VISITAS_PAGE_SIZE))}&search=${encodeURIComponent(visitasState.searchQuery)}`;
+
+  const payload = await requestJson(url, {
     method: "GET",
     headers: buildHeaders(false),
   });
 
-  const collection = normalizeCollection(payload);
-  visitasState.items = collection.map(normalizeVisit);
+  const normalized = window.HgaPagination?.normalizeResponse
+    ? window.HgaPagination.normalizeResponse(payload, {
+        page,
+        perPage: VISITAS_PAGE_SIZE,
+      })
+    : {
+        items: normalizeCollection(payload),
+        meta: {
+          currentPage: page,
+          perPage: VISITAS_PAGE_SIZE,
+          total: normalizeCollection(payload).length,
+          lastPage: 1,
+          from: 0,
+          to: 0,
+          serverPaginated: false,
+        },
+      };
+
+  visitasState.pagination = normalized.meta;
+  const collection = normalized.items.map(normalizeVisit);
+  visitasState.items = normalized.meta.serverPaginated
+    ? collection.slice()
+    : (window.HgaPagination?.slicePage
+      ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
+      : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
   updateCounters();
   renderVisits();
+}
+
+function filtrarVisitas() {
+  visitasState.searchQuery = getSearchTerm();
+  void loadVisits(1, { force: true });
 }
 
 function applyStoredUserFallback() {

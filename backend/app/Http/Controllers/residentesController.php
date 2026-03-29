@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\residentesRequest;
 use App\Services\residentesService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class residentesController extends Controller
 {
@@ -15,14 +16,17 @@ class residentesController extends Controller
         $this->residentesService = $residentesService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $residentes = $this->residentesService->getAllresidentes();
+        $pagination = $this->resolvePaginationQuery($request);
+        $residentes = $this->residentesService->getAllresidentes(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
 
-        return response()->json([
-            'message' => 'residentes retrieved successfully',
-            'data' => $residentes,
-        ]);
+        return $this->paginatedJsonResponse('residentes retrieved successfully', $residentes);
     }
 
     public function show(int $id): JsonResponse

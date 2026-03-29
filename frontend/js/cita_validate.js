@@ -1,8 +1,20 @@
 const CITAS_API_URL = `${window.location.origin}/api/citas`;
 const LOGIN_URL = "login.html";
+const CITAS_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const citasState = {
   citas: [],
+  pagination: {
+    currentPage: 1,
+    perPage: CITAS_PAGE_SIZE,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+    serverPaginated: false,
+  },
+  paginationHost: null,
+  searchQuery: "",
   filtroActivo: false,
   cargando: false,
   detalleId: null,
@@ -236,6 +248,23 @@ function setLoadingState(isLoading) {
   }
 }
 
+function getPaginationHost() {
+  if (citasState.paginationHost instanceof HTMLElement) {
+    return citasState.paginationHost;
+  }
+
+  const container = document.getElementById("listaCitas");
+  if (!(container instanceof HTMLElement)) {
+    return null;
+  }
+
+  citasState.paginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(container, "citasPagination")
+    : null;
+
+  return citasState.paginationHost;
+}
+
 function renderCitas(lista) {
   const container = document.getElementById("listaCitas");
 
@@ -244,7 +273,10 @@ function renderCitas(lista) {
   }
 
   if (!Array.isArray(lista) || lista.length === 0) {
-    container.innerHTML = '<div class="sin-resultados">No se encontraron citas.</div>';
+    container.innerHTML = citasState.searchQuery
+      ? '<div class="sin-resultados">No se encontraron citas para esa búsqueda.</div>'
+      : '<div class="sin-resultados">No se encontraron citas.</div>';
+    renderCitaPagination();
     return;
   }
 
@@ -264,38 +296,40 @@ function renderCitas(lista) {
       </div>
     `)
     .join("");
+
+  renderCitaPagination();
+}
+
+function renderCitaPagination() {
+  const host = getPaginationHost();
+
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, citasState.pagination, (page) => {
+    void cargarCitas(page, { force: true });
+  }, {
+    itemLabel: "citas",
+    ariaLabel: "Paginación de citas médicas",
+  });
 }
 
 function applyCurrentFilter() {
   const input = document.getElementById("filtroInput");
 
   if (!(input instanceof HTMLInputElement)) {
+    citasState.searchQuery = "";
     renderCitas(citasState.citas);
     return;
   }
 
-  const query = input.value.toLowerCase().trim();
-  if (!query) {
-    renderCitas(citasState.citas);
-    return;
-  }
-
-  const filtradas = citasState.citas.filter((cita) => {
-    return [
-      cita.codCita,
-      cita.fecha,
-      cita.horaInicio,
-      cita.horaFin,
-      cita.acompanante,
-      cita.lugar,
-      cita.codResidente,
-    ].some((value) => String(value || "").toLowerCase().includes(query));
-  });
-
-  renderCitas(filtradas);
+  const query = input.value.trim();
+  citasState.searchQuery = query;
+  void cargarCitas(1, { force: true });
 }
 
-async function cargarCitas() {
+async function cargarCitas(page = citasState.pagination.currentPage || 1, options = {}) {
   const token = getStoredToken();
   if (!token) {
     await handleUnauthorized();
@@ -305,17 +339,48 @@ async function cargarCitas() {
   setLoadingState(true);
 
   try {
-    const data = await requestJson(CITAS_API_URL, {
+    const url = window.HgaPagination?.buildUrl
+      ? window.HgaPagination.buildUrl(CITAS_API_URL, {
+          page,
+          per_page: CITAS_PAGE_SIZE,
+          search: citasState.searchQuery,
+        })
+      : `${CITAS_API_URL}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(CITAS_PAGE_SIZE))}&search=${encodeURIComponent(citasState.searchQuery)}`;
+
+    const data = await requestJson(url, {
       method: "GET",
       headers: buildHeaders(false),
     });
 
-    const registros = Array.isArray(data.data) ? data.data : [];
-    citasState.citas = registros.map(normalizeCita);
+    const normalized = window.HgaPagination?.normalizeResponse
+      ? window.HgaPagination.normalizeResponse(data, {
+          page,
+          perPage: CITAS_PAGE_SIZE,
+        })
+      : {
+          items: Array.isArray(data.data) ? data.data : [],
+          meta: {
+            currentPage: page,
+            perPage: CITAS_PAGE_SIZE,
+            total: Array.isArray(data.data) ? data.data.length : 0,
+            lastPage: 1,
+            from: 0,
+            to: 0,
+            serverPaginated: false,
+          },
+        };
+
+    citasState.pagination = normalized.meta;
+    const collection = normalized.items.map(normalizeCita);
+    citasState.citas = normalized.meta.serverPaginated
+      ? collection.slice()
+      : (window.HgaPagination?.slicePage
+        ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
+        : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
     citasState.citas.sort((a, b) => Number.parseInt(String(b.codCita), 10) - Number.parseInt(String(a.codCita), 10));
 
     if (citasState.filtroActivo) {
-      applyCurrentFilter();
+      renderCitas(citasState.citas);
     } else {
       renderCitas(citasState.citas);
     }
@@ -390,7 +455,8 @@ function toggleFiltro() {
   }
 
   input.value = "";
-  renderCitas(citasState.citas);
+  citasState.searchQuery = "";
+  void cargarCitas(1, { force: true });
 }
 
 function filtrarCitas() {
@@ -605,13 +671,13 @@ async function confirmarCita() {
     });
 
     if (window.HgaAlerts?.success) {
-      await window.HgaAlerts.success(
+    await window.HgaAlerts.success(
         citasState.editandoId ? "La cita medica fue actualizada correctamente" : "La cita medica fue registrada correctamente"
       );
     }
 
     cerrarOverlay();
-    await cargarCitas();
+    await cargarCitas(citasState.pagination.currentPage || 1, { force: true });
   } catch (error) {
     if (error.message === "Sesion expirada") {
       return;
@@ -656,7 +722,7 @@ async function eliminarCitaDesdeDetalle() {
       await window.HgaAlerts.success("La cita medica fue eliminada correctamente");
     }
 
-    await cargarCitas();
+    await cargarCitas(citasState.pagination.currentPage || 1, { force: true });
   } catch (error) {
     if (error.message === "Sesion expirada") {
       return;

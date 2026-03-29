@@ -13,17 +13,38 @@ class citasService
     public function __construct(
         citasInterface $citasRepository,
         protected notificacionesService $notificacionesService,
-        protected AccessScopeService $accessScopeService
+        protected AccessScopeService $accessScopeService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->citasRepository = $citasRepository;
     }
 
-    public function getAllcitas()
+    public function getAllcitas(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->accessScopeService->filterByResidentFields(
+        $citas = $this->accessScopeService->filterByResidentFields(
             collect($this->citasRepository->getAllcitas()),
             ['cod_Residente']
         );
+
+        $citas = $this->paginationService->filterCollection($citas, $search, [
+            'cod_cita',
+            'Fecha_cita',
+            'hora_inicio',
+            'hora_fin',
+            'Nombre_acompañante',
+            'Lugar_cita',
+            'cod_Residente',
+            'cod_usuario',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $citas->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($citas, $page, $perPage, [], $search);
     }
 
     public function getcitasById($id)

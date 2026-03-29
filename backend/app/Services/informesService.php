@@ -11,14 +11,35 @@ class informesService
 
     public function __construct(
         informesInterface $informesRepository,
-        protected notificacionesService $notificacionesService
+        protected notificacionesService $notificacionesService,
+        protected QueryPaginationService $paginationService
     ) {
         $this->informesRepository = $informesRepository;
     }
 
-    public function getAllInformes()
+    public function getAllInformes(?int $page = 1, ?int $perPage = 5, ?string $search = null, bool $paginate = false): array
     {
-        return $this->informesRepository->getAllVisibleForUser($this->getAuthenticatedUser());
+        $informes = collect($this->informesRepository->getAllVisibleForUser($this->getAuthenticatedUser()));
+
+        $informes = $this->paginationService->filterCollection($informes, $search, [
+            'cod_Informes',
+            'Titulo_Informes',
+            'cod_Residente',
+            'descripcion',
+            'tipo',
+            'urgencia',
+            'doc_id',
+            'cod_rol',
+        ]);
+
+        if (!$paginate) {
+            return [
+                'data' => $informes->values()->all(),
+                'meta' => [],
+            ];
+        }
+
+        return $this->paginationService->paginateCollection($informes, $page, $perPage, [], $search);
     }
 
     public function getInformeById(int $id)

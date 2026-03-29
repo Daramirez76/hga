@@ -2,11 +2,23 @@ const INFORMES_API_URL = `${window.location.origin}/api/informes`;
 const RESIDENTES_API_URL = `${window.location.origin}/api/residentes`;
 const PROFILE_API_URL = `${window.location.origin}/api/me`;
 const LOGIN_URL = "login.html";
+const INFORMES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const informesState = {
   items: [],
   residents: [],
   currentUser: null,
+  pagination: {
+    currentPage: 1,
+    perPage: INFORMES_PAGE_SIZE,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+    serverPaginated: false,
+  },
+  paginationHost: null,
+  searchQuery: "",
   editingId: null,
   modalInstance: null,
   isSubmitting: false,
@@ -66,7 +78,7 @@ function cacheDom() {
 
 function wireEvents() {
   if (dom.searchInput instanceof HTMLInputElement) {
-    dom.searchInput.addEventListener("input", renderInformes);
+    dom.searchInput.addEventListener("input", filtrarInformes);
   }
 
   if (dom.clearFilterButton instanceof HTMLButtonElement) {
@@ -74,7 +86,8 @@ function wireEvents() {
       if (dom.searchInput) {
         dom.searchInput.value = "";
       }
-      renderInformes();
+      informesState.searchQuery = "";
+      void loadInformes(1, { force: true });
     });
   }
 
@@ -322,7 +335,8 @@ function updateContext() {
   }
 
   if (dom.informesBadge instanceof HTMLElement) {
-    dom.informesBadge.textContent = `${informesState.items.length} ${informesState.items.length === 1 ? "informe" : "informes"}`;
+    const totalInformes = informesState.pagination.total > 0 ? informesState.pagination.total : informesState.items.length;
+    dom.informesBadge.textContent = `${totalInformes} ${totalInformes === 1 ? "informe" : "informes"}`;
   }
 
   if (dom.residentesBadge instanceof HTMLElement) {
@@ -373,23 +387,39 @@ function renderResidentOptions(selectedValue = "") {
 }
 
 function getSearchTerm() {
-  return dom.searchInput instanceof HTMLInputElement ? dom.searchInput.value.trim().toLowerCase() : "";
+  return dom.searchInput instanceof HTMLInputElement ? dom.searchInput.value.trim() : "";
 }
 
-function matchesSearch(informe, term) {
-  if (!term) {
-    return true;
+function getPaginationHost() {
+  if (informesState.paginationHost instanceof HTMLElement) {
+    return informesState.paginationHost;
   }
 
-  return [
-    informe.codeLabel,
-    informe.titulo,
-    informe.descripcion,
-    informe.tipo,
-    informe.urgencia,
-    informe.residentLabel,
-    String(informe.codResidente || ""),
-  ].some((field) => String(field || "").toLowerCase().includes(term));
+  const container = dom.listContainer;
+  if (!(container instanceof HTMLElement)) {
+    return null;
+  }
+
+  informesState.paginationHost = window.HgaPagination?.ensureHost
+    ? window.HgaPagination.ensureHost(container, "informesPagination")
+    : null;
+
+  return informesState.paginationHost;
+}
+
+function renderInformesPagination() {
+  const host = getPaginationHost();
+
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
+    return;
+  }
+
+  window.HgaPagination.renderControls(host, informesState.pagination, (page) => {
+    void loadInformes(page, { force: true });
+  }, {
+    itemLabel: "informes",
+    ariaLabel: "Paginación de informes",
+  });
 }
 
 function renderInformeCard(informe) {
@@ -427,24 +457,24 @@ function renderInformes() {
     return;
   }
 
-  const term = getSearchTerm();
-  const visibles = informesState.items.filter((item) => matchesSearch(item, term));
-
   dom.listContainer.innerHTML = "";
 
-  if (visibles.length === 0) {
+  if (informesState.items.length === 0) {
     const empty = document.createElement("div");
     empty.className = "empty-state-informes";
-    empty.textContent = term
+    empty.textContent = informesState.searchQuery
       ? "No hay resultados para ese filtro."
       : "Aún no hay informes cargados.";
     dom.listContainer.appendChild(empty);
+    renderInformesPagination();
     return;
   }
 
-  visibles.forEach((item) => {
+  informesState.items.forEach((item) => {
     dom.listContainer.appendChild(renderInformeCard(item));
   });
+
+  renderInformesPagination();
 }
 
 function handleListClick(event) {
@@ -497,17 +527,53 @@ async function loadResidents() {
   updateContext();
 }
 
-async function loadInformes() {
-  const payload = await requestJson(INFORMES_API_URL, {
+async function loadInformes(page = informesState.pagination.currentPage || 1, options = {}) {
+  const url = window.HgaPagination?.buildUrl
+    ? window.HgaPagination.buildUrl(INFORMES_API_URL, {
+        page,
+        per_page: INFORMES_PAGE_SIZE,
+        search: informesState.searchQuery,
+      })
+    : `${INFORMES_API_URL}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(INFORMES_PAGE_SIZE))}&search=${encodeURIComponent(informesState.searchQuery)}`;
+
+  const payload = await requestJson(url, {
     method: "GET",
     headers: buildHeaders(false),
   });
 
-  const collection = normalizeCollection(payload);
-  informesState.items = collection.map(normalizeInforme).map(enrichInforme);
+  const normalized = window.HgaPagination?.normalizeResponse
+    ? window.HgaPagination.normalizeResponse(payload, {
+        page,
+        perPage: INFORMES_PAGE_SIZE,
+      })
+    : {
+        items: normalizeCollection(payload),
+        meta: {
+          currentPage: page,
+          perPage: INFORMES_PAGE_SIZE,
+          total: normalizeCollection(payload).length,
+          lastPage: 1,
+          from: 0,
+          to: 0,
+          serverPaginated: false,
+        },
+      };
+
+  informesState.pagination = normalized.meta;
+  const collection = normalized.items.map(normalizeInforme).map(enrichInforme);
+  informesState.items = normalized.meta.serverPaginated
+    ? collection.slice()
+    : (window.HgaPagination?.slicePage
+      ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
+      : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
   renderInformes();
   updateContext();
   showBanner("");
+}
+
+function filtrarInformes() {
+  informesState.searchQuery = getSearchTerm();
+  void loadInformes(1, { force: true });
 }
 
 function getModalInstance() {
@@ -689,11 +755,11 @@ async function handleFormSubmit(event) {
     });
 
     if (window.HgaAlerts?.success) {
-      await window.HgaAlerts.success(isEditing ? "Informe actualizado" : "Informe creado");
+    await window.HgaAlerts.success(isEditing ? "Informe actualizado" : "Informe creado");
     }
 
     getModalInstance()?.hide();
-    await loadInformes();
+    await loadInformes(informesState.pagination.currentPage || 1, { force: true });
     showBanner(isEditing ? "Informe actualizado correctamente." : "Informe creado correctamente.", "success");
   } catch (error) {
     console.error("Error al guardar informe:", error);
@@ -728,7 +794,7 @@ async function deleteInforme(informe) {
       await window.HgaAlerts.success("Informe eliminado");
     }
 
-    await loadInformes();
+    await loadInformes(informesState.pagination.currentPage || 1, { force: true });
     showBanner("Informe eliminado correctamente.", "success");
   } catch (error) {
     console.error("Error al eliminar informe:", error);

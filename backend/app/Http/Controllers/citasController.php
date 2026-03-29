@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\citasRequest;
 use App\Services\citasService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 
 class citasController extends Controller
@@ -16,13 +17,17 @@ class citasController extends Controller
         $this->citasService = $citasService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $citas = $this->citasService->getAllcitas();
-        return response()->json([
-            'message' => 'citas retrieved successfully',
-            'data' => $citas
-        ]);
+        $pagination = $this->resolvePaginationQuery($request);
+        $citas = $this->citasService->getAllcitas(
+            $pagination['page'],
+            $pagination['per_page'],
+            $pagination['search'],
+            $pagination['paginate']
+        );
+
+        return $this->paginatedJsonResponse('citas retrieved successfully', $citas);
     }
 
     public function show(int $id): JsonResponse
