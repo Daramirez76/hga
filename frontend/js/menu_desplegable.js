@@ -1,6 +1,6 @@
 (function (global) {
   const DEFAULT_ITEMS = [
-    {label: "residentes", href: "resident.html"},
+    { label: "residentes", href: "resident.html" },
     { label: "Informes", href: "Informes.html" },
     { label: "Visitas", href: "Visitas.html" },
     { label: "Citas", href: "citas_medicas.html" },
@@ -154,8 +154,10 @@
       event.preventDefault();
       event.stopPropagation();
 
-      closeProfileMenuIfOpen();
-      closeNotificationMenuIfOpen();
+      // Reparacion menu desplegable
+      if (global.HgaUserMenu?.closeAll) global.HgaUserMenu.closeAll();
+      if (global.HgaNotificationMenu?.closeAll) global.HgaNotificationMenu.closeAll();
+      if (global.HgaHamburgerMenu?.closeAll) global.HgaHamburgerMenu.closeAll();
 
       const isOpen = dropdown.classList.toggle("show");
       button.setAttribute("aria-expanded", String(isOpen));
