@@ -544,8 +544,22 @@
 
       <div class="mb-3">
         <label class="form-label small fw-semibold">Fecha de la visita</label>
-        <input id="fechaVisita" type="date" class="form-control" required />
+        <select id="fechaVisitaSelect" class="form-select" required>
+          <option value="">Cargando días disponibles...</option>
+        </select>
+        <div id="visitWeekWarning" class="form-text text-danger mt-1 d-none"></div>
       </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Bloque horario (1 hora)</label>
+        <select id="bloqueHorario" class="form-select" required disabled>
+          <option value="">Primero selecciona un día</option>
+        </select>
+        <div class="form-text">Visitas de lunes a viernes, 9:00 AM a 4:00 PM.</div>
+      </div>
+      
+      <!-- Input oculto para mantener compatibilidad si algún proceso externo lo requiere -->
+      <input type="hidden" id="fechaVisita" />
 
       <div class="d-flex justify-content-end gap-2">
         <button type="button" class="btn btn-soft" id="btnCancelarVisita">Cancelar</button>

@@ -55,10 +55,35 @@ class visitasRepository implements visitasInterface
         return true;
     }
 
-    protected function nextVisitaCode(): int
+    public function hasOverlappingVisit(int $residentCode, string $date, string $startTime, string $endTime, ?int $excludeId = null): bool
     {
-        $currentMax = (int) visitas::query()->lockForUpdate()->max('cod_Visitas');
+        $query = visitas::query()
+            ->where('cod_Residente', $residentCode)
+            ->where('Fecha_Visita', $date)
+            ->where(function ($q) use ($startTime, $endTime) {
+                $q->where(function ($inner) use ($startTime, $endTime) {
+                    $inner->where('hora_inicio', '<', $endTime)
+                          ->where('hora_fin', '>', $startTime);
+                });
+            });
 
-        return $currentMax + 1;
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->exists();
+    }
+
+    public function countVisitsForResidentOnDate(int $residentCode, string $date, ?int $excludeId = null): int
+    {
+        $query = visitas::query()
+            ->where('cod_Residente', $residentCode)
+            ->where('Fecha_Visita', $date);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->count();
     }
 }

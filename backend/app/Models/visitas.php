@@ -17,6 +17,8 @@ class visitas extends Model
         'Nomb_visitante',
         'cod_Residente',
         'Fecha_Visita',
+        'hora_inicio',
+        'hora_fin',
         'cod_usuario'
     ];
 
@@ -27,5 +29,7 @@ class visitas extends Model
         'cod_Residente' => 'integer',
         'cod_usuario' => 'integer',
         'Fecha_Visita' => 'date:Y-m-d',
+        'hora_inicio' => 'datetime:H:i',
+        'hora_fin' => 'datetime:H:i',
     ];
 }

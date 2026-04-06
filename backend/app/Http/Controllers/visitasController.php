@@ -47,27 +47,41 @@ class visitasController extends Controller
 
     public function store(visitasRequest $request): JsonResponse
     {
-        $visita = $this->visitasService->create($request->validated());
-        return response()->json([
-            'message' => 'visita created successfully',
-            'data' => $visita,
-        ], 201);
+        try {
+            $visita = $this->visitasService->create($request->validated());
+            return response()->json([
+                'message' => 'visita created successfully',
+                'data' => $visita,
+            ], 201);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => ['validation' => [$e->getMessage()]],
+            ], 422);
+        }
     }
 
     public function update(visitasRequest $request, int $id): JsonResponse
     {
-        $visita = $this->visitasService->update($id, $request->validated());
+        try {
+            $visita = $this->visitasService->update($id, $request->validated());
 
-        if (!$visita) {
+            if (!$visita) {
+                return response()->json([
+                    'message' => 'visita not found',
+                ], 404);
+            }
+
             return response()->json([
-                'message' => 'visita not found',
-            ], 404);
+                'message' => 'visita updated successfully',
+                'data' => $visita,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => ['validation' => [$e->getMessage()]],
+            ], 422);
         }
-
-        return response()->json([
-            'message' => 'visita updated successfully',
-            'data' => $visita,
-        ]);
     }
 
     public function destroy(int $id): JsonResponse

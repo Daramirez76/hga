@@ -20,6 +20,8 @@ class visitasRequest extends FormRequest
             'Nomb_visitante' => $isUpdate ? 'sometimes|required|string|max:50' : 'required|string|max:50',
             'cod_Residente' => $isUpdate ? 'sometimes|required|integer|min:1|exists:residente,cod_residente' : 'required|integer|min:1|exists:residente,cod_residente',
             'Fecha_Visita' => $isUpdate ? 'sometimes|required|date' : 'required|date',
+            'hora_inicio' => $isUpdate ? 'sometimes|required|date_format:H:i' : 'required|date_format:H:i',
+            'hora_fin' => $isUpdate ? 'sometimes|required|date_format:H:i|after:hora_inicio' : 'required|date_format:H:i|after:hora_inicio',
             'cod_usuario' => 'sometimes|integer|min:1|exists:usuario,doc_id',
         ];
     }
@@ -42,6 +44,11 @@ class visitasRequest extends FormRequest
             'cod_Residente.exists' => 'El residente seleccionado no existe.',
             'Fecha_Visita.required' => 'La fecha de la visita es obligatoria.',
             'Fecha_Visita.date' => 'La fecha de la visita debe ser una fecha válida.',
+            'hora_inicio.required' => 'La hora de inicio de la visita es obligatoria.',
+            'hora_inicio.date_format' => 'La hora de inicio debe tener el formato HH:MM.',
+            'hora_fin.required' => 'La hora de fin de la visita es obligatoria.',
+            'hora_fin.date_format' => 'La hora de fin debe tener el formato HH:MM.',
+            'hora_fin.after' => 'La hora de fin debe ser posterior a la hora de inicio.',
             'cod_usuario.integer' => 'El código del usuario debe ser un número entero.',
             'cod_usuario.min' => 'El código del usuario debe ser mayor que cero.',
             'cod_usuario.exists' => 'El usuario seleccionado no existe.',

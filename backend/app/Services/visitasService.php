@@ -9,6 +9,8 @@ class visitasService
 {
     protected visitasInterface $visitasRepository;
 
+    private const MAX_VISITS_PER_RESIDENT_PER_DAY = 3;
+
     public function __construct(
         visitasInterface $visitasRepository,
         protected notificacionesService $notificacionesService,
@@ -32,6 +34,8 @@ class visitasService
             'Nomb_visitante',
             'cod_Residente',
             'Fecha_Visita',
+            'hora_inicio',
+            'hora_fin',
             'cod_usuario',
         ]);
 
@@ -61,6 +65,8 @@ class visitasService
         $payload = $this->normalizePayload($data);
         $payload['cod_usuario'] = $this->resolveAuthenticatedUserCode($payload['cod_usuario'] ?? null);
 
+        $this->validateVisitConstraints($payload);
+
         $visita = $this->visitasRepository->createVisita($payload);
         $this->dispatchNotificationSafely(fn () => $this->notificacionesService->notifyVisitaCreated($visita));
 
@@ -71,6 +77,8 @@ class visitasService
     {
         $payload = $this->normalizePayload($data);
         unset($payload['cod_Visitas'], $payload['cod_usuario']);
+
+        $this->validateVisitConstraints($payload, $id);
 
         $visita = $this->visitasRepository->updateVisita($id, $payload);
 
@@ -141,7 +149,38 @@ class visitasService
             $data['Fecha_Visita'] = trim((string) $data['Fecha_Visita']);
         }
 
+        if (isset($data['hora_inicio'])) {
+            $data['hora_inicio'] = trim((string) $data['hora_inicio']);
+        }
+
+        if (isset($data['hora_fin'])) {
+            $data['hora_fin'] = trim((string) $data['hora_fin']);
+        }
+
         return $data;
+    }
+
+    protected function validateVisitConstraints(array $data, ?int $excludeId = null): void
+    {
+        $residentCode = $data['cod_Residente'] ?? null;
+        $date = $data['Fecha_Visita'] ?? null;
+        $startTime = $data['hora_inicio'] ?? null;
+        $endTime = $data['hora_fin'] ?? null;
+
+        if (!$residentCode || !$date || !$startTime || !$endTime) {
+            return; // Dejar que el request valide los campos requeridos
+        }
+
+        // Validar cruces de horarios
+        if ($this->visitasRepository->hasOverlappingVisit($residentCode, $date, $startTime, $endTime, $excludeId)) {
+            throw new \InvalidArgumentException('Ya existe una visita programada para este residente en el horario especificado.');
+        }
+
+        // Validar aforo (capacidad máxima de visitas por residente por día)
+        $currentVisits = $this->visitasRepository->countVisitsForResidentOnDate($residentCode, $date, $excludeId);
+        if ($currentVisits >= self::MAX_VISITS_PER_RESIDENT_PER_DAY) {
+            throw new \InvalidArgumentException('Se ha alcanzado el límite máximo de visitas para este residente en la fecha especificada.');
+        }
     }
 
     protected function dispatchNotificationSafely(callable $callback): void

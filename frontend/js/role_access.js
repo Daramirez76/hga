@@ -33,6 +33,7 @@
       { label: "Inicio", href: "home.html" },
       { label: "Residente", href: "resident.html" },
       { label: "Actividades Ludicas", href: "recreational_activities.html" },
+      { label:  "Visitas", href: "Visitas.html" },
     ],
   };
 
