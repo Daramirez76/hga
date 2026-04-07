@@ -86,4 +86,50 @@ class visitasRepository implements visitasInterface
 
         return $query->count();
     }
+
+    /**
+     * Genera el siguiente código de visita basado en el máximo actual.
+     *
+     * @return int
+     */
+    protected function nextVisitaCode(): int
+    {
+        $lastCode = visitas::query()->max('cod_Visitas');
+
+        return $lastCode ? ((int) $lastCode + 1) : 1;
+    }
+
+    /**
+     * Obtiene visitas dentro de un rango de fechas.
+     *
+     * @param string $startDate Formato: Y-m-d
+     * @param string $endDate Formato: Y-m-d
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getVisitasByDateRange(string $startDate, string $endDate)
+    {
+        return visitas::query()
+            ->whereBetween('Fecha_Visita', [$startDate, $endDate])
+            ->orderBy('Fecha_Visita')
+            ->orderBy('hora_inicio')
+            ->get();
+    }
+
+    /**
+     * Obtiene visitas de un usuario específico dentro de un rango de fechas.
+     *
+     * @param int $userId doc_id del usuario
+     * @param string $startDate Formato: Y-m-d
+     * @param string $endDate Formato: Y-m-d
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getVisitasByUserAndDateRange(int $userId, string $startDate, string $endDate)
+    {
+        return visitas::query()
+            ->where('cod_usuario', $userId)
+            ->whereBetween('Fecha_Visita', [$startDate, $endDate])
+            ->orderBy('Fecha_Visita')
+            ->orderBy('hora_inicio')
+            ->get();
+    }
 }

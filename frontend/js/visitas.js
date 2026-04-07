@@ -1070,16 +1070,31 @@ function buildVisitPayload() {
   const residentCode = toInteger(dom.residenteSelect?.value);
   const userId = getCurrentUserId();
   
-  // Combinar fecha del select y hora del bloque
+  // Separar fecha y hora correctamente
   const selectedDate = dom.fechaVisitaSelect?.value || "";
-  const selectedTime = dom.bloqueHorario?.value || "";
-  const combinedDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : "";
+  const selectedTime = dom.bloqueHorario?.value || ""; // Formato: "09:00:00"
+
+  // Convertir hora a formato H:i (sin segundos) y calcular hora_fin
+  let horaInicio = "";
+  let horaFin = "";
+  
+  if (selectedTime) {
+    // Extraer HH:MM de "HH:MM:SS"
+    horaInicio = selectedTime.slice(0, 5); // "09:00"
+    
+    // Calcular hora_fin como hora_inicio + 1 hora
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    const endHour = (hours + 1) % 24; // Sumar 1 hora, manejar caso de las 23:00
+    horaFin = `${String(endHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  }
 
   const payload = {
     doc_id: docId ?? 0,
     Nomb_visitante: String(dom.visitanteInput?.value ?? "").trim(),
     cod_Residente: residentCode ?? 0,
-    Fecha_Visita: combinedDateTime, // Envía ej: "2025-10-28 10:00:00"
+    Fecha_Visita: selectedDate, // Solo fecha: "2025-10-28"
+    hora_inicio: horaInicio, // Formato H:i: "09:00"
+    hora_fin: horaFin, // Formato H:i: "10:00"
     cod_usuario: userId ?? 0,
   };
 
