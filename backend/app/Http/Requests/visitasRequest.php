@@ -2,6 +2,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class visitasRequest extends FormRequest
 {
@@ -53,5 +54,59 @@ class visitasRequest extends FormRequest
             'cod_usuario.min' => 'El código del usuario debe ser mayor que cero.',
             'cod_usuario.exists' => 'El usuario seleccionado no existe.',
         ];
+    }
+
+    /**
+     * Validación personalizada: la fecha debe ser lunes-viernes y la hora entre 09:00-16:00
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $fechaVisita = $this->input('Fecha_Visita');
+            $horaInicio = $this->input('hora_inicio');
+            
+            if (!$fechaVisita || !$horaInicio) {
+                return; // Dejar que las otras validaciones reporten el error
+            }
+
+            // Verificar que sea día de semana (lunes-viernes)
+            try {
+                $date = \DateTime::createFromFormat('Y-m-d', $fechaVisita);
+                if (!$date) {
+                    return; // Dejar que la validación de formato repporte el error
+                }
+                
+                $dayOfWeek = $date->format('N'); // 1=lunes, 7=domingo
+                
+                if ($dayOfWeek > 5) { // Sábado (6) o Domingo (7)
+                    $validator->errors()->add(
+                        'Fecha_Visita',
+                        'Las visitas solo pueden programarse de lunes a viernes de 9 a 4.'
+                    );
+                }
+            } catch (\Exception $e) {
+                return; // Ignorar si hay error de parsing
+            }
+
+            // Verificar que la hora esté en rango 09:00-16:00
+            try {
+                $time = \DateTime::createFromFormat('H:i', $horaInicio);
+                if (!$time) {
+                    return;
+                }
+                
+                $hour = (int) $time->format('H');
+                
+                // Permitir 09:00-15:00 (16:00 es exclusivo, no se permite iniciar una visita a las 16:00)
+                if ($hour < 9 || $hour >= 16) {
+                    $validator->errors()->add(
+                        'hora_inicio',
+                        'Las visitas solo pueden programarse de lunes a viernes de 9 a 4.'
+                    );
+                }
+            } catch (\Exception $e) {
+                return; // Ignorar si hay error de parsing
+            }
+        });
     }
 }

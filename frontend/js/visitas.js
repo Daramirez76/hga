@@ -749,14 +749,11 @@ function generateAvailableDays() {
   const days = [];
   const today = new Date();
   
-  for (let i = 1; i <= 21; i++) { // Mirar 3 semanas adelante
+  // Permitir seleccionar cualquier fecha (todo el año)
+  for (let i = 1; i <= 365; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
-    const day = date.getDay();
-    
-    if (day >= 1 && day <= 5) { // Solo Lunes a Viernes
-      days.push(date);
-    }
+    days.push(date);
   }
   return days;
 }
@@ -765,26 +762,12 @@ function renderAvailableDays() {
   if (!dom.fechaVisitaSelect) return;
   dom.fechaVisitaSelect.innerHTML = "";
 
-  if (!isWithinRegistrationWindow()) {
-    dom.fechaVisitaSelect.innerHTML = `<option value="">Fuera de ventana (L-V, 9AM-4PM)</option>`;
-    dom.fechaVisitaSelect.disabled = true;
-    return;
-  }
-
-  if (hasUserVisitedThisWeek()) {
-    if (dom.visitWeekWarning) {
-      dom.visitWeekWarning.textContent = "Ya registraste una visita esta semana.";
-      dom.visitWeekWarning.classList.remove("d-none");
-    }
-    dom.fechaVisitaSelect.innerHTML = `<option value="">Sin cupo semanal disponible</option>`;
-    dom.fechaVisitaSelect.disabled = true;
-    return;
-  }
-
+  // Permitir acceso al formulario en cualquier momento
+  // La validación del horario se hará al enviar (validateForm)
   const days = generateAvailableDays();
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "Selecciona un día laboral";
+  placeholder.textContent = "Selecciona una fecha";
   dom.fechaVisitaSelect.appendChild(placeholder);
 
   const formatter = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "short" });
@@ -797,6 +780,7 @@ function renderAvailableDays() {
   });
 
   dom.fechaVisitaSelect.disabled = false;
+  if (dom.visitWeekWarning) dom.visitWeekWarning.classList.add("d-none");
 }
 
 function handleFechaChange() {
@@ -909,6 +893,23 @@ function validateForm() {
 
   if (!selectedBlock) {
     errors.push("Debes seleccionar un bloque horario.");
+  }
+
+  // Validación del horario de visitas: lunes a viernes, 9:00 a 16:00
+  if (selectedDate && selectedBlock) {
+    const visitDate = new Date(selectedDate + "T00:00:00");
+    const dayOfWeek = visitDate.getDay();
+    const [hour] = selectedBlock.split(':').map(Number);
+    
+    // Verificar que sea lunes (1) a viernes (5)
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      errors.push("Las visitas solo pueden programarse de lunes a viernes de 9 a 4.");
+    }
+    
+    // Verificar que esté entre 09:00 y 15:00 (16:00 es exclusivo, la última hora comienza a las 15:00)
+    if (hour < 9 || hour >= 16) {
+      errors.push("Las visitas solo pueden programarse de lunes a viernes de 9 a 4.");
+    }
   }
 
   const sessionError = ensureCanSubmit();
