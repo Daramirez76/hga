@@ -172,8 +172,15 @@
   }
 
   function normalizeVisita(item) {
-    const visitante = String(item?.Nomb_visitante ?? "").trim();
+    const visitante = String(item?.Nomb_visitante ?? item?.title ?? "").trim();
     const residentCode = toInteger(item?.cod_Residente ?? item?.cod_residente);
+    
+    // Obtener horarios si están disponibles
+    const horaInicio = formatTimeLabel(item?.hora_inicio);
+    const horaFin = formatTimeLabel(item?.hora_fin);
+    const timeLabel = (horaInicio && horaFin) 
+      ? `${horaInicio} - ${horaFin}`
+      : (horaInicio || "");
 
     return {
       type: "visita",
@@ -181,9 +188,9 @@
       id: String(item?.id ?? item?.cod_Visitas ?? ""),
       dateKey: normalizeDateKey(item?.Fecha_Visita),
       title: visitante ? `Visita de ${visitante}` : "Visita programada",
-      timeLabel: "",
-      detail: residentCode > 0 ? `Residente ${residentCode}` : "Visita registrada",
-      sortHint: "23:57",
+      timeLabel: timeLabel,
+      detail: residentCode > 0 ? `Residente #${residentCode}` : "Visita registrada",
+      sortHint: horaInicio || "23:57",
     };
   }
 
@@ -407,11 +414,33 @@
     });
   }
 
+  /**
+   * Obtiene visitas para el mes actual desde el endpoint calendar
+   * El endpoint es sensible al rol: Admin ve todas, tutores ven solo sus visitas
+   */
+  async function getVisitasForMonth() {
+    try {
+      // Calcular rango de fechas del mes actual
+      const monthStart = new Date(state.monthView.getFullYear(), state.monthView.getMonth(), 1);
+      const monthEnd = new Date(state.monthView.getFullYear(), state.monthView.getMonth() + 1, 0);
+      
+      const startDate = monthStart.toISOString().slice(0, 10);
+      const endDate = monthEnd.toISOString().slice(0, 10);
+      
+      // Llamar al endpoint calendar (funciona para ambos roles)
+      return await requestJson(`${VISITAS_API_URL}/calendar?start=${startDate}&end=${endDate}`);
+    } catch (error) {
+      console.warn("Error al obtener visitas del calendario:", error);
+      return [];
+    }
+  }
+
   async function loadEvents() {
     const requests = [
       requestJson(ACTIVIDADES_API_URL),
       state.mode === "tutor" ? requestJson(CITAS_API_URL) : Promise.resolve([]),
-      state.mode === "tutor" ? requestJson(VISITAS_API_URL) : Promise.resolve([]),
+      // SINCRONIZACIÓN: Todos (admin y tutores) obtienen visitas del endpoint calendar
+      getVisitasForMonth(),
     ];
 
     const [activitiesResult, citasResult, visitasResult] = await Promise.allSettled(requests);
@@ -436,23 +465,27 @@
     const elements = getElements();
 
     if (elements.previousButton instanceof HTMLButtonElement) {
-      elements.previousButton.addEventListener("click", () => {
+      elements.previousButton.addEventListener("click", async () => {
         state.monthView.setMonth(state.monthView.getMonth() - 1);
         state.monthView = new Date(state.monthView.getFullYear(), state.monthView.getMonth(), 1);
         state.selectedDateKey = "";
         updateStrip();
         renderCalendar();
+        // SINCRONIZACIÓN: Recargar eventos cuando se navega a otro mes
+        await loadEvents();
         renderEvents();
       });
     }
 
     if (elements.nextButton instanceof HTMLButtonElement) {
-      elements.nextButton.addEventListener("click", () => {
+      elements.nextButton.addEventListener("click", async () => {
         state.monthView.setMonth(state.monthView.getMonth() + 1);
         state.monthView = new Date(state.monthView.getFullYear(), state.monthView.getMonth(), 1);
         state.selectedDateKey = "";
         updateStrip();
         renderCalendar();
+        // SINCRONIZACIÓN: Recargar eventos cuando se navega a otro mes
+        await loadEvents();
         renderEvents();
       });
     }

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Historial de Visitas</title>
+    <script src="./js/access_bootstrap.js" data-allowed-roles="1,2" data-login-page="login_employees.html"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/hga-home-shell.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <style>
+      body {
+        min-height: 100vh;
+      }
+
+      .container-main {
+        background: var(--hga-surface);
+        border-radius: var(--hga-radius-xl);
+        box-shadow: var(--hga-shadow);
+        padding: 1.5rem;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      /* Panel principal — réplica exacta de .panel-informes */
+      .panel-visitas {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(233, 246, 242, 0.98));
+        border: 1px solid rgba(41, 156, 76, 0.18);
+        border-radius: 1.6rem;
+        padding: 1.25rem;
+      }
+
+      /* Resumen de badges */
+      .visitas-summary {
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(65, 124, 85, 0.15);
+        border-radius: 18px;
+        padding: 12px 16px;
+      }
+
+      /* Banner de estado */
+      .visitas-banner {
+        border-radius: 16px;
+        border: 1px solid rgba(65, 124, 85, 0.15);
+        background: rgba(255, 255, 255, 0.8);
+        color: #2e7d32;
+      }
+
+      /* Card de visita — réplica de .informe-card */
+      .visita-card {
+        border: 1px solid rgba(65, 124, 85, 0.12);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff, #f8fcf9);
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.06);
+      }
+
+      .visita-card-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .visita-code {
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #5c7d66;
+      }
+
+      .visita-title {
+        color: #166e34;
+        margin: 0;
+      }
+
+      .visita-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .visita-chip {
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #e8f5e9;
+        color: #1b5e20;
+      }
+
+      .visita-chip.type {
+        background: #e3f2fd;
+        color: #0d47a1;
+      }
+
+      .visita-chip.estado-programada {
+        background: #fff8e1;
+        color: #8d6e63;
+      }
+
+      .visita-chip.estado-completada {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .visita-chip.estado-cancelada {
+        background: #ffebee;
+        color: #b71c1c;
+      }
+
+      .visita-description {
+        margin: 12px 0 0;
+        color: #4b5c50;
+      }
+
+      /* Sin botones de acción — vista solo lectura */
+
+      .empty-state-visitas {
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px dashed rgba(65, 124, 85, 0.25);
+        border-radius: 16px;
+        color: #4b5c50;
+        padding: 18px;
+        text-align: center;
+      }
+
+      /* Perfil dropdown */
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .dropdown-menu .dropdown-item {
+        padding: 10px 20px;
+        font-weight: 500;
+        color: #2e7d32;
+        transition: all 0.2s ease;
+      }
+
+      .dropdown-menu .dropdown-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+        transform: translateX(5px);
+      }
+
+      .profile-dropdown {
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        transition: all 0.3s ease;
+      }
+
+      .profile-dropdown .profile-menu-item {
+        padding: 12px 20px;
+        font-weight: 500;
+        color: #2e7d32;
+        transition: all 0.2s ease;
+      }
+
+      .profile-dropdown .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+        transform: translateX(5px);
+      }
+
+      .dropdown-menu,
+      .profile-dropdown {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.98);
+        pointer-events: none;
+      }
+
+      .dropdown-menu.show,
+      .profile-dropdown.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @media (max-width: 480px) {
+        .container-main {
+          padding: 1rem;
+        }
+        .panel-visitas {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="hga-home-theme" data-allowed-roles="1,2" data-login-page="login_employees.html">
+    <div class="hga-page-shell">
+
+      <!-- ===== HEADER ===== -->
+      <header class="hga-top-region">
+        <div class="hga-content-shell">
+          <div class="hga-top-bar">
+            <div class="hga-top-bar-inner">
+              <a href="historial_visitas.html" class="hga-brand-link">
+                <img src="img/LOGO_HGA.png" class="hga-brand-logo" alt="Logo" />
+                <h1 class="hga-brand-title">Historial de Visitas</h1>
+              </a>
+
+              <div class="hga-icon-actions">
+                <button class="hga-icon-btn" aria-label="Notificaciones" title="Notificaciones">
+                  <i class="bi bi-bell"></i>
+                </button>
+
+                <div class="profile-menu-wrapper">
+                  <button class="hga-icon-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                  </button>
+                  <div class="profile-dropdown" id="profileDropdown">
+                    <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                    <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                  </div>
+                </div>
+
+                <button class="hga-icon-btn is-menu" type="button" aria-label="Menú" title="Menú" data-menu-hamburguesa>
+                  <i class="bi bi-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== MAIN ===== -->
+      <main class="hga-main-region">
+        <div class="hga-content-shell">
+
+          <!-- SIN botón "+ Nueva visita" — vista estrictamente de consulta -->
+
+          <div class="container-main">
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+              <div>
+                <h2 class="hga-section-title">Historial de visitas</h2>
+                <p class="mb-0 text-muted" id="visitasContext">Cargando contexto de sesión...</p>
+              </div>
+              <div class="visitas-summary d-flex gap-2 flex-wrap">
+                <span class="badge text-bg-light border" id="visitasCountBadge">0 visitas</span>
+                <span class="badge text-bg-light border" id="residentesCountBadge">0 residentes</span>
+              </div>
+            </div>
+
+            <div id="visitasBanner" class="visitas-banner alert d-none mb-3" role="status" aria-live="polite"></div>
+
+            <div class="panel-visitas">
+              <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+                <input
+                  type="text"
+                  id="searchVisitas"
+                  class="form-control"
+                  style="max-width: 280px"
+                  placeholder="Buscar por visitante, residente o código"
+                />
+                <button class="btn btn-light" id="btnLimpiarFiltro">Limpiar filtro</button>
+              </div>
+
+              <!-- LISTA DE VISITAS -->
+              <div id="listaVisitasContainer"></div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./js/alerts.js"></script>
+    <script src="./js/role_access.js"></script>
+    <script src="./js/hga_pagination.js"></script>
+    <script src="./js/menu_notificacion.js"></script>
+    <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
+    <script src="./js/historial_visitas.js"></script>
+
+    <script>
+      /**
+       * historial_visitas.js  (lógica inline de referencia)
+       * —————————————————————————————————————————————————
+       * Adaptar / mover a ./js/historial_visitas.js cuando se integre al proyecto.
+       *
+       * Diferencias respecto a informes.js:
+       *  • No existe lógica de creación ni edición.
+       *  • Las cards son de solo lectura (sin botones Editar / Eliminar).
+       *  • Los chips usan clases .visita-chip y los estados: programada | completada | cancelada.
+       */
+
+      /* ── Utilidades ── */
+      const $ = id => document.getElementById(id);
+
+      /* ── Estado ── */
+      let todasLasVisitas = [];
+
+      /* ── Render de una card (solo lectura) ── */
+      function renderVisitaCard(visita) {
+        const estadoClass =
+          visita.estado === 'completada' ? 'estado-completada' :
+          visita.estado === 'cancelada'  ? 'estado-cancelada'  :
+                                           'estado-programada';
+
+        return `
+          <div class="visita-card">
+            <div class="visita-card-header">
+              <div>
+                <div class="visita-code">VISITA #${visita.id}</div>
+                <h5 class="visita-title">${visita.visitante}</h5>
+              </div>
+              <span class="text-muted" style="font-size:13px;">${visita.residente ?? ''}</span>
+            </div>
+            <div class="visita-meta">
+              <span class="visita-chip">${visita.residente ?? 'Sin residente'}</span>
+              <span class="visita-chip type">${(visita.tipo ?? 'general').toUpperCase()}</span>
+              <span class="visita-chip ${estadoClass}">${(visita.estado ?? 'programada').toUpperCase()}</span>
+              ${visita.fecha ? `<span class="visita-chip" style="background:#f3e5f5;color:#6a1b9a;">${visita.fecha}</span>` : ''}
+            </div>
+            <p class="visita-description">${visita.observaciones || '<em>Sin observaciones</em>'}</p>
+            <!-- Sin botones de acción — vista estrictamente de consulta -->
+          </div>`;
+      }
+
+      /* ── Render de la lista ── */
+      function renderLista(lista) {
+        const container = $('listaVisitasContainer');
+        if (!lista.length) {
+          container.innerHTML = `
+            <div class="empty-state-visitas">
+              <i class="bi bi-calendar-x" style="font-size:1.8rem;opacity:.5;"></i>
+              <p class="mt-2 mb-0">No se encontraron visitas.</p>
+            </div>`;
+          return;
+        }
+        container.innerHTML = lista.map(renderVisitaCard).join('');
+      }
+
+      /* ── Filtro de búsqueda ── */
+      function aplicarFiltro(texto) {
+        const q = texto.toLowerCase().trim();
+        if (!q) { renderLista(todasLasVisitas); return; }
+        const filtradas = todasLasVisitas.filter(v =>
+          (v.visitante   ?? '').toLowerCase().includes(q) ||
+          (v.residente   ?? '').toLowerCase().includes(q) ||
+          String(v.id).includes(q)
+        );
+        renderLista(filtradas);
+      }
+
+      /* ── Eventos ── */
+      $('searchVisitas').addEventListener('input', e => aplicarFiltro(e.target.value));
+      $('btnLimpiarFiltro').addEventListener('click', () => {
+        $('searchVisitas').value = '';
+        aplicarFiltro('');
+      });
+
+      /* ── Carga de datos (reemplazar con fetch real a la API) ── */
+      async function cargarVisitas() {
+        try {
+          // ► Reemplazar esta URL por el endpoint real del sistema
+          // const res  = await fetch('/api/visitas');
+          // const data = await res.json();
+          // todasLasVisitas = data.visitas ?? [];
+
+          /* Datos de demostración — eliminar al integrar con la API */
+          todasLasVisitas = [
+            {
+              id: 3, visitante: 'Carlos Mendoza', residente: 'Valentina Herrera',
+              tipo: 'familiar', estado: 'completada',
+              fecha: '2025-06-10', observaciones: 'Visita de control familiar. Sin novedades.'
+            },
+            {
+              id: 2, visitante: 'Ana Gómez', residente: 'Luis Pérez',
+              tipo: 'médica', estado: 'completada',
+              fecha: '2025-06-08', observaciones: 'Revisión médica mensual realizada sin inconvenientes.'
+            },
+            {
+              id: 1, visitante: 'María Torres', residente: 'José Ramírez',
+              tipo: 'general', estado: 'cancelada',
+              fecha: '2025-06-05', observaciones: 'Visita cancelada por el residente.'
+            }
+          ];
+
+          /* Actualizar contexto y badges */
+          const residentes = [...new Set(todasLasVisitas.map(v => v.residente).filter(Boolean))];
+          $('visitasContext').textContent =
+            `Sesión activa. Visitas cargadas: ${todasLasVisitas.length}.`;
+          $('visitasCountBadge').textContent  = `${todasLasVisitas.length} visitas`;
+          $('residentesCountBadge').textContent = `${residentes.length} residentes`;
+
+          renderLista(todasLasVisitas);
+        } catch (err) {
+          console.error('Error cargando visitas:', err);
+          const banner = $('visitasBanner');
+          banner.textContent = 'Error al cargar las visitas. Intente recargar la página.';
+          banner.classList.remove('d-none');
+        }
+      }
+
+      /* ── Inicialización ── */
+      document.addEventListener('DOMContentLoaded', cargarVisitas);
+    </script>
+  </body>
+</html>
