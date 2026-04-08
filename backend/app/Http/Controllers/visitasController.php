@@ -142,4 +142,50 @@ class visitasController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Obtiene los horarios disponibles para una fecha específica.
+     * 
+     * Query params:
+     * - date: fecha a consultar (Y-m-d)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function availableTimeSlots(Request $request): JsonResponse
+    {
+        $date = $request->query('date', '');
+
+        // Validar que la fecha sea proporcionada
+        if (!$date) {
+            return response()->json([
+                'message' => 'El parámetro "date" es requerido en formato Y-m-d',
+            ], 400);
+        }
+
+        // Validar formato de fecha
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return response()->json([
+                'message' => 'La fecha debe estar en formato Y-m-d',
+            ], 400);
+        }
+
+        try {
+            $slots = $this->visitasService->getAvailableTimeSlots($date);
+
+            return response()->json([
+                'message' => 'available time slots retrieved successfully',
+                'data' => $slots,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener los horarios disponibles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

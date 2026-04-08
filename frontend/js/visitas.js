@@ -774,7 +774,11 @@ function renderAvailableDays() {
 
   days.forEach(date => {
     const option = document.createElement("option");
-    option.value = date.toISOString().slice(0, 10);
+    // CORREGIDO: Usar formato local en lugar de ISO para evitar offset de timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    option.value = `${year}-${month}-${day}`;
     option.textContent = formatter.format(date).replace(/^\w/, (c) => c.toUpperCase());
     dom.fechaVisitaSelect.appendChild(option);
   });
@@ -895,7 +899,7 @@ function validateForm() {
     errors.push("Debes seleccionar un bloque horario.");
   }
 
-  // Validación del horario de visitas: lunes a viernes, 9:00 a 16:00
+  // Validación del horario de visitas: lunes a viernes, 9:00 a 15:59
   if (selectedDate && selectedBlock) {
     const visitDate = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = visitDate.getDay();
@@ -903,12 +907,12 @@ function validateForm() {
     
     // Verificar que sea lunes (1) a viernes (5)
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      errors.push("Las visitas solo pueden programarse de lunes a viernes de 9 a 4.");
+      errors.push("Las visitas solo pueden programarse de lunes a viernes.");
     }
     
-    // Verificar que esté entre 09:00 y 15:00 (16:00 es exclusivo, la última hora comienza a las 15:00)
+    // Verificar que esté entre 09:00 y 15:59 (16:00 es exclusivo, no se permite)
     if (hour < 9 || hour >= 16) {
-      errors.push("Las visitas solo pueden programarse de lunes a viernes de 9 a 4.");
+      errors.push("El horario debe estar entre 9:00 AM y 3:59 PM (slots de 1 hora).");
     }
   }
 
@@ -1181,7 +1185,12 @@ async function deleteVisit(visit) {
 }
 
 function getTodayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  // Retornar la fecha hoy en formato YYYY-MM-DD en zona horaria local, no UTC
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function notify(kind, message, title = "") {

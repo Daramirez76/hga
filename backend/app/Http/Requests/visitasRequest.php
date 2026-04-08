@@ -57,7 +57,7 @@ class visitasRequest extends FormRequest
     }
 
     /**
-     * Validación personalizada: la fecha debe ser lunes-viernes y la hora entre 09:00-16:00
+     * Validación personalizada: la fecha debe ser lunes-viernes y la hora entre 09:00-15:59
      */
     public function withValidator(Validator $validator): void
     {
@@ -81,14 +81,14 @@ class visitasRequest extends FormRequest
                 if ($dayOfWeek > 5) { // Sábado (6) o Domingo (7)
                     $validator->errors()->add(
                         'Fecha_Visita',
-                        'Las visitas solo pueden programarse de lunes a viernes de 9 a 4.'
+                        'Las visitas solo pueden programarse de lunes a viernes.'
                     );
                 }
             } catch (\Exception $e) {
                 return; // Ignorar si hay error de parsing
             }
 
-            // Verificar que la hora esté en rango 09:00-16:00
+            // Verificar que la hora esté en rango 09:00-15:59 (no permite 16:00 o después)
             try {
                 $time = \DateTime::createFromFormat('H:i', $horaInicio);
                 if (!$time) {
@@ -97,11 +97,12 @@ class visitasRequest extends FormRequest
                 
                 $hour = (int) $time->format('H');
                 
-                // Permitir 09:00-15:00 (16:00 es exclusivo, no se permite iniciar una visita a las 16:00)
+                // Horario: 9 AM (09:00) a 3:59 PM (15:59)
+                // No permitir 4 PM (16:00) o después
                 if ($hour < 9 || $hour >= 16) {
                     $validator->errors()->add(
                         'hora_inicio',
-                        'Las visitas solo pueden programarse de lunes a viernes de 9 a 4.'
+                        'El horario debe estar entre 9:00 AM y 3:59 PM (slots de 1 hora).'
                     );
                 }
             } catch (\Exception $e) {

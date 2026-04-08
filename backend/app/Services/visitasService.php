@@ -10,6 +10,8 @@ class visitasService
     protected visitasInterface $visitasRepository;
 
     private const MAX_VISITS_PER_RESIDENT_PER_DAY = 3;
+    private const MAX_VISITS_PER_DAY_GLOBAL = 6;
+    private const MAX_VISITS_PER_TUTOR_PER_WEEK = 1;
 
     public function __construct(
         visitasInterface $visitasRepository,
@@ -197,12 +199,50 @@ class visitasService
         $date = $data['Fecha_Visita'] ?? null;
         $startTime = $data['hora_inicio'] ?? null;
         $endTime = $data['hora_fin'] ?? null;
+        $userId = $data['cod_usuario'] ?? null;
 
-        if (!$residentCode || !$date || !$startTime || !$endTime) {
+        if (!$residentCode || !$date || !$startTime || !$endTime || !$userId || $userId <= 0) {
             return; // Dejar que el request valide los campos requeridos
         }
 
-        // Validar cruces de horarios
+        // 1. Validar que no sea una fecha pasada
+        try {
+            $visitDate = new \DateTime($date);
+            $today = new \DateTime();
+            $today->setTime(0, 0, 0);
+            
+            if ($visitDate < $today) {
+                throw new \InvalidArgumentException('No se pueden registrar visitas en fechas pasadas.');
+            }
+        } catch (\Exception $e) {
+            if (strpos($e->getMessage(), 'pasadas') !== false) {
+                throw $e;
+            }
+            // Si es otro error, ignorar y dejar que otras validaciones reporten
+        }
+
+        // 2. Validar bloqueo de horario GLOBAL (no puede haber dos visitas en el mismo horario, para ningún residente)
+        if ($this->visitasRepository->hasOverlappingVisitGlobal($date, $startTime, $endTime, $excludeId)) {
+            throw new \InvalidArgumentException('El horario seleccionado ya está ocupado. Por favor, elige otro horario disponible.');
+        }
+
+        // 3. Validar límite diario global (máximo 6 visitas en total por día)
+        $visitsOnDay = $this->visitasRepository->countVisitsOnDateGlobal($date, $excludeId);
+        if ($visitsOnDay >= self::MAX_VISITS_PER_DAY_GLOBAL) {
+            throw new \InvalidArgumentException('Se ha alcanzado el límite máximo de visitas permitidas para este día (6 visitas). Intenta con otra fecha.');
+        }
+
+        // 4. Validar límite de visitas por tutor por semana (máximo 1 por semana)
+        // IMPORTANTE: Esta validación se aplica SOLO a tutores
+        if ($this->accessScopeService->isTutor()) {
+            $visitsThisWeek = $this->visitasRepository->countVisitsByTutorInWeek($userId, $date, $excludeId);
+            if ($visitsThisWeek >= self::MAX_VISITS_PER_TUTOR_PER_WEEK) {
+                throw new \InvalidArgumentException('Ya has registrado una visita esta semana. Cada tutor puede registrar como máximo 1 visita por semana.');
+            }
+        }
+
+        // Mantener la validación antigua por compatibilidad (aunque ya no es tan crucial con las nuevas restricciones)
+        // Validar cruces de horarios por residente
         if ($this->visitasRepository->hasOverlappingVisit($residentCode, $date, $startTime, $endTime, $excludeId)) {
             throw new \InvalidArgumentException('Ya existe una visita programada para este residente en el horario especificado.');
         }
@@ -344,5 +384,102 @@ class visitasService
         // Aquí podrías cargar la relación si el modelo lo permite
         // Por ahora, retornar el ID del residente
         return 'Residente #' . ($visita->cod_Residente ?? 'N/A');
+    }
+
+    /**
+     * Obtiene los horarios disponibles para una fecha específica.
+     * Retorna un array con los horarios de 1 hora disponibles entre 9 AM y 4 PM (lunes-viernes).
+     * 
+     * Restricciones validadas:
+     * - Máximo 6 visitas por día (si ya hay 6, retorna vacío)
+     * - Máximo 1 visita por tutor por semana (valida si el tutor ya tiene una)
+     * - Un horario ocupado no puede ser reutilizado
+     * 
+     * @param string $date Formato: Y-m-d
+     * @return array Array de horarios disponibles con datos de validación
+     * @throws \InvalidArgumentException
+     */
+    public function getAvailableTimeSlots(string $date): array
+    {
+        // Validar que no sea fecha pasada
+        try {
+            $visitDate = new \DateTime($date);
+            $today = new \DateTime();
+            $today->setTime(0, 0, 0);
+            
+            if ($visitDate < $today) {
+                throw new \InvalidArgumentException('No se pueden consultar disponibilidad para fechas pasadas.');
+            }
+        } catch (\Exception $e) {
+            if (strpos($e->getMessage(), 'pasadas') !== false) {
+                throw $e;
+            }
+            throw new \InvalidArgumentException('Formato de fecha inválido. Use Y-m-d');
+        }
+
+        // Validar que sea lunes-viernes
+        $dayOfWeek = (int) $visitDate->format('N'); // 1=lunes, 7=domingo
+        if ($dayOfWeek > 5) {
+            return [
+                'date' => $date,
+                'available' => [],
+                'reason' => 'Las visitas solo se pueden registrar de lunes a viernes.',
+                'slots_exhausted' => false,
+                'tutor_limit_reached' => false,
+            ];
+        }
+
+        // Validar que el día no esté agotado (máximo 6 visitas)
+        $visitsOnDay = $this->visitasRepository->countVisitsOnDateGlobal($date);
+        if ($visitsOnDay >= self::MAX_VISITS_PER_DAY_GLOBAL) {
+            return [
+                'date' => $date,
+                'available' => [],
+                'reason' => 'Esta fecha ha alcanzado el límite máximo de visitas.',
+                'slots_exhausted' => true,
+                'tutor_limit_reached' => false,
+                'visits_count' => $visitsOnDay,
+            ];
+        }
+
+        // Obtener tutorías registradas esta semana (si es tutor)
+        $tutorLimitReached = false;
+        if ($this->accessScopeService->isTutor()) {
+            $userId = $this->accessScopeService->getUserDocId();
+            if ($userId > 0) {
+                $visitsThisWeek = $this->visitasRepository->countVisitsByTutorInWeek($userId, $date);
+                if ($visitsThisWeek >= self::MAX_VISITS_PER_TUTOR_PER_WEEK) {
+                    $tutorLimitReached = true;
+                }
+            }
+        }
+
+        // Generar slots de 1 hora entre 9 AM y 4 PM (9-10, 10-11, ..., 15-16)
+        $timeSlots = [];
+        for ($hour = 9; $hour < 16; $hour++) {
+            $startTime = sprintf('%02d:00', $hour);
+            $endTime = sprintf('%02d:00', $hour + 1);
+            
+            $occupied = $this->visitasRepository->hasOverlappingVisitGlobal($date, $startTime, $endTime);
+            
+            $timeSlots[] = [
+                'start' => $startTime,
+                'end' => $endTime,
+                'available' => !$occupied && !$tutorLimitReached,
+                'occupied' => $occupied,
+            ];
+        }
+
+        // Filtrar solo los disponibles
+        $availableSlots = array_filter($timeSlots, fn ($slot) => $slot['available']);
+
+        return [
+            'date' => $date,
+            'available' => array_values($availableSlots),
+            'all_slots' => $timeSlots,
+            'slots_exhausted' => $visitsOnDay >= self::MAX_VISITS_PER_DAY_GLOBAL,
+            'tutor_limit_reached' => $tutorLimitReached,
+            'visits_count' => $visitsOnDay,
+        ];
     }
 }

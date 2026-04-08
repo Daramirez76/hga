@@ -12,4 +12,8 @@ interface visitasInterface
     public function countVisitsForResidentOnDate(int $residentCode, string $date, ?int $excludeId = null): int;
     public function getVisitasByDateRange(string $startDate, string $endDate);
     public function getVisitasByUserAndDateRange(int $userId, string $startDate, string $endDate);
+    public function hasOverlappingVisitGlobal(string $date, string $startTime, string $endTime, ?int $excludeId = null): bool;
+    public function countVisitsOnDateGlobal(string $date, ?int $excludeId = null): int;
+    public function countVisitsByTutorInWeek(int $userId, string $date, ?int $excludeId = null): int;
+    public function getOccupiedTimeSlotsForDate(string $date): array;
 }
