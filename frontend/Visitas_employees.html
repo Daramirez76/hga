@@ -190,6 +190,52 @@
           padding: 1rem;
         }
       }
+
+      /* Animación de sincronización */
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      #btnRefreshVisitas:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      #btnRefreshVisitas.syncing {
+        pointer-events: none;
+      }
+
+      #btnRefreshVisitas.syncing i {
+        animation: spin 1s linear infinite;
+      }
+
+      /* Estado de sincronización */
+      #syncStatus {
+        padding: 6px 12px;
+        background: rgba(76, 175, 80, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(76, 175, 80, 0.2);
+      }
+
+      #syncStatus.error {
+        background: rgba(244, 67, 54, 0.1);
+        border-color: rgba(244, 67, 54, 0.2);
+      }
+
+      #syncStatus.error #syncStatusDot {
+        background: #F44336;
+        animation: none;
+      }
+
+      #syncStatus.success {
+        background: rgba(76, 175, 80, 0.15);
+      }
     </style>
   </head>
   <body class="hga-home-theme" data-allowed-roles="1,2" data-login-page="login_employees.html">
@@ -250,7 +296,7 @@
             <div id="visitasBanner" class="visitas-banner alert d-none mb-3" role="status" aria-live="polite"></div>
 
             <div class="panel-visitas">
-              <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+              <div class="d-flex justify-content-between mb-3 flex-wrap gap-2" style="align-items: center;">
                 <input
                   type="text"
                   id="searchVisitas"
@@ -258,7 +304,21 @@
                   style="max-width: 280px"
                   placeholder="Buscar por visitante, residente o código"
                 />
-                <button class="btn btn-light" id="btnLimpiarFiltro">Limpiar filtro</button>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-light" id="btnLimpiarFiltro">Limpiar filtro</button>
+                  <button class="btn btn-outline-primary" id="btnRefreshVisitas" title="Actualizar visitas">
+                    <i class="bi bi-arrow-clockwise"></i> Actualizar
+                  </button>
+                </div>
+              </div>
+              
+              <!-- INDICADOR DE SINCRONIZACIÓN -->
+              <div class="mb-3 d-flex align-items-center gap-2" style="font-size: 0.85rem; color: #666;">
+                <span id="syncStatus" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span id="syncStatusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; animation: pulse 2s infinite;"></span>
+                  <span id="syncStatusText">Sincronizando automáticamente...</span>
+                </span>
+                <span id="lastSyncTime" style="color: #999; font-size: 0.8rem;"></span>
               </div>
 
               <!-- LISTA DE VISITAS -->
@@ -281,131 +341,8 @@
     <script src="./js/menu_notificacion.js"></script>
     <script src="./js/menu_usuario.js"></script>
     <script src="./js/menu_desplegable.js"></script>
-    <script src="./js/historial_visitas.js"></script>
+    <script src="./js/visitas_employees.js"></script>
 
-    <script>
-      /**
-       * historial_visitas.js  (lógica inline de referencia)
-       * —————————————————————————————————————————————————
-       * Adaptar / mover a ./js/historial_visitas.js cuando se integre al proyecto.
-       *
-       * Diferencias respecto a informes.js:
-       *  • No existe lógica de creación ni edición.
-       *  • Las cards son de solo lectura (sin botones Editar / Eliminar).
-       *  • Los chips usan clases .visita-chip y los estados: programada | completada | cancelada.
-       */
 
-      /* ── Utilidades ── */
-      const $ = id => document.getElementById(id);
-
-      /* ── Estado ── */
-      let todasLasVisitas = [];
-
-      /* ── Render de una card (solo lectura) ── */
-      function renderVisitaCard(visita) {
-        const estadoClass =
-          visita.estado === 'completada' ? 'estado-completada' :
-          visita.estado === 'cancelada'  ? 'estado-cancelada'  :
-                                           'estado-programada';
-
-        return `
-          <div class="visita-card">
-            <div class="visita-card-header">
-              <div>
-                <div class="visita-code">VISITA #${visita.id}</div>
-                <h5 class="visita-title">${visita.visitante}</h5>
-              </div>
-              <span class="text-muted" style="font-size:13px;">${visita.residente ?? ''}</span>
-            </div>
-            <div class="visita-meta">
-              <span class="visita-chip">${visita.residente ?? 'Sin residente'}</span>
-              <span class="visita-chip type">${(visita.tipo ?? 'general').toUpperCase()}</span>
-              <span class="visita-chip ${estadoClass}">${(visita.estado ?? 'programada').toUpperCase()}</span>
-              ${visita.fecha ? `<span class="visita-chip" style="background:#f3e5f5;color:#6a1b9a;">${visita.fecha}</span>` : ''}
-            </div>
-            <p class="visita-description">${visita.observaciones || '<em>Sin observaciones</em>'}</p>
-            <!-- Sin botones de acción — vista estrictamente de consulta -->
-          </div>`;
-      }
-
-      /* ── Render de la lista ── */
-      function renderLista(lista) {
-        const container = $('listaVisitasContainer');
-        if (!lista.length) {
-          container.innerHTML = `
-            <div class="empty-state-visitas">
-              <i class="bi bi-calendar-x" style="font-size:1.8rem;opacity:.5;"></i>
-              <p class="mt-2 mb-0">No se encontraron visitas.</p>
-            </div>`;
-          return;
-        }
-        container.innerHTML = lista.map(renderVisitaCard).join('');
-      }
-
-      /* ── Filtro de búsqueda ── */
-      function aplicarFiltro(texto) {
-        const q = texto.toLowerCase().trim();
-        if (!q) { renderLista(todasLasVisitas); return; }
-        const filtradas = todasLasVisitas.filter(v =>
-          (v.visitante   ?? '').toLowerCase().includes(q) ||
-          (v.residente   ?? '').toLowerCase().includes(q) ||
-          String(v.id).includes(q)
-        );
-        renderLista(filtradas);
-      }
-
-      /* ── Eventos ── */
-      $('searchVisitas').addEventListener('input', e => aplicarFiltro(e.target.value));
-      $('btnLimpiarFiltro').addEventListener('click', () => {
-        $('searchVisitas').value = '';
-        aplicarFiltro('');
-      });
-
-      /* ── Carga de datos (reemplazar con fetch real a la API) ── */
-      async function cargarVisitas() {
-        try {
-          // ► Reemplazar esta URL por el endpoint real del sistema
-          // const res  = await fetch('/api/visitas');
-          // const data = await res.json();
-          // todasLasVisitas = data.visitas ?? [];
-
-          /* Datos de demostración — eliminar al integrar con la API */
-          todasLasVisitas = [
-            {
-              id: 3, visitante: 'Carlos Mendoza', residente: 'Valentina Herrera',
-              tipo: 'familiar', estado: 'completada',
-              fecha: '2025-06-10', observaciones: 'Visita de control familiar. Sin novedades.'
-            },
-            {
-              id: 2, visitante: 'Ana Gómez', residente: 'Luis Pérez',
-              tipo: 'médica', estado: 'completada',
-              fecha: '2025-06-08', observaciones: 'Revisión médica mensual realizada sin inconvenientes.'
-            },
-            {
-              id: 1, visitante: 'María Torres', residente: 'José Ramírez',
-              tipo: 'general', estado: 'cancelada',
-              fecha: '2025-06-05', observaciones: 'Visita cancelada por el residente.'
-            }
-          ];
-
-          /* Actualizar contexto y badges */
-          const residentes = [...new Set(todasLasVisitas.map(v => v.residente).filter(Boolean))];
-          $('visitasContext').textContent =
-            `Sesión activa. Visitas cargadas: ${todasLasVisitas.length}.`;
-          $('visitasCountBadge').textContent  = `${todasLasVisitas.length} visitas`;
-          $('residentesCountBadge').textContent = `${residentes.length} residentes`;
-
-          renderLista(todasLasVisitas);
-        } catch (err) {
-          console.error('Error cargando visitas:', err);
-          const banner = $('visitasBanner');
-          banner.textContent = 'Error al cargar las visitas. Intente recargar la página.';
-          banner.classList.remove('d-none');
-        }
-      }
-
-      /* ── Inicialización ── */
-      document.addEventListener('DOMContentLoaded', cargarVisitas);
-    </script>
   </body>
 </html>
