@@ -572,8 +572,38 @@ async function loadInformes(page = informesState.pagination.currentPage || 1, op
 }
 
 function filtrarInformes() {
-  informesState.searchQuery = getSearchTerm();
-  void loadInformes(1, { force: true });
+  const query = getSearchTerm().toLowerCase();
+  informesState.searchQuery = query;
+
+  if (!query) {
+    // Sin filtro: recarga normal desde el servidor
+    void loadInformes(1, { force: true });
+    return;
+  }
+
+  // Filtro local sobre todos los items cargados
+  const todosLosItems = informesState._allItems || informesState.items;
+
+  const filtrados = todosLosItems.filter((informe) => {
+    const titulo      = (informe.titulo || "").toLowerCase();
+    const descripcion = (informe.descripcion || "").toLowerCase();
+    const urgencia    = (informe.urgencia || "").toLowerCase();
+    const tipo        = (informe.tipo || "").toLowerCase();
+    const residente   = (informe.residentLabel || "").toLowerCase();
+    const codigo      = String(informe.codeLabel || informe.id || "").toLowerCase();
+
+    return (
+      titulo.includes(query)      ||
+      descripcion.includes(query) ||
+      urgencia.includes(query)    ||
+      tipo.includes(query)        ||
+      residente.includes(query)   ||
+      codigo.includes(query)
+    );
+  });
+
+  informesState.items = filtrados;
+  renderInformes();
 }
 
 function getModalInstance() {
