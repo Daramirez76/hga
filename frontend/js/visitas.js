@@ -1,6 +1,7 @@
 const VISITAS_API_URL = `${window.location.origin}/api/visitas`;
 const RESIDENTES_API_URL = `${window.location.origin}/api/residentes`;
 const PROFILE_API_URL = `${window.location.origin}/api/me`;
+const NOTIF_API_URL = `${window.location.origin}/api/notificaciones`;
 const LOGIN_URL = "login.html";
 const VISITAS_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
@@ -48,6 +49,10 @@ const dom = {
   docIdInput: null,
   visitanteInput: null,
   fechaInput: null,
+  // Nuevos elementos predictivos
+  fechaVisitaSelect: null,
+  bloqueHorario: null,
+  visitWeekWarning: null,
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -80,6 +85,11 @@ function cacheDom() {
   dom.docIdInput = document.getElementById("docId");
   dom.visitanteInput = document.getElementById("nombVisitante");
   dom.fechaInput = document.getElementById("fechaVisita");
+  
+  // Caché de nuevos elementos
+  dom.fechaVisitaSelect = document.getElementById("fechaVisitaSelect");
+  dom.bloqueHorario = document.getElementById("bloqueHorario");
+  dom.visitWeekWarning = document.getElementById("visitWeekWarning");
 }
 
 function wireEvents() {
@@ -119,6 +129,11 @@ function wireEvents() {
 
   if (dom.formBackdrop instanceof HTMLElement) {
     dom.formBackdrop.addEventListener("click", closeForm);
+  }
+
+  // Evento para la interfaz predictiva de horas
+  if (dom.fechaVisitaSelect instanceof HTMLSelectElement) {
+    dom.fechaVisitaSelect.addEventListener("change", handleFechaChange);
   }
 
   document.addEventListener("keydown", (event) => {
@@ -697,12 +712,168 @@ function ensureCanSubmit() {
   return "";
 }
 
+// --- LÓGICA PREDICTIVA DE VISITAS ---
+
+function isWithinRegistrationWindow() {
+  const now = new Date();
+  const day = now.getDay(); // 0 = Dom, 6 = Sáb
+  const hour = now.getHours();
+  // Lunes(1) a Viernes(5), entre 9:00 AM (9) y 4:00 PM (16, exclusivo)
+  return day >= 1 && day <= 5 && hour >= 9 && hour < 16;
+}
+
+function hasUserVisitedThisWeek() {
+  if (!visitasState.items || visitasState.items.length === 0) return false;
+  const userId = getCurrentUserId();
+  if (!userId) return false;
+
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Lunes
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Domingo
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  return visitasState.items.some(visit => {
+    if (String(visit.userCode) !== String(userId)) return false;
+    // Maneja tanto formato 'YYYY-MM-DD' como 'YYYY-MM-DD HH:mm:ss'
+    const datePart = visit.visitDate.slice(0, 10);
+    const visitDate = new Date(datePart + "T00:00:00");
+    return visitDate >= startOfWeek && visitDate <= endOfWeek;
+  });
+}
+
+function generateAvailableDays() {
+  const days = [];
+  const today = new Date();
+  
+  // Permitir seleccionar cualquier fecha (todo el año)
+  for (let i = 1; i <= 365; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    days.push(date);
+  }
+  return days;
+}
+
+function renderAvailableDays() {
+  if (!dom.fechaVisitaSelect) return;
+  dom.fechaVisitaSelect.innerHTML = "";
+
+  // Permitir acceso al formulario en cualquier momento
+  // La validación del horario se hará al enviar (validateForm)
+  const days = generateAvailableDays();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Selecciona una fecha";
+  dom.fechaVisitaSelect.appendChild(placeholder);
+
+  const formatter = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "short" });
+
+  days.forEach(date => {
+    const option = document.createElement("option");
+    // CORREGIDO: Usar formato local en lugar de ISO para evitar offset de timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    option.value = `${year}-${month}-${day}`;
+    option.textContent = formatter.format(date).replace(/^\w/, (c) => c.toUpperCase());
+    dom.fechaVisitaSelect.appendChild(option);
+  });
+
+  dom.fechaVisitaSelect.disabled = false;
+  if (dom.visitWeekWarning) dom.visitWeekWarning.classList.add("d-none");
+}
+
+function handleFechaChange() {
+  const selectedDate = dom.fechaVisitaSelect?.value;
+  if (!selectedDate) {
+    dom.bloqueHorario.innerHTML = `<option value="">Primero selecciona un día</option>`;
+    dom.bloqueHorario.disabled = true;
+    return;
+  }
+
+  // Lógica predictiva de aforo basada en los datos cargados localmente
+  renderAvailableBlocks(selectedDate);
+}
+
+function renderAvailableBlocks(dateStr) {
+  if (!dom.bloqueHorario) return;
+  dom.bloqueHorario.innerHTML = "<option value=";">Calculando cupo...</option>";
+  dom.bloqueHorario.disabled = true;
+
+  // Bloques fijos de 1 hora de 9:00 AM a 4:00 PM
+  const blocks = ["09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00"];
+  
+  // Contamos visitas locales para ese día 
+  const localVisitsForDay = visitasState.items.filter(v => v.visitDate && v.visitDate.startsWith(dateStr));
+  
+  // Extraemos las horas ya ocupadas en el array local
+  const occupiedHours = new Set(localVisitsForDay.map(v => {
+    const timePart = v.visitDate.split(' ')[1] || v.visitDate.slice(11, 19);
+    return timePart;
+  }));
+
+  let availableCount = 0;
+  dom.bloqueHorario.innerHTML = "";
+
+  blocks.forEach(block => {
+    // Si hay 6 o más locales, asumimos lleno (como ayuda visual)
+    if (localVisitsForDay.length >= 6) return;
+
+    if (!occupiedHours.has(block)) {
+      const [hour] = block.split(':');
+      const displayHour = `${hour}:00 - ${parseInt(hour, 10) + 1}:00`;
+      
+      const option = document.createElement("option");
+      option.value = block;
+      option.textContent = displayHour;
+      dom.bloqueHorario.appendChild(option);
+      availableCount++;
+    }
+  });
+
+  if (availableCount === 0) {
+    dom.bloqueHorario.innerHTML = `<option value="">Sin cupos disponibles para este día</option>`;
+    if (dom.visitWeekWarning) {
+      dom.visitWeekWarning.textContent = "Este día parece no tener cupos (Aforo máximo: 6).";
+      dom.visitWeekWarning.classList.remove("d-none");
+    }
+  } else {
+    dom.bloqueHorario.disabled = false;
+    if (dom.visitWeekWarning) dom.visitWeekWarning.classList.add("d-none");
+  }
+}
+
+// --- ALERTA SILENCIOSA ADMIN ---
+async function triggerAdminNotification(visitPayload) {
+  try {
+    await fetch(NOTIF_API_URL, {
+      method: "POST",
+      headers: buildHeaders(),
+      body: JSON.stringify({
+        tipo: "nueva_visita",
+        mensaje: `Nuevo registro de visita: ${visitPayload.Nomb_visitante} para el ${visitPayload.Fecha_Visita}.`,
+        destino: "admin_panel"
+      }),
+    });
+  } catch (error) {
+    // Silencioso: si falla la notificación, no interrumpimos al usuario
+    console.warn("No se pudo enviar la notificación silenciosa al admin:", error);
+  }
+}
+
+// --- FIN LÓGICA PREDICTIVA ---
+
 function validateForm() {
   const errors = [];
   const docId = String(dom.docIdInput?.value ?? "").trim();
   const visitorName = String(dom.visitanteInput?.value ?? "").trim();
   const residentCode = toInteger(dom.residenteSelect?.value);
-  const visitDate = String(dom.fechaInput?.value ?? "").trim();
+  const selectedDate = String(dom.fechaVisitaSelect?.value ?? "").trim();
+  const selectedBlock = String(dom.bloqueHorario?.value ?? "").trim();
 
   if (!/^\d+$/.test(docId)) {
     errors.push("El documento del visitante debe ser numérico.");
@@ -720,8 +891,29 @@ function validateForm() {
     errors.push("Debes seleccionar un residente.");
   }
 
-  if (!visitDate) {
-    errors.push("La fecha de la visita es obligatoria.");
+  if (!selectedDate) {
+    errors.push("Debes seleccionar un día de visita.");
+  }
+
+  if (!selectedBlock) {
+    errors.push("Debes seleccionar un bloque horario.");
+  }
+
+  // Validación del horario de visitas: lunes a viernes, 9:00 a 15:59
+  if (selectedDate && selectedBlock) {
+    const visitDate = new Date(selectedDate + "T00:00:00");
+    const dayOfWeek = visitDate.getDay();
+    const [hour] = selectedBlock.split(':').map(Number);
+    
+    // Verificar que sea lunes (1) a viernes (5)
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      errors.push("Las visitas solo pueden programarse de lunes a viernes.");
+    }
+    
+    // Verificar que esté entre 09:00 y 15:59 (16:00 es exclusivo, no se permite)
+    if (hour < 9 || hour >= 16) {
+      errors.push("El horario debe estar entre 9:00 AM y 3:59 PM (slots de 1 hora).");
+    }
   }
 
   const sessionError = ensureCanSubmit();
@@ -771,8 +963,14 @@ function openCreateForm() {
     dom.usuarioInput.value = String(getCurrentUserId() || "");
   }
 
-  if (dom.fechaInput instanceof HTMLInputElement) {
-    dom.fechaInput.value = getTodayIsoDate();
+  // Lógica predictiva de días y limpieza de alertas
+  if (dom.visitWeekWarning) dom.visitWeekWarning.classList.add("d-none");
+  renderAvailableDays();
+  
+  // Resetear bloque horario
+  if (dom.bloqueHorario) {
+    dom.bloqueHorario.innerHTML = `<option value="">Primero selecciona un día</option>`;
+    dom.bloqueHorario.disabled = true;
   }
 
   renderResidentOptions(visitasState.residents[0]?.code ?? "");
@@ -803,8 +1001,17 @@ function openEditForm(visit) {
     dom.visitanteInput.value = visit.visitorName;
   }
 
-  if (dom.fechaInput instanceof HTMLInputElement) {
-    dom.fechaInput.value = String(visit.visitDate || "").slice(0, 10);
+  // Para edición, inyectamos los valores en los nuevos selectores si existen,
+  // pero los bloqueamos ya que las reglas de negocio aplican solo para creación.
+  if (dom.fechaVisitaSelect) {
+    dom.fechaVisitaSelect.innerHTML = `<option value="${visit.visitDate.slice(0,10)}">${formatDateDisplay(visit.visitDate)}</option>`;
+    dom.fechaVisitaSelect.disabled = true;
+  }
+  if (dom.bloqueHorario) {
+    const timePart = visit.visitDate.split(' ')[1] || visit.visitDate.slice(11, 19);
+    const [hour] = timePart.split(':');
+    dom.bloqueHorario.innerHTML = `<option value="${timePart}">${hour}:00 - ${parseInt(hour, 10) + 1}:00</option>`;
+    dom.bloqueHorario.disabled = true;
   }
 
   renderResidentOptions(visit.residentCode);
@@ -867,11 +1074,32 @@ function buildVisitPayload() {
   const docId = toInteger(dom.docIdInput?.value);
   const residentCode = toInteger(dom.residenteSelect?.value);
   const userId = getCurrentUserId();
+  
+  // Separar fecha y hora correctamente
+  const selectedDate = dom.fechaVisitaSelect?.value || "";
+  const selectedTime = dom.bloqueHorario?.value || ""; // Formato: "09:00:00"
+
+  // Convertir hora a formato H:i (sin segundos) y calcular hora_fin
+  let horaInicio = "";
+  let horaFin = "";
+  
+  if (selectedTime) {
+    // Extraer HH:MM de "HH:MM:SS"
+    horaInicio = selectedTime.slice(0, 5); // "09:00"
+    
+    // Calcular hora_fin como hora_inicio + 1 hora
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    const endHour = (hours + 1) % 24; // Sumar 1 hora, manejar caso de las 23:00
+    horaFin = `${String(endHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  }
+
   const payload = {
     doc_id: docId ?? 0,
     Nomb_visitante: String(dom.visitanteInput?.value ?? "").trim(),
     cod_Residente: residentCode ?? 0,
-    Fecha_Visita: String(dom.fechaInput?.value ?? "").trim(),
+    Fecha_Visita: selectedDate, // Solo fecha: "2025-10-28"
+    hora_inicio: horaInicio, // Formato H:i: "09:00"
+    hora_fin: horaFin, // Formato H:i: "10:00"
     cod_usuario: userId ?? 0,
   };
 
@@ -912,6 +1140,12 @@ async function handleFormSubmit(event) {
     });
 
     await notify("success", isEditing ? "Visita actualizada correctamente." : "Visita registrada correctamente.");
+    
+    // Disparar alerta silenciosa solo si es registro nuevo
+    if (!isEditing) {
+      void triggerAdminNotification(payload);
+    }
+
     closeForm();
     await loadVisits();
   } catch (error) {
@@ -951,7 +1185,12 @@ async function deleteVisit(visit) {
 }
 
 function getTodayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  // Retornar la fecha hoy en formato YYYY-MM-DD en zona horaria local, no UTC
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function notify(kind, message, title = "") {

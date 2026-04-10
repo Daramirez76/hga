@@ -14,7 +14,7 @@
       { label: "Inicio", href: "home_employees.html" },
       { label: "residentes", href: "resident.html" },
       { label: "Informes", href: "Informes.html" },
-      { label: "Visitas", href: "Visitas.html" },
+      { label: "Historial de Visitas", href: "Visitas_employees.html" },
       { label: "Citas", href: "citas_medicas.html" },
       { label: "Actividades Ludicas", href: "recreational_activities.html" },
       { label: "Medicamentos", href: "medicaments.html" },
@@ -24,7 +24,7 @@
       { label: "Inicio", href: "home_employees.html" },
       { label: "residentes", href: "resident.html" },
       { label: "Informes", href: "Informes.html" },
-      { label: "Visitas", href: "Visitas.html" },
+      { label: "Historial de Visitas", href: "Visitas_employees.html" },
       { label: "Citas", href: "citas_medicas.html" },
       { label: "Actividades Ludicas", href: "recreational_activities.html" },
       { label: "Medicamentos", href: "medicaments.html" },
@@ -33,6 +33,7 @@
       { label: "Inicio", href: "home.html" },
       { label: "Residente", href: "resident.html" },
       { label: "Actividades Ludicas", href: "recreational_activities.html" },
+      { label:  "Visitas", href: "Visitas.html" },
     ],
   };
 

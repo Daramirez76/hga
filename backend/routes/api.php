@@ -43,12 +43,20 @@ Route::apiResource('/residentes', residentesController::class)
 Route::apiResource('/medicamentos', medicamentosController::class)
     ->middleware(['auth.api', 'role:1,2']);
 
+// Endpoint específico para el calendario de visitas
+Route::get('/visitas/calendar', [visitasController::class, 'calendar'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+
+// Endpoint para obtener horarios disponibles
+Route::get('/visitas/available-time-slots', [visitasController::class, 'availableTimeSlots'])
+    ->middleware(['auth.api', 'role:1,2,4']);
+
 Route::apiResource('/visitas', visitasController::class)
     ->only(['index', 'show'])
     ->middleware(['auth.api', 'role:1,2,4']);
 Route::apiResource('/visitas', visitasController::class)
     ->only(['store', 'update', 'destroy'])
-    ->middleware(['auth.api', 'role:1,2']);
+    ->middleware(['auth.api', 'role:1,2,4']);
 
 Route::apiResource('/informes', informesController::class)
     ->middleware(['auth.api', 'role:1,2']);
