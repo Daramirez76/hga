@@ -25,11 +25,193 @@ const medicationState = {
   paginationHost: null,
 };
 
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO: Modal de asignación de medicamento al residente
+══════════════════════════════════════════════════════════════ */
+const assignMedModule = (() => {
+  /* Estado interno del modal */
+  let allMeds      = [];   // medicamentos del residente activo
+  let filteredMeds = [];
+  let tempSelected = null; // selección provisional dentro del modal
+
+  /* ── Referencias DOM (se resuelven en init) ── */
+  let assignField, assignTrigger, assignLabel,
+      assignedCodeInput, overlay, modalList,
+      searchInput, btnClose, btnCancel, btnConfirm;
+
+  function init() {
+    assignField       = document.getElementById("assignMedField");
+    assignTrigger     = document.getElementById("assignMedTrigger");
+    assignLabel       = document.getElementById("assignMedLabel");
+    assignedCodeInput = document.getElementById("assignedMedCode");
+    overlay           = document.getElementById("modalMedOverlay");
+    modalList         = document.getElementById("modalMedList");
+    searchInput       = document.getElementById("modalMedSearch");
+    btnClose          = document.getElementById("modalMedClose");
+    btnCancel         = document.getElementById("modalMedCancel");
+    btnConfirm        = document.getElementById("modalMedConfirm");
+
+    if (!assignField || !overlay) return; // HTML no tiene el modal todavía
+
+    /* Abrir modal */
+    assignTrigger.addEventListener("click", openModal);
+    assignTrigger.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") openModal();
+    });
+
+    /* Búsqueda en tiempo real */
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase().trim();
+      renderList(q ? allMeds.filter((m) => m.nombre.toLowerCase().includes(q)) : allMeds);
+    });
+
+    /* Cerrar */
+    [btnClose, btnCancel].forEach((b) => b.addEventListener("click", closeModal));
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("active")) closeModal();
+    });
+
+    /* Confirmar selección */
+    btnConfirm.addEventListener("click", confirmSelection);
+  }
+
+  function openModal() {
+    if (!overlay) return;
+    overlay.classList.add("active");
+    searchInput.value = "";
+    renderList(allMeds);
+    setTimeout(() => searchInput.focus(), 80);
+  }
+
+  function closeModal() {
+    if (!overlay) return;
+    overlay.classList.remove("active");
+    tempSelected = null;
+  }
+
+  function confirmSelection() {
+    if (!tempSelected) { closeModal(); return; }
+    assignedCodeInput.value = tempSelected.id;
+    assignTrigger.innerHTML = `
+      <span class="selected-name">${escapeHtml(tempSelected.nombre)}</span>
+      <i class="bi bi-capsule med-icon"></i>`;
+    closeModal();
+  }
+
+  function renderList(meds) {
+    filteredMeds = meds;
+
+    if (!meds.length) {
+      modalList.innerHTML = '<div class="modal-empty">No hay medicamentos para este residente.</div>';
+      return;
+    }
+
+    modalList.innerHTML = meds.map((m) => `
+      <div class="modal-med-item ${assignedCodeInput.value == m.id ? "selected" : ""}"
+           data-id="${escapeHtml(String(m.id))}"
+           data-nombre="${escapeHtml(m.nombre)}"
+           role="option" tabindex="0">
+        <span class="modal-med-name">${escapeHtml(m.nombre)}</span>
+        <span class="modal-med-stock"><i class="bi bi-box-seam"></i> ${escapeHtml(String(m.stock))} uds</span>
+        <i class="bi bi-check-circle-fill modal-med-check"></i>
+        <span class="modal-med-sub">Vence: ${escapeHtml(m.fecha_vencimiento || "—")}</span>
+      </div>`).join("");
+
+    modalList.querySelectorAll(".modal-med-item").forEach((el) => {
+      el.addEventListener("click", () => selectItem(el));
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") selectItem(el);
+      });
+    });
+  }
+
+  function selectItem(el) {
+    modalList.querySelectorAll(".modal-med-item").forEach((i) => i.classList.remove("selected"));
+    el.classList.add("selected");
+    tempSelected = { id: el.dataset.id, nombre: el.dataset.nombre };
+  }
+
+  /* Carga medicamentos filtrados por residente desde la API */
+  async function loadByResident(codResidente) {
+    allMeds = [];
+    reset();
+
+    if (!codResidente) return;
+
+    /* Mostrar el campo */
+    if (assignField) assignField.style.display = "";
+
+    try {
+      const payload = await fetchJson(
+        `${MEDICAMENTOS_API_BASE}?cod_residente=${encodeURIComponent(codResidente)}`,
+        { method: "GET", headers: buildHeaders(false) }
+      );
+
+      /* Normalizar respuesta (array directo o {data:[...]}) */
+      const raw = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+          ? payload
+          : [];
+
+      allMeds = raw.map((m) => ({
+        id:               m.Cod_medicamento ?? m.cod_medicamento ?? m.id ?? "",
+        nombre:           String(m.nombre_medic || "").trim(),
+        stock:            Number(m.stock ?? 0),
+        fecha_vencimiento: String(m.fecha_vencimiento || "").trim(),
+        cod_residente:    Number(m.cod_residente ?? 0),
+      }));
+
+      /* Si la API no filtra por residente, lo hacemos en cliente */
+      allMeds = allMeds.filter((m) => String(m.cod_residente) === String(codResidente));
+
+    } catch (err) {
+      console.warn("[HGA] No se pudieron cargar medicamentos del residente:", err);
+      /* Fallback: filtrar desde lo que ya tenemos en memoria */
+      allMeds = medicationState.allItems
+        .filter((m) => String(m.residentCode) === String(codResidente))
+        .map((m) => ({
+          id:               m.id,
+          nombre:           m.name,
+          stock:            m.stock,
+          fecha_vencimiento: m.expiryDate,
+          cod_residente:    m.residentCode,
+        }));
+    }
+  }
+
+  /* Limpia el campo y oculta el bloque */
+  function reset() {
+    if (!assignField) return;
+    allMeds = [];
+    tempSelected = null;
+    if (assignedCodeInput) assignedCodeInput.value = "";
+    if (assignTrigger) {
+      assignTrigger.innerHTML = `
+        <span class="placeholder" id="assignMedLabel">Seleccionar medicamento&hellip;</span>
+        <i class="bi bi-capsule med-icon"></i>`;
+    }
+    assignField.style.display = "none";
+  }
+
+  /* Valor actualmente confirmado */
+  function getSelectedId() {
+    return assignedCodeInput?.value || null;
+  }
+
+  return { init, loadByResident, reset, getSelectedId };
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   DOMContentLoaded
+══════════════════════════════════════════════════════════════ */
 document.addEventListener("DOMContentLoaded", () => {
   const medicationForm = document.getElementById("medicationForm");
   const medicationList = document.getElementById("medicationList");
-  const noveltyList = document.getElementById("noveltyList");
-  const cancelButton = document.getElementById("medicationCancelButton");
+  const noveltyList    = document.getElementById("noveltyList");
+  const cancelButton   = document.getElementById("medicationCancelButton");
+  const residentSelect = document.getElementById("medicationResidentCode");
 
   if (medicationForm instanceof HTMLFormElement) {
     medicationForm.addEventListener("submit", handleMedicationSubmit);
@@ -47,8 +229,24 @@ document.addEventListener("DOMContentLoaded", () => {
     noveltyList.innerHTML = NOVELTY_EMPTY_STATE;
   }
 
+  /* Watcher: cuando cambia el residente, carga sus medicamentos en el modal */
+  if (residentSelect instanceof HTMLSelectElement) {
+    residentSelect.addEventListener("change", () => {
+      assignMedModule.reset();
+      const cod = residentSelect.value;
+      if (cod) void assignMedModule.loadByResident(cod);
+    });
+  }
+
+  /* Inicializar modal */
+  assignMedModule.init();
+
   void bootstrapMedicationModule();
 });
+
+/* ══════════════════════════════════════════════════════════════
+   El resto del código original (sin cambios)
+══════════════════════════════════════════════════════════════ */
 
 function getMedicationPaginationHost() {
   if (medicationState.paginationHost instanceof HTMLElement) {
@@ -100,9 +298,7 @@ function getStoredToken() {
 }
 
 function buildHeaders(includeJson = true) {
-  const headers = {
-    Accept: "application/json",
-  };
+  const headers = { Accept: "application/json" };
 
   if (includeJson) {
     headers["Content-Type"] = "application/json";
@@ -143,10 +339,7 @@ async function cargarUsuarioActual() {
     medicationState.currentUser = normalizeCurrentUser(payload.user || {});
     syncStoredUser(payload.user || {});
   } catch (error) {
-    if (error.message === "Sesion expirada") {
-      throw error;
-    }
-
+    if (error.message === "Sesion expirada") throw error;
     applyStoredUserFallback();
     throw error;
   }
@@ -164,10 +357,7 @@ async function cargarResidentes() {
     medicationState.residentLoadError = "";
     populateResidentOptions();
   } catch (error) {
-    if (error.message === "Sesion expirada") {
-      throw error;
-    }
-
+    if (error.message === "Sesion expirada") throw error;
     handleResidentLoadFailure(error);
     throw error;
   }
@@ -175,10 +365,7 @@ async function cargarResidentes() {
 
 async function cargarMedicamentos(page = medicationState.pagination.currentPage || 1, options = {}) {
   const url = window.HgaPagination?.buildUrl
-    ? window.HgaPagination.buildUrl(MEDICAMENTOS_API_BASE, {
-        page,
-        per_page: MEDICATION_PAGE_SIZE,
-      })
+    ? window.HgaPagination.buildUrl(MEDICAMENTOS_API_BASE, { page, per_page: MEDICATION_PAGE_SIZE })
     : `${MEDICAMENTOS_API_BASE}?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(MEDICATION_PAGE_SIZE))}`;
 
   const payload = await fetchJson(url, {
@@ -187,11 +374,8 @@ async function cargarMedicamentos(page = medicationState.pagination.currentPage 
   });
 
   const normalized = window.HgaPagination?.normalizeResponse
-    ? window.HgaPagination.normalizeResponse(payload, {
-        page,
-        perPage: MEDICATION_PAGE_SIZE,
-      })
-      : {
+    ? window.HgaPagination.normalizeResponse(payload, { page, perPage: MEDICATION_PAGE_SIZE })
+    : {
         items: Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [],
         meta: {
           currentPage: page,
@@ -206,28 +390,32 @@ async function cargarMedicamentos(page = medicationState.pagination.currentPage 
 
   const collection = normalized.items.map(normalizeMedication);
   medicationState.pagination = normalized.meta;
-  medicationState.allItems = collection;
-  medicationState.items = normalized.meta.serverPaginated
+  medicationState.allItems   = collection;
+  medicationState.items      = normalized.meta.serverPaginated
     ? collection.slice()
     : (window.HgaPagination?.slicePage
-      ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
-      : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
+        ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
+        : collection.slice(
+            (normalized.meta.currentPage - 1) * normalized.meta.perPage,
+            normalized.meta.currentPage * normalized.meta.perPage
+          ));
+
   renderMedicationList();
   renderNoveltyList();
 }
 
 function normalizeMedication(item) {
   const normalized = item || {};
-  const id = normalized.Cod_medicamento ?? normalized.cod_medicamento ?? normalized.id ?? "";
-  const name = String(normalized.nombre_medic || "").trim();
-  const stock = Number(normalized.stock ?? 0);
+  const id          = normalized.Cod_medicamento ?? normalized.cod_medicamento ?? normalized.id ?? "";
+  const name        = String(normalized.nombre_medic || "").trim();
+  const stock       = Number(normalized.stock ?? 0);
   const description = String(normalized.descrip_novedad || "").trim();
-  const entryDate = String(normalized.fecha_entrada || "").trim();
-  const expiryDate = String(normalized.fecha_vencimiento || "").trim();
+  const entryDate   = String(normalized.fecha_entrada || "").trim();
+  const expiryDate  = String(normalized.fecha_vencimiento || "").trim();
   const noveltyDate = String(normalized.fecha_novedad || "").trim();
-  const userCode = Number(normalized.cod_usuario ?? 0);
-  const residentCode = Number(normalized.cod_residente ?? 0);
-  const roleCode = Number(normalized.cod_rol ?? 0);
+  const userCode    = Number(normalized.cod_usuario ?? 0);
+  const residentCode= Number(normalized.cod_residente ?? 0);
+  const roleCode    = Number(normalized.cod_rol ?? 0);
 
   return {
     raw: normalized,
@@ -238,48 +426,36 @@ function normalizeMedication(item) {
     entryDate,
     expiryDate,
     noveltyDate,
-    userCode: Number.isFinite(userCode) ? userCode : 0,
+    userCode:     Number.isFinite(userCode)     ? userCode     : 0,
     residentCode: Number.isFinite(residentCode) ? residentCode : 0,
-    roleCode: Number.isFinite(roleCode) ? roleCode : 0,
+    roleCode:     Number.isFinite(roleCode)     ? roleCode     : 0,
   };
 }
 
 function normalizeResident(item) {
   const normalized = item || {};
-  const code = Number(normalized.cod_residente ?? normalized.id ?? 0);
-  const name = String(normalized.nombre || "").trim();
+  const code  = Number(normalized.cod_residente ?? normalized.id ?? 0);
+  const name  = String(normalized.nombre  || "").trim();
   const lastName = String(normalized.apellido || "").trim();
   const label = [name, lastName].filter(Boolean).join(" ").trim() || `Residente ${code}`;
 
-  return {
-    code: Number.isFinite(code) ? code : 0,
-    label,
-  };
+  return { code: Number.isFinite(code) ? code : 0, label };
 }
 
 function normalizeCurrentUser(user) {
   const normalized = user || {};
-  const id = Number(normalized.id ?? 0);
-  const docId = String(normalized.doc_id ?? "").trim();
+  const id       = Number(normalized.id ?? 0);
+  const docId    = String(normalized.doc_id ?? "").trim();
   const fullName = [normalized.name, normalized.apellido].filter(Boolean).join(" ").trim();
   const displayName = fullName || normalized.username || normalized.email || `Usuario #${id || "sin id"}`;
 
-  return {
-    id: Number.isFinite(id) ? id : 0,
-    docId,
-    displayName,
-  };
+  return { id: Number.isFinite(id) ? id : 0, docId, displayName };
 }
 
 function syncStoredUser(user) {
   try {
-    const storedUser = readStoredUser() || {};
-    const mergedUser = {
-      ...storedUser,
-      ...user,
-      id: user.id ?? storedUser.id ?? "",
-    };
-
+    const storedUser  = readStoredUser() || {};
+    const mergedUser  = { ...storedUser, ...user, id: user.id ?? storedUser.id ?? "" };
     localStorage.setItem("usuario", JSON.stringify(mergedUser));
   } catch (error) {
     console.warn("No fue posible sincronizar el usuario en localStorage:", error);
@@ -287,12 +463,11 @@ function syncStoredUser(user) {
 }
 
 function initializeMedicationFormDefaults() {
-  const entryDateInput = document.getElementById("medicationEntryDate");
-  const userCodeInput = document.getElementById("medicationUserCode");
-  const userDisplayInput = document.getElementById("medicationUserDisplay");
-  const noveltyDateInput = document.getElementById("medicationNoveltyDate");
-
-  const today = toDateInputValue(new Date());
+  const entryDateInput  = document.getElementById("medicationEntryDate");
+  const userCodeInput   = document.getElementById("medicationUserCode");
+  const userDisplayInput= document.getElementById("medicationUserDisplay");
+  const noveltyDateInput= document.getElementById("medicationNoveltyDate");
+  const today           = toDateInputValue(new Date());
 
   if (entryDateInput instanceof HTMLInputElement && !entryDateInput.value) {
     entryDateInput.value = today;
@@ -325,7 +500,7 @@ function initializeMedicationFormDefaults() {
 }
 
 function setMedicationUserField(userCode, label, docId = "") {
-  const userCodeInput = document.getElementById("medicationUserCode");
+  const userCodeInput    = document.getElementById("medicationUserCode");
   const userDisplayInput = document.getElementById("medicationUserDisplay");
 
   if (userCodeInput instanceof HTMLInputElement) {
@@ -338,32 +513,22 @@ function setMedicationUserField(userCode, label, docId = "") {
 }
 
 function buildUserDisplayLabel(label, docId) {
-  if (!label && !docId) {
-    return "";
-  }
-
-  if (!docId) {
-    return String(label || "").trim();
-  }
-
+  if (!label && !docId) return "";
+  if (!docId) return String(label || "").trim();
   return `${String(label || "").trim()} (${docId})`;
 }
 
 function populateResidentOptions(selectedValue = "", options = {}) {
   const residentSelect = document.getElementById("medicationResidentCode");
-
-  if (!(residentSelect instanceof HTMLSelectElement)) {
-    return;
-  }
+  if (!(residentSelect instanceof HTMLSelectElement)) return;
 
   const { preserveStatus = false } = options;
   const normalizedSelection = String(selectedValue || "");
-  const residents = [...medicationState.residents].sort((left, right) =>
-    left.label.localeCompare(right.label, "es", { sensitivity: "base" })
+  const residents = [...medicationState.residents].sort((l, r) =>
+    l.label.localeCompare(r.label, "es", { sensitivity: "base" })
   );
 
   let markup = '<option value="">Selecciona un residente</option>';
-
   if (residents.length === 0) {
     markup = '<option value="">No hay residentes disponibles</option>';
   }
@@ -374,28 +539,27 @@ function populateResidentOptions(selectedValue = "", options = {}) {
     )}</option>`;
   }
 
-  if (normalizedSelection && !residents.some((resident) => String(resident.code) === normalizedSelection)) {
+  if (normalizedSelection && !residents.some((r) => String(r.code) === normalizedSelection)) {
     markup += `<option value="${escapeHtml(normalizedSelection)}">Residente #${escapeHtml(
       normalizedSelection
     )} (no disponible)</option>`;
   }
 
-  residentSelect.innerHTML = markup;
-  residentSelect.value = normalizedSelection;
-  residentSelect.disabled = residents.length === 0 && !normalizedSelection;
+  residentSelect.innerHTML  = markup;
+  residentSelect.value      = normalizedSelection;
+  residentSelect.disabled   = residents.length === 0 && !normalizedSelection;
 
   if (!preserveStatus) {
-    if (residents.length === 0) {
-      updateResidentStatus("No hay residentes disponibles en este momento.", "warn");
-    } else {
-      updateResidentStatus();
-    }
+    updateResidentStatus(
+      residents.length === 0 ? "No hay residentes disponibles en este momento." : "",
+      residents.length === 0 ? "warn" : ""
+    );
   }
 }
 
 function renderMedicationErrorState() {
   const medicationList = document.getElementById("medicationList");
-  const noveltyList = document.getElementById("noveltyList");
+  const noveltyList    = document.getElementById("noveltyList");
 
   if (medicationList instanceof HTMLElement) {
     medicationList.innerHTML = '<div class="empty-state">No fue posible cargar la lista.</div>';
@@ -408,17 +572,11 @@ function renderMedicationErrorState() {
 
 function updateResidentStatus(message = "", kind = "") {
   const residentStatus = document.getElementById("medicationResidentStatus");
-
-  if (!(residentStatus instanceof HTMLElement)) {
-    return;
-  }
+  if (!(residentStatus instanceof HTMLElement)) return;
 
   residentStatus.textContent = message;
   residentStatus.classList.remove("warn", "error");
-
-  if (kind === "warn" || kind === "error") {
-    residentStatus.classList.add(kind);
-  }
+  if (kind === "warn" || kind === "error") residentStatus.classList.add(kind);
 }
 
 function handleResidentLoadFailure(error) {
@@ -435,7 +593,6 @@ function handleResidentLoadFailure(error) {
 
 function applyStoredUserFallback() {
   const storedUser = readStoredUser();
-
   if (storedUser) {
     medicationState.currentUser = normalizeCurrentUser(storedUser);
   }
@@ -449,45 +606,32 @@ function applyStoredUserFallback() {
 
 function getSelectedResidentCode() {
   const residentSelect = document.getElementById("medicationResidentCode");
-
-  if (residentSelect instanceof HTMLSelectElement) {
-    return residentSelect.value;
-  }
-
-  return "";
+  return residentSelect instanceof HTMLSelectElement ? residentSelect.value : "";
 }
 
 function renderMedicationList() {
   const container = document.getElementById("medicationList");
-
-  if (!(container instanceof HTMLElement)) {
-    return;
-  }
+  if (!(container instanceof HTMLElement)) return;
 
   if (medicationState.items.length === 0) {
     container.innerHTML = MEDICATION_EMPTY_STATE;
     return;
   }
 
-  const sortedItems = [...medicationState.items].sort((left, right) =>
-    left.name.localeCompare(right.name, "es", { sensitivity: "base" })
+  const sortedItems = [...medicationState.items].sort((l, r) =>
+    l.name.localeCompare(r.name, "es", { sensitivity: "base" })
   );
 
   container.innerHTML = sortedItems
-    .map((item) => {
-      const stockLabel = `${item.stock} unid`;
-
-      return `
-        <div class="medication-row">
-          <span class="medication-name">${escapeHtml(item.name || "Sin nombre")}</span>
-          <span class="medication-stock">${escapeHtml(stockLabel)}</span>
-          <div class="medication-actions">
-            <button class="medication-action edit" type="button" data-action="edit" data-id="${escapeHtml(item.id)}">Editar</button>
-            <button class="medication-action delete" type="button" data-action="delete" data-id="${escapeHtml(item.id)}">Eliminar</button>
-          </div>
+    .map((item) => `
+      <div class="medication-row">
+        <span class="medication-name">${escapeHtml(item.name || "Sin nombre")}</span>
+        <span class="medication-stock">${escapeHtml(`${item.stock} unid`)}</span>
+        <div class="medication-actions">
+          <button class="medication-action edit"   type="button" data-action="edit"   data-id="${escapeHtml(item.id)}">Editar</button>
+          <button class="medication-action delete" type="button" data-action="delete" data-id="${escapeHtml(item.id)}">Eliminar</button>
         </div>
-      `;
-    })
+      </div>`)
     .join("");
 
   renderMedicationPagination();
@@ -495,17 +639,14 @@ function renderMedicationList() {
 
 function renderNoveltyList() {
   const container = document.getElementById("noveltyList");
+  if (!(container instanceof HTMLElement)) return;
 
-  if (!(container instanceof HTMLElement)) {
-    return;
-  }
-
-  const noveltyItems = [...medicationState.allItems.length > 0 ? medicationState.allItems : medicationState.items]
+  const noveltyItems = [...(medicationState.allItems.length > 0 ? medicationState.allItems : medicationState.items)]
     .filter((item) => item.description || item.noveltyDate || item.entryDate)
-    .sort((left, right) => {
-      const leftDate = parseDate(left.noveltyDate || left.entryDate || left.expiryDate);
-      const rightDate = parseDate(right.noveltyDate || right.entryDate || right.expiryDate);
-      return (rightDate?.getTime() || 0) - (leftDate?.getTime() || 0);
+    .sort((l, r) => {
+      const ld = parseDate(l.noveltyDate || l.entryDate || l.expiryDate);
+      const rd = parseDate(r.noveltyDate || r.entryDate || r.expiryDate);
+      return (rd?.getTime() || 0) - (ld?.getTime() || 0);
     })
     .slice(0, 3);
 
@@ -515,26 +656,17 @@ function renderNoveltyList() {
   }
 
   container.innerHTML = noveltyItems
-    .map((item) => {
-      const title = item.description || `${item.name} actualizado`;
-      const dateValue = item.noveltyDate || item.entryDate || item.expiryDate;
-
-      return `
-        <article class="novelty-card">
-          <p class="novelty-title">${escapeHtml(title)}</p>
-          <p class="novelty-meta">${escapeHtml(formatRelativeDate(dateValue))}</p>
-        </article>
-      `;
-    })
+    .map((item) => `
+      <article class="novelty-card">
+        <p class="novelty-title">${escapeHtml(item.description || `${item.name} actualizado`)}</p>
+        <p class="novelty-meta">${escapeHtml(formatRelativeDate(item.noveltyDate || item.entryDate || item.expiryDate))}</p>
+      </article>`)
     .join("");
 }
 
 function renderMedicationPagination() {
   const host = getMedicationPaginationHost();
-
-  if (!(host instanceof HTMLElement) || !window.HgaPagination) {
-    return;
-  }
+  if (!(host instanceof HTMLElement) || !window.HgaPagination) return;
 
   window.HgaPagination.renderControls(host, medicationState.pagination, (page) => {
     void cargarMedicamentos(page, { force: true });
@@ -546,80 +678,55 @@ function renderMedicationPagination() {
 
 function handleMedicationListClick(event) {
   const target = event.target;
-
-  if (!(target instanceof HTMLElement)) {
-    return;
-  }
+  if (!(target instanceof HTMLElement)) return;
 
   const actionButton = target.closest("[data-action]");
-  if (!(actionButton instanceof HTMLButtonElement)) {
-    return;
-  }
+  if (!(actionButton instanceof HTMLButtonElement)) return;
 
   const medicationId = String(actionButton.dataset.id || "");
-  const action = String(actionButton.dataset.action || "");
+  const action       = String(actionButton.dataset.action || "");
 
-  if (action === "edit") {
-    cargarFormularioEdicion(medicationId);
-    return;
-  }
-
-  if (action === "delete") {
-    void eliminarMedicamento(medicationId);
-  }
+  if (action === "edit")   { cargarFormularioEdicion(medicationId); return; }
+  if (action === "delete") { void eliminarMedicamento(medicationId); }
 }
 
 function cargarFormularioEdicion(id) {
   const selected = medicationState.items.find((item) => item.id === id);
-
   if (!selected) {
     mostrarError("No fue posible cargar el medicamento para editar.");
     return;
   }
 
-  const nameInput = document.getElementById("medicationName");
-  const stockInput = document.getElementById("medicationStock");
-  const entryDateInput = document.getElementById("medicationEntryDate");
-  const expiryDateInput = document.getElementById("medicationExpiryDate");
-  const residentCodeInput = document.getElementById("medicationResidentCode");
+  const nameInput        = document.getElementById("medicationName");
+  const stockInput       = document.getElementById("medicationStock");
+  const entryDateInput   = document.getElementById("medicationEntryDate");
+  const expiryDateInput  = document.getElementById("medicationExpiryDate");
+  const residentCodeInput= document.getElementById("medicationResidentCode");
   const noveltyDateInput = document.getElementById("medicationNoveltyDate");
   const descriptionInput = document.getElementById("medicationDescription");
-  const editingIdInput = document.getElementById("medicationEditingId");
-  const submitButton = document.getElementById("medicationSubmitButton");
-  const cancelButton = document.getElementById("medicationCancelButton");
+  const editingIdInput   = document.getElementById("medicationEditingId");
+  const submitButton     = document.getElementById("medicationSubmitButton");
+  const cancelButton     = document.getElementById("medicationCancelButton");
 
-  if (nameInput instanceof HTMLInputElement) {
-    nameInput.value = selected.name;
-  }
-
-  if (stockInput instanceof HTMLInputElement) {
-    stockInput.value = String(selected.stock);
-  }
-
-  if (entryDateInput instanceof HTMLInputElement) {
-    entryDateInput.value = selected.entryDate;
-  }
-
-  if (expiryDateInput instanceof HTMLInputElement) {
-    expiryDateInput.value = selected.expiryDate;
-  }
+  if (nameInput        instanceof HTMLInputElement)    nameInput.value        = selected.name;
+  if (stockInput       instanceof HTMLInputElement)    stockInput.value       = String(selected.stock);
+  if (entryDateInput   instanceof HTMLInputElement)    entryDateInput.value   = selected.entryDate;
+  if (expiryDateInput  instanceof HTMLInputElement)    expiryDateInput.value  = selected.expiryDate;
+  if (noveltyDateInput instanceof HTMLInputElement)    noveltyDateInput.value = selected.noveltyDate;
+  if (descriptionInput instanceof HTMLTextAreaElement) descriptionInput.value = selected.description;
+  if (editingIdInput   instanceof HTMLInputElement)    editingIdInput.value   = selected.id;
 
   if (residentCodeInput instanceof HTMLSelectElement) {
-    populateResidentOptions(selected.residentCode > 0 ? String(selected.residentCode) : "", {
-      preserveStatus: Boolean(medicationState.residentLoadError),
-    });
+    populateResidentOptions(
+      selected.residentCode > 0 ? String(selected.residentCode) : "",
+      { preserveStatus: Boolean(medicationState.residentLoadError) }
+    );
   }
 
-  if (noveltyDateInput instanceof HTMLInputElement) {
-    noveltyDateInput.value = selected.noveltyDate;
-  }
-
-  if (descriptionInput instanceof HTMLTextAreaElement) {
-    descriptionInput.value = selected.description;
-  }
-
-  if (editingIdInput instanceof HTMLInputElement) {
-    editingIdInput.value = selected.id;
+  /* Cargar medicamentos del residente en el modal */
+  assignMedModule.reset();
+  if (selected.residentCode > 0) {
+    void assignMedModule.loadByResident(selected.residentCode);
   }
 
   setMedicationUserField(
@@ -630,42 +737,27 @@ function cargarFormularioEdicion(id) {
 
   medicationState.editingId = selected.id;
 
-  if (submitButton instanceof HTMLButtonElement) {
-    submitButton.textContent = "Actualizar medicamento";
-  }
-
-  if (cancelButton instanceof HTMLButtonElement) {
-    cancelButton.hidden = false;
-  }
-
-  if (nameInput instanceof HTMLInputElement) {
-    nameInput.focus();
-  }
+  if (submitButton instanceof HTMLButtonElement) submitButton.textContent = "Actualizar medicamento";
+  if (cancelButton instanceof HTMLButtonElement) cancelButton.hidden = false;
+  if (nameInput    instanceof HTMLInputElement)  nameInput.focus();
 }
 
 function resetMedicationForm() {
-  const form = document.getElementById("medicationForm");
+  const form         = document.getElementById("medicationForm");
   const submitButton = document.getElementById("medicationSubmitButton");
   const cancelButton = document.getElementById("medicationCancelButton");
   const editingIdInput = document.getElementById("medicationEditingId");
 
-  if (form instanceof HTMLFormElement) {
-    form.reset();
-  }
+  if (form instanceof HTMLFormElement) form.reset();
 
   medicationState.editingId = "";
 
-  if (editingIdInput instanceof HTMLInputElement) {
-    editingIdInput.value = "";
-  }
+  if (editingIdInput   instanceof HTMLInputElement)  editingIdInput.value   = "";
+  if (submitButton     instanceof HTMLButtonElement) submitButton.textContent = "Guardar medicamentos";
+  if (cancelButton     instanceof HTMLButtonElement) cancelButton.hidden     = true;
 
-  if (submitButton instanceof HTMLButtonElement) {
-    submitButton.textContent = "Guardar medicamentos";
-  }
-
-  if (cancelButton instanceof HTMLButtonElement) {
-    cancelButton.hidden = true;
-  }
+  /* Limpiar campo de medicamento asignado */
+  assignMedModule.reset();
 
   initializeMedicationFormDefaults();
 }
@@ -674,90 +766,58 @@ async function handleMedicationSubmit(event) {
   event.preventDefault();
 
   const form = event.currentTarget;
-  if (!(form instanceof HTMLFormElement)) {
-    return;
-  }
+  if (!(form instanceof HTMLFormElement)) return;
+  if (medicationState.isSubmitting) return;
 
-  if (medicationState.isSubmitting) {
-    return;
-  }
-
-  const formData = new FormData(form);
-  const name = String(formData.get("nombre_medic") || "").trim();
-  const stockValue = Number(String(formData.get("stock") || "").trim());
-  const entryDate = String(formData.get("fecha_entrada") || "").trim();
-  const expiryDate = String(formData.get("fecha_vencimiento") || "").trim();
-  const userCodeValue = Number(String(formData.get("cod_usuario") || "").trim());
+  const formData          = new FormData(form);
+  const name              = String(formData.get("nombre_medic") || "").trim();
+  const stockValue        = Number(String(formData.get("stock") || "").trim());
+  const entryDate         = String(formData.get("fecha_entrada") || "").trim();
+  const expiryDate        = String(formData.get("fecha_vencimiento") || "").trim();
+  const userCodeValue     = Number(String(formData.get("cod_usuario") || "").trim());
   const residentCodeValue = Number(String(formData.get("cod_residente") || "").trim());
-  const noveltyDate = String(formData.get("fecha_novedad") || "").trim();
-  const description = String(formData.get("descrip_novedad") || "").trim();
-  const editingId = medicationState.editingId || String(formData.get("editing_id") || "");
-  const selected = medicationState.items.find((item) => item.id === editingId);
+  const noveltyDate       = String(formData.get("fecha_novedad") || "").trim();
+  const description       = String(formData.get("descrip_novedad") || "").trim();
+  const editingId         = medicationState.editingId || String(formData.get("editing_id") || "");
+  const selected          = medicationState.items.find((item) => item.id === editingId);
 
-  if (!name) {
-    mostrarError("Ingresa el nombre del medicamento.");
-    return;
-  }
-
-  if (name.length > 10) {
-    mostrarError("El nombre del medicamento no puede superar 10 caracteres.");
-    return;
-  }
-
-  if (!Number.isInteger(stockValue) || stockValue < 0) {
-    mostrarError("Ingresa un stock valido.");
-    return;
-  }
-
-  if (!entryDate) {
-    mostrarError("Selecciona la fecha de entrada.");
-    return;
-  }
-
-  if (!expiryDate) {
-    mostrarError("Selecciona la fecha de vencimiento.");
-    return;
-  }
-
+  /* Validaciones */
+  if (!name) { mostrarError("Ingresa el nombre del medicamento."); return; }
+  if (name.length > 10) { mostrarError("El nombre del medicamento no puede superar 10 caracteres."); return; }
+  if (!Number.isInteger(stockValue) || stockValue < 0) { mostrarError("Ingresa un stock valido."); return; }
+  if (!entryDate)  { mostrarError("Selecciona la fecha de entrada."); return; }
+  if (!expiryDate) { mostrarError("Selecciona la fecha de vencimiento."); return; }
   if (parseDate(expiryDate)?.getTime() < parseDate(entryDate)?.getTime()) {
-    mostrarError("La fecha de vencimiento debe ser igual o posterior a la fecha de entrada.");
-    return;
+    mostrarError("La fecha de vencimiento debe ser igual o posterior a la fecha de entrada."); return;
   }
-
   if (!Number.isInteger(userCodeValue) || userCodeValue <= 0) {
-    mostrarError("No fue posible identificar al usuario autenticado.");
-    return;
+    mostrarError("No fue posible identificar al usuario autenticado."); return;
   }
-
   if (!Number.isInteger(residentCodeValue) || residentCodeValue <= 0) {
-    mostrarError("Selecciona un residente valido.");
-    return;
+    mostrarError("Selecciona un residente valido."); return;
   }
-
   if (description.length > 100) {
-    mostrarError("La descripcion de la novedad no puede superar 100 caracteres.");
-    return;
+    mostrarError("La descripcion de la novedad no puede superar 100 caracteres."); return;
   }
 
   medicationState.isSubmitting = true;
   setMedicationFormSubmittingState(true);
 
   const payload = {
-    nombre_medic: name,
-    fecha_entrada: entryDate,
+    nombre_medic:      name,
+    fecha_entrada:     entryDate,
     fecha_vencimiento: expiryDate,
-    cod_usuario: userCodeValue,
-    cod_residente: residentCodeValue,
-    stock: stockValue,
+    cod_usuario:       userCodeValue,
+    cod_residente:     residentCodeValue,
+    stock:             stockValue,
   };
 
-  if (description) {
-    payload.descrip_novedad = description;
-  }
+  if (description) payload.descrip_novedad = description;
+  if (noveltyDate) payload.fecha_novedad   = noveltyDate;
 
-  if (noveltyDate) {
-    payload.fecha_novedad = noveltyDate;
-  }
+  /* Incluir medicamento asignado si el usuario seleccionó uno */
+  const assignedMedId = assignMedModule.getSelectedId();
+  if (assignedMedId) payload.cod_medicamento_asignado = Number(assignedMedId);
 
   try {
     if (selected) {
@@ -792,10 +852,7 @@ async function eliminarMedicamento(id) {
     "¿Estas seguro de que deseas eliminar este medicamento?",
     "Eliminar medicamento"
   );
-
-  if (!shouldDelete) {
-    return;
-  }
+  if (!shouldDelete) return;
 
   try {
     await fetchJson(`${MEDICAMENTOS_API_BASE}/${encodeURIComponent(id)}`, {
@@ -803,9 +860,7 @@ async function eliminarMedicamento(id) {
       headers: buildHeaders(false),
     });
 
-    if (medicationState.editingId === id) {
-      resetMedicationForm();
-    }
+    if (medicationState.editingId === id) resetMedicationForm();
 
     await window.HgaAlerts.success("Medicamento eliminado correctamente");
     await cargarMedicamentos(medicationState.pagination.currentPage || 1, { force: true });
@@ -816,52 +871,31 @@ async function eliminarMedicamento(id) {
 }
 
 function parseDate(value) {
-  if (!value) {
-    return null;
-  }
-
+  if (!value) return null;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function formatRelativeDate(value) {
   const parsed = parseDate(value);
-  if (!parsed) {
-    return "Sin fecha";
-  }
+  if (!parsed) return "Sin fecha";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const current = new Date(parsed);
-  current.setHours(0, 0, 0, 0);
-
+  const today   = new Date(); today.setHours(0,0,0,0);
+  const current = new Date(parsed); current.setHours(0,0,0,0);
   const diffInDays = Math.round((today.getTime() - current.getTime()) / 86400000);
 
-  if (diffInDays === 0) {
-    return "Hoy";
-  }
+  if (diffInDays === 0) return "Hoy";
+  if (diffInDays === 1) return "Ayer";
 
-  if (diffInDays === 1) {
-    return "Ayer";
-  }
-
-  return parsed.toLocaleDateString("es-CO", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return parsed.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function toDateInputValue(date) {
   const parsed = date instanceof Date ? date : new Date(date);
-  if (Number.isNaN(parsed.getTime())) {
-    return "";
-  }
-
-  const year = parsed.getFullYear();
+  if (Number.isNaN(parsed.getTime())) return "";
+  const year  = parsed.getFullYear();
   const month = String(parsed.getMonth() + 1).padStart(2, "0");
-  const day = String(parsed.getDate()).padStart(2, "0");
+  const day   = String(parsed.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -869,9 +903,7 @@ function readStoredUser() {
   try {
     const rawUser = localStorage.getItem("usuario");
     return rawUser ? JSON.parse(rawUser) : null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function clearStoredSession() {
@@ -896,10 +928,10 @@ function mostrarError(mensaje) {
 function setMedicationFormSubmittingState(isSubmitting) {
   const submitButton = document.getElementById("medicationSubmitButton");
   const cancelButton = document.getElementById("medicationCancelButton");
-  const form = document.getElementById("medicationForm");
+  const form         = document.getElementById("medicationForm");
 
   if (submitButton instanceof HTMLButtonElement) {
-    submitButton.disabled = isSubmitting;
+    submitButton.disabled    = isSubmitting;
     submitButton.textContent = isSubmitting
       ? "Guardando..."
       : medicationState.editingId
@@ -907,11 +939,6 @@ function setMedicationFormSubmittingState(isSubmitting) {
         : "Guardar medicamentos";
   }
 
-  if (cancelButton instanceof HTMLButtonElement) {
-    cancelButton.disabled = isSubmitting;
-  }
-
-  if (form instanceof HTMLFormElement) {
-    form.dataset.submitting = isSubmitting ? "true" : "false";
-  }
+  if (cancelButton instanceof HTMLButtonElement) cancelButton.disabled = isSubmitting;
+  if (form instanceof HTMLFormElement) form.dataset.submitting = isSubmitting ? "true" : "false";
 }
