@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\actividadesController;
 use App\Http\Controllers\citasController;
+use App\Http\Controllers\chatbotContextController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\googleAuthController;
 use App\Http\Controllers\informesController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\visitasController;
 Route::get('/test', function () {
     return response()->json(['success' => true, 'message' => 'Backend working!'], 200);
 });
+Route::get('/chatbot/context', [chatbotContextController::class, 'show'])->middleware(['auth.api']);
+Route::get('/chatbot/viewer-context', [chatbotContextController::class, 'viewer'])->middleware(['auth.api']);
 
 Route::get('/auth/google', [googleAuthController::class, 'redirectToGoogle'])
     ->name('auth.google');

@@ -243,6 +243,85 @@ class RoleAccessScopingTest extends TestCase
         $this->postJson('/api/citas', [])->assertForbidden();
     }
 
+    public function test_tutor_chatbot_context_includes_scoped_knowledge_and_role_based_views(): void
+    {
+        $tutor = $this->createUser(4001, 4, 'tutor1@example.com');
+        $this->createUser(4002, 4, 'tutor2@example.com');
+
+        residentes::query()->create([
+            'cod_residente' => 1,
+            'nombre' => 'Ana',
+            'apellido' => 'Tutor',
+            'edad' => 82,
+            'patologia' => 'Hipertension',
+            'RH' => 'O+',
+            'cod_usuario' => 4001,
+            'cod_rol' => 4,
+        ]);
+
+        residentes::query()->create([
+            'cod_residente' => 2,
+            'nombre' => 'Luis',
+            'apellido' => 'Ajeno',
+            'edad' => 84,
+            'patologia' => 'Diabetes',
+            'RH' => 'A+',
+            'cod_usuario' => 4002,
+            'cod_rol' => 4,
+        ]);
+
+        actividades::query()->create([
+            'Cod_acti_ludi' => 1,
+            'Nombre' => 'Lectura guiada',
+            'Fecha' => now()->addDay()->format('Y-m-d'),
+            'Hora_ini' => '09:00:00',
+            'Hora_fin' => '10:00:00',
+            'cod_residente' => 1,
+            'cod_rol' => 2,
+            'Lugar' => 'Salon principal',
+        ]);
+
+        actividades::query()->create([
+            'Cod_acti_ludi' => 2,
+            'Nombre' => 'Actividad ajena',
+            'Fecha' => now()->addDays(2)->format('Y-m-d'),
+            'Hora_ini' => '11:00:00',
+            'Hora_fin' => '12:00:00',
+            'cod_residente' => 2,
+            'cod_rol' => 2,
+            'Lugar' => 'Salon 2',
+        ]);
+
+        visitas::query()->create([
+            'cod_Visitas' => 1,
+            'doc_id' => 5001,
+            'Nomb_visitante' => 'Laura',
+            'cod_Residente' => 1,
+            'Fecha_Visita' => now()->addDay()->format('Y-m-d'),
+            'cod_usuario' => 4001,
+        ]);
+
+        visitas::query()->create([
+            'cod_Visitas' => 2,
+            'doc_id' => 5002,
+            'Nomb_visitante' => 'Carlos',
+            'cod_Residente' => 2,
+            'Fecha_Visita' => now()->addDays(2)->format('Y-m-d'),
+            'cod_usuario' => 4002,
+        ]);
+
+        $this->actingAs($tutor, 'api');
+
+        $this->getJson('/api/chatbot/context')
+            ->assertOk()
+            ->assertJsonPath('data.view_routes.actividades.href', 'recreational_activities.html')
+            ->assertJsonPath('data.view_routes.visitas.href', 'home.html')
+            ->assertJsonPath('data.knowledge.activities.items.0.title', 'Lectura guiada')
+            ->assertJsonPath('data.knowledge.visits.items.0.visitor', 'Laura')
+            ->assertJsonCount(1, 'data.knowledge.activities.items')
+            ->assertJsonCount(1, 'data.knowledge.visits.items');
+    }
+
     public function test_enfermero_can_view_all_informes(): void
     {
         $nurse = $this->createUser(2001, 2, 'nurse@example.com');

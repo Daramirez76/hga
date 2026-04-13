@@ -71,6 +71,4 @@
     window.location.replace(getRoleHome(roleCode, tutorHome, staffHome));
     return;
   }
-
-  documentElement.classList.remove("hga-access-pending");
 })();
