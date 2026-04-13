@@ -33,6 +33,7 @@ const citaInputIds = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  setManagementVisibility(false);
   setupProfileMenu();
   setupCitaFieldValidation();
   setupEscapeShortcuts();
@@ -224,6 +225,13 @@ function setupEscapeShortcuts() {
   });
 }
 
+function setManagementVisibility(isVisible) {
+  const registerButton = document.getElementById("btnRegistrarCita");
+  if (registerButton instanceof HTMLButtonElement) {
+    registerButton.hidden = !isVisible;
+  }
+}
+
 function setSuggestedCodCita() {
   const input = document.getElementById("regCodCita");
   if (!(input instanceof HTMLInputElement)) {
@@ -378,6 +386,7 @@ async function cargarCitas(page = citasState.pagination.currentPage || 1, option
         ? window.HgaPagination.slicePage(collection, normalized.meta.currentPage, normalized.meta.perPage)
         : collection.slice((normalized.meta.currentPage - 1) * normalized.meta.perPage, normalized.meta.currentPage * normalized.meta.perPage));
     citasState.citas.sort((a, b) => Number.parseInt(String(b.codCita), 10) - Number.parseInt(String(a.codCita), 10));
+    setManagementVisibility(true);
 
     if (citasState.filtroActivo) {
       renderCitas(citasState.citas);
