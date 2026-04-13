@@ -186,7 +186,6 @@
       }
 
       applyUserToBody(storedUser);
-      markPageReady();
     }
 
     const user = await fetchCurrentUser();

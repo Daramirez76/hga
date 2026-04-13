@@ -687,5 +687,6 @@ function applyRoleMode() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindResidentesEvents();
+  applyRoleMode();
   loadResidentes();
 });

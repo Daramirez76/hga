@@ -49,6 +49,7 @@ const dom = {
 
 document.addEventListener("DOMContentLoaded", () => {
   cacheDom();
+  setManagementVisibility(false);
   wireEvents();
   bootstrapInformes();
 });
@@ -108,6 +109,12 @@ function wireEvents() {
   }
 }
 
+function setManagementVisibility(isVisible) {
+  if (dom.newButton instanceof HTMLButtonElement) {
+    dom.newButton.hidden = !isVisible;
+  }
+}
+
 async function bootstrapInformes() {
   if (!getStoredToken()) {
     window.location.href = LOGIN_URL;
@@ -133,6 +140,7 @@ async function bootstrapInformes() {
 
     await loadInformes();
     updateContext();
+    setManagementVisibility(true);
 
     if (residentResult.status === "rejected") {
       showBanner("No fue posible cargar la lista de residentes. El resto del modulo sigue disponible.", "warning");

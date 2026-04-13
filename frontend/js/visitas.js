@@ -57,6 +57,7 @@ const dom = {
 
 document.addEventListener("DOMContentLoaded", () => {
   cacheDom();
+  setManagementVisibility(false);
   wireEvents();
   void bootstrapVisitas();
 });
@@ -143,6 +144,12 @@ function wireEvents() {
   });
 }
 
+function setManagementVisibility(isVisible) {
+  if (dom.newButton instanceof HTMLButtonElement) {
+    dom.newButton.hidden = !isVisible;
+  }
+}
+
 async function bootstrapVisitas() {
   if (!getStoredToken()) {
     window.location.href = LOGIN_URL;
@@ -170,6 +177,7 @@ async function bootstrapVisitas() {
     await loadVisits();
     updateCounters();
     refreshSessionSummary();
+    setManagementVisibility(true);
 
     if (visitasState.residentLoadError) {
       showBanner(`${visitasState.residentLoadError} El listado de visitas sigue disponible, pero crear/editar queda limitado.`, "warning");
