@@ -40,10 +40,12 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSL_CA: ${DB_SSL_CA}
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
+      - ./ca.pem:/etc/mysql/certs/ca.pem:ro
       - app_vendor:/var/www/html/vendor
     depends_on:
       db:
@@ -51,8 +53,8 @@ services:
     command: >
       sh -c "
       echo 'Esperando a que MySQL esté listo...' &&
-      until timeout 1 bash -c 'cat < /dev/null > /dev/tcp/db/3306' 2>/dev/null; do
-        echo 'Esperando a MySQL en db:3306...' &&
+      until timeout 1 bash -c 'cat < /dev/null > /dev/tcp/'\"$${DB_HOST}\"'/'\"$${DB_PORT}\" 2>/dev/null; do
+        echo \"Esperando a MySQL en $${DB_HOST}:$${DB_PORT}...\" &&
         sleep 2
       done &&
       echo 'MySQL está disponible. Iniciando aplicación...' &&
