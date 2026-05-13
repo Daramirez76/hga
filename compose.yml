@@ -1,0 +1,156 @@
+services:
+  # Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: hga_db
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/hogar_geriatrico.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      start_period: 60s
+      timeout: 20s
+      retries: 10
+    networks:
+      - hga_network
+
+  # Aplicación Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: hga_app
+    env_file: .env
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSL_CA: ${DB_SSL_CA}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+      - ./ca.pem:/etc/mysql/certs/ca.pem:ro
+      - app_vendor:/var/www/html/vendor
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+      echo 'Esperando a que MySQL esté listo...' &&
+      until timeout 1 bash -c 'cat < /dev/null > /dev/tcp/'\"$${DB_HOST}\"'/'\"$${DB_PORT}\" 2>/dev/null; do
+        echo \"Esperando a MySQL en $${DB_HOST}:$${DB_PORT}...\" &&
+        sleep 2
+      done &&
+      echo 'MySQL está disponible. Iniciando aplicación...' &&
+      mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && 
+      rm -f bootstrap/cache/*.php &&
+      chmod -R 775 storage bootstrap/cache && 
+      php artisan migrate --force && 
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+    networks:
+      - hga_network
+
+  # Frontend Nginx
+  frontend:
+    image: nginx:alpine
+    container_name: hga_frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - hga_network
+
+  # Chatbot FastAPI
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: chatbot
+    container_name: hga_chatbot
+    env_file: .env
+    environment:
+      GEMINI_API: ${GEMINI_API}
+      BACKEND_API_URL: http://app:8000/api
+      CHATBOT_RATE_LIMIT: ${CHATBOT_RATE_LIMIT}
+      CHATBOT_RATE_WINDOW: ${CHATBOT_RATE_WINDOW}
+    volumes:
+      - ./chatbot:/app
+    networks:
+      - hga_network
+
+  # SonarQube
+  sonarqube_sysctl:
+    image: alpine:3.20
+    container_name: sonarqube_sysctl
+    privileged: true
+    command: ["sh", "-c", "sysctl -w vm.max_map_count=262144"]
+    restart: "no"
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    depends_on:
+      sonarqube_sysctl:
+        condition: service_completed_successfully
+      postgres_db:
+        condition: service_started
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres_db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - hga_network
+
+  # PostgreSQL para SonarQube
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - hga_network
+
+volumes:
+  db_data:
+  app_vendor:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  postgresql_data:
+
+networks:
+  hga_network:
+    driver: bridge

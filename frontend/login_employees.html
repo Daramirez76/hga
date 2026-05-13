@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        :root {
+            --hga-primary: #299c4c;
+            --hga-secondary: #4db6ac;
+            --hga-accent: #66bb6a;
+            --hga-surface: #ffffff;
+            --hga-text-soft: #55706a;
+            --hga-bg-top: #94d7d1;
+            --hga-bg-bottom: #e0f2f1;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--hga-bg-top) 0%, #b8e6e1 42%, var(--hga-bg-bottom) 100%);
+            color: #1f1f1f;
+        }
+
+        .page-shell {
+            min-height: 100vh;
+        }
+
+        .top-bar,
+        .login-panel,
+        .login-side-card {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-bar {
+            border-radius: 1.5rem;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+        }
+
+        .screen-title {
+            color: #1b7f93;
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            font-weight: 400;
+        }
+
+        .login-panel {
+            border-radius: 2rem;
+        }
+
+        .login-shell {
+            max-width: 560px;
+            width: 100%;
+        }
+
+        .panel-title {
+            color: var(--hga-primary);
+            font-size: clamp(2.1rem, 3vw, 3.2rem);
+            font-weight: 700;
+        }
+
+        .login-label {
+            color: var(--hga-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .login-input,
+        .login-input:focus {
+            border: 1px solid rgba(41, 156, 76, 0.75);
+            border-radius: 0.7rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            min-height: 52px;
+        }
+
+        .login-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.16), 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .forgot-link {
+            color: var(--hga-primary);
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover,
+        .forgot-link:focus {
+            color: var(--hga-secondary);
+        }
+
+        .login-cta,
+        .login-secondary {
+            border-radius: 0.7rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+            font-size: 0.92rem;
+            font-weight: 700;
+            min-height: 50px;
+            text-transform: uppercase;
+        }
+
+        .login-cta {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+            color: #fff;
+        }
+
+        .login-cta:hover,
+        .login-cta:focus {
+            background: linear-gradient(90deg, #2f8f4c, #237f75);
+            color: #fff;
+        }
+
+        .login-secondary {
+            background: linear-gradient(90deg, #ffffff, var(--hga-bg-bottom));
+            border: 1px solid #d9e5e2;
+            color: var(--hga-primary);
+        }
+
+        .login-secondary:hover,
+        .login-secondary:focus {
+            color: var(--hga-primary);
+            background: linear-gradient(90deg, #f8fbfb, #d5ece8);
+        }
+
+        .field-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.14) !important;
+        }
+
+        .footer-strip {
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        @media (max-width: 991.98px) {
+            .login-panel {
+                border-radius: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body data-login-redirect="home_employees.html">
+    <div class="page-shell d-flex flex-column">
+        <header class="container py-4 py-lg-5">
+            <div class="top-bar px-3 px-lg-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index_employees.html" class="text-decoration-none">
+                        <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle">
+                    </a>
+                    <span class="screen-title mb-0">Iniciar sesion</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container flex-grow-1 pb-4 pb-lg-5">
+            <section class="login-panel login-shell mx-auto px-4 px-md-5 py-4 py-md-5">
+                <div class="row justify-content-center align-items-center g-4 g-xl-5">
+                    <div class="col-12">
+                        <div>
+                            <h2 class="panel-title text-center mb-4">Iniciar Sesion</h2>
+
+                            <form id="loginForm" novalidate>
+                                <div class="mb-4">
+                                    <label for="usuario" class="form-label login-label">Correo electronico o usuario</label>
+                                    <input type="text" id="usuario" name="usuario" class="form-control login-input" autocomplete="username" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contrasena" class="form-label login-label">Contrasena</label>
+                                    <input type="password" id="contrasena" name="contrasena" class="form-control login-input" required>
+                                </div>
+
+                                <div class="text-end mb-4">
+                                    <a href="forgot_password.html?return_to=login_employees.html" class="forgot-link">Olvidaste tu contrasena?</a>
+                                </div>
+
+                                <div class="row g-3 justify-content-center">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn login-cta w-100">Iniciar Sesion</button>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn login-secondary w-100" onclick="window.location.href='index_employees.html'">Regresar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-strip py-4 mt-auto">
+            <div class="container text-center">
+                <small class="fs-5">derechos reservados HGA &copy; 2025 | Hogar Geriatrico</small>
+            </div>
+        </footer>
+    </div>
+
+    <script src="./js/alerts.js"></script>
+    <script src="./js/login_validate.js?v=20260325-1"></script>
+</body>
+</html>

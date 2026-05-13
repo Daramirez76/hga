@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>Registrarse</title>
+    <style>
+        :root {
+            --hga-primary: #299c4c;
+            --hga-secondary: #4db6ac;
+            --hga-accent: #66bb6a;
+            --hga-surface: #ffffff;
+            --hga-muted: #e9eeee;
+            --hga-bg-top: #94d7d1;
+            --hga-bg-bottom: #e0f2f1;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--hga-bg-top) 0%, #b8e6e1 42%, var(--hga-bg-bottom) 100%);
+            color: #1f1f1f;
+        }
+
+        .page-shell {
+            min-height: 100vh;
+        }
+
+        .top-bar,
+        .main-panel,
+        .success-card {
+            background: var(--hga-surface);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-bar {
+            border-radius: 1.5rem;
+        }
+
+        .main-panel {
+            border-radius: 2rem;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+        }
+
+        .screen-title {
+            color: #38bdd3;
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            font-weight: 400;
+        }
+
+        .panel-title {
+            color: var(--hga-primary);
+            font-size: clamp(2rem, 3vw, 3rem);
+            font-weight: 700;
+        }
+
+        .register-label {
+            color: var(--hga-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .register-input,
+        .register-input:focus,
+        .register-select,
+        .register-select:focus {
+            border: 1px solid rgba(41, 156, 76, 0.75);
+            border-radius: 0.65rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            min-height: 44px;
+        }
+
+        .register-input:focus,
+        .register-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.16), 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .register-cta,
+        .register-secondary {
+            border-radius: 0.65rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+            font-size: 0.875rem;
+            font-weight: 700;
+            min-height: 46px;
+            text-transform: uppercase;
+        }
+
+        .register-cta {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+        }
+
+        .register-cta:hover,
+        .register-cta:focus {
+            background: linear-gradient(90deg, #5eb863, #44b0a4);
+        }
+
+        .register-secondary {
+            background: linear-gradient(90deg, #ffffff, var(--hga-bg-bottom));
+            border: 1px solid #d9e5e2;
+            color: var(--hga-primary);
+        }
+
+        .register-secondary:hover,
+        .register-secondary:focus {
+            color: var(--hga-primary);
+            background: linear-gradient(90deg, #f8fbfb, #d5ece8);
+        }
+
+        .wizard-progress {
+            align-items: center;
+            display: flex;
+            gap: 0.85rem;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 560px;
+        }
+
+        .wizard-step {
+            align-items: center;
+            color: #6c8a84;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            font-weight: 700;
+            gap: 0.5rem;
+            text-align: center;
+            transition: color 0.2s ease;
+        }
+
+        .wizard-step.is-active,
+        .wizard-step.is-complete {
+            color: var(--hga-primary);
+        }
+
+        .wizard-badge {
+            align-items: center;
+            background: #d8ebe7;
+            border: 2px solid transparent;
+            border-radius: 999px;
+            color: #4f6b65;
+            display: inline-flex;
+            font-size: 1rem;
+            font-weight: 700;
+            height: 46px;
+            justify-content: center;
+            transition: all 0.2s ease;
+            width: 46px;
+        }
+
+        .wizard-step.is-active .wizard-badge,
+        .wizard-step.is-complete .wizard-badge {
+            background: linear-gradient(135deg, var(--hga-accent), var(--hga-secondary));
+            border-color: rgba(41, 156, 76, 0.4);
+            color: #ffffff;
+        }
+
+        .wizard-line {
+            background: linear-gradient(90deg, #d5e7e3, #c3dfdb);
+            border-radius: 999px;
+            flex: 1 1 60px;
+            height: 5px;
+            max-width: 90px;
+        }
+
+        .wizard-line.is-complete {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+        }
+
+        .wizard-pane[hidden] {
+            display: none !important;
+        }
+
+        .wizard-note {
+            color: #53706a;
+            font-size: 0.95rem;
+        }
+
+        .footer-strip {
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        .campo-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.14) !important;
+        }
+
+        .success-overlay {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.18);
+            display: none;
+            inset: 0;
+            justify-content: center;
+            padding: 1.5rem;
+            position: absolute;
+            z-index: 3;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-card {
+            border: 1px solid #d9d9d9;
+            border-radius: 0.8rem;
+            max-width: 860px;
+            width: 100%;
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+        }
+
+        .success-note {
+            background: var(--hga-muted);
+            border-radius: 0.55rem;
+        }
+
+        .success-link {
+            background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+            border: 1px solid var(--hga-primary);
+            border-radius: 999px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+            color: #fff;
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 700;
+            min-width: 180px;
+            padding: 0.3rem 1.25rem;
+            text-decoration: none;
+        }
+
+        .success-link:hover,
+        .success-link:focus {
+            color: #fff;
+        }
+
+        .success-resend {
+            color: #1f1f1f;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .success-resend:hover,
+        .success-resend:focus {
+            color: var(--hga-primary);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-panel {
+                border-radius: 1.6rem;
+            }
+
+            .success-overlay {
+                position: fixed;
+            }
+        }
+    </style>
+</head>
+<body data-register-source="employee">
+    <div class="page-shell d-flex flex-column">
+        <header class="container py-4 py-lg-5">
+            <div class="top-bar px-3 px-lg-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index_employees.html" class="text-decoration-none">
+                        <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo rounded-circle">
+                    </a>
+                    <span class="screen-title mb-0">Registrarse</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container flex-grow-1 pb-4 pb-lg-5">
+            <section class="main-panel position-relative px-4 px-md-5 py-5">
+                <div class="success-overlay" id="successOverlay" aria-hidden="true">
+                    <div class="success-card p-4 p-md-5 text-center">
+                        <svg class="success-icon mx-auto mb-3" viewBox="0 0 64 64" aria-hidden="true">
+                            <circle cx="32" cy="32" r="32" fill="#32b878"></circle>
+                            <path d="M19 33.5l8.2 8.2L45 23.9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+                        </svg>
+                        <h2 class="h3 fw-bold mb-2 text-dark">Cuenta creada con exito</h2>
+                        <p class="mb-3" id="successEmail">miusuario@ejemplo.com</p>
+                        <div class="success-note mx-auto mb-3 p-3 text-start" style="max-width: 610px;">
+                            <p class="mb-1">Verifica tu correo electronico</p>
+                            <p class="mb-2">Te hemos enviado un correo de verificacion. Haz clic en el enlace dentro del correo para activar tu cuenta.</p>
+                            <p class="mb-0">Si no ves el correo, revisa tu carpeta de spam o correo no deseado.</p>
+                        </div>
+                        <a href="login_employees.html" class="success-link mb-2">Ir al inicio de sesion</a>
+                        <div class="mt-2">
+                            <a href="#" id="resendVerificationLink" class="success-resend">No recibiste el correo? Reenviar</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <h1 class="panel-title text-center mb-4 mb-lg-5">Registro Empleado</h1>
+                    </div>
+                </div>
+
+                <form id="formRegister" novalidate>
+                    <div class="wizard-progress mb-4 mb-lg-5" aria-label="Progreso del registro de empleados">
+                        <div class="wizard-step is-active" data-step-indicator="1">
+                            <span class="wizard-badge">1</span>
+                            <span>Acceso</span>
+                        </div>
+                        <div class="wizard-line" data-step-line="1" aria-hidden="true"></div>
+                        <div class="wizard-step" data-step-indicator="2">
+                            <span class="wizard-badge">2</span>
+                            <span>Identidad</span>
+                        </div>
+                        <div class="wizard-line" data-step-line="2" aria-hidden="true"></div>
+                        <div class="wizard-step" data-step-indicator="3">
+                            <span class="wizard-badge">3</span>
+                            <span>Contacto</span>
+                        </div>
+                    </div>
+
+                    <p class="wizard-note text-center mb-4" id="wizardStepMessage">Paso 1 de 3: crea los datos de acceso del empleado.</p>
+
+                    <div class="wizard-pane" data-step-pane="1">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="correo" class="form-label register-label">Correo Electronico</label>
+                                <input id="correo" name="correo" type="email" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="usuario" class="form-label register-label">Nombre de Usuario</label>
+                                <input id="usuario" name="usuario" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="contrasena" class="form-label register-label">Contrasena</label>
+                                <input id="contrasena" name="contrasena" type="password" class="form-control register-input" autocomplete="new-password">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="password_confirmation" class="form-label register-label">Confirmar contrasena</label>
+                                <input id="password_confirmation" name="password_confirmation" type="password" class="form-control register-input" autocomplete="new-password">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-pane" data-step-pane="2" hidden>
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="tipo_doc" class="form-label register-label">Tipo de Documento</label>
+                                <select id="tipo_doc" name="tipo_doc" class="form-select register-select">
+                                    <option value="">Seleccione una opcion</option>
+                                    <option value="CC">Cedula de ciudadania</option>
+                                    <option value="CE">Cedula de extranjeria</option>
+                                    <option value="TI">Tarjeta de identidad</option>
+                                    <option value="PP">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="num_doc" class="form-label register-label">No. Documento</label>
+                                <input id="num_doc" name="num_doc" type="text" class="form-control register-input" inputmode="numeric">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="nombre" class="form-label register-label">Nombre</label>
+                                <input id="nombre" name="nombre" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="apellido" class="form-label register-label">Apellidos</label>
+                                <input id="apellido" name="apellido" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12">
+                                <label for="edad" class="form-label register-label">Edad</label>
+                                <input id="edad" name="edad" type="number" class="form-control register-input" min="18" max="120" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-pane" data-step-pane="3" hidden>
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <label for="direccion" class="form-label register-label">Direccion</label>
+                                <input id="direccion" name="direccion" type="text" class="form-control register-input">
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <label for="telefono" class="form-label register-label">Telefono</label>
+                                <input id="telefono" name="telefono" type="tel" class="form-control register-input" inputmode="tel">
+                            </div>
+                        </div>
+                    </div>
+
+                    <input id="cod_rol" name="cod_rol" type="hidden" value="2">
+                    <input id="parentesco" name="parentesco" type="hidden" value="">
+
+                    <div class="row justify-content-center mt-4 mt-lg-5 g-3">
+                        <div class="col-12 col-xl-10">
+                            <button type="button" id="wizardNext" class="btn register-cta w-100 text-white">Siguiente</button>
+                            <button type="submit" id="wizardSubmit" class="btn register-cta w-100 text-white" hidden>Crear Cuenta</button>
+                        </div>
+                        <div class="col-12 col-xl-10">
+                            <button type="button" id="wizardPrev" class="btn register-secondary w-100" hidden>Atras</button>
+                        </div>
+                        <div class="col-12 col-xl-10">
+                            <a href="index_employees.html" class="btn register-secondary w-100">Regresar</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <footer class="footer-strip py-4 mt-auto">
+            <div class="container text-center">
+                <small class="fs-5">derechos reservados HGA &copy; 2025 | Hogar Geriatrico</small>
+            </div>
+        </footer>
+    </div>
+
+    <script src="./js/alerts.js"></script>
+    <script src="./js/validate_form.js"></script>
+</body>
+</html>

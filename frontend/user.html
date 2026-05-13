@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HGA - Usuario</title>
+    <script src="./js/access_bootstrap.js" data-allowed-roles="1,2,4" data-login-page="login.html"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/hga-home-shell.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+      :root {
+        --hga-primary: #2a9e4c;
+        --hga-secondary: #4bbab0;
+        --hga-accent: #79c96f;
+        --hga-bg-top: #8cd9d3;
+        --hga-bg-bottom: #dff3f1;
+        --hga-surface: rgba(255, 255, 255, 0.96);
+        --hga-text: #1f2d2b;
+        --hga-soft: #617b77;
+        --hga-border: rgba(92, 182, 170, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--hga-text);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(255, 255, 255, 0.4), transparent 28%),
+          radial-gradient(circle at bottom center, rgba(255, 255, 255, 0.45), transparent 30%),
+          linear-gradient(180deg, var(--hga-bg-top) 0%, #b4e7e3 48%, var(--hga-bg-bottom) 100%);
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+        padding: 30px 0 48px;
+      }
+
+      .topbar-shell {
+        background: var(--hga-surface);
+        border-radius: 26px;
+        box-shadow: 0 10px 30px rgba(18, 70, 66, 0.1);
+        padding: 18px 26px;
+      }
+
+      .brand-link {
+        align-items: center;
+        color: inherit;
+        display: inline-flex;
+        gap: 18px;
+        text-decoration: none;
+      }
+
+      .brand-logo {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .brand-title {
+        color: #39b9d4;
+        font-size: clamp(1.45rem, 2vw, 2rem);
+        font-weight: 400;
+      }
+
+      .header-actions {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+      }
+
+      .icon-btn {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: #202827;
+        display: inline-flex;
+        height: 42px;
+        justify-content: center;
+        padding: 0;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        width: 42px;
+      }
+
+      .icon-btn:hover,
+      .icon-btn:focus-visible {
+        background: rgba(77, 182, 172, 0.12);
+        color: var(--hga-secondary);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .icon-btn svg {
+        width: 25px;
+        height: 25px;
+      }
+
+      .menu-icon {
+        color: #37bad9;
+      }
+
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgba(46, 125, 50, 0.14);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 20;
+      }
+
+      .profile-dropdown.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 13px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
+      .profile-grid {
+        align-items: start;
+      }
+
+      .sidebar-card,
+      .content-card {
+        background: var(--hga-surface);
+        border-radius: 24px;
+        box-shadow: 0 14px 36px rgba(25, 83, 79, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .sidebar-card {
+        padding: 22px 12px 20px;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        width: 106px;
+        height: 106px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, var(--hga-accent), var(--hga-secondary));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 24px rgba(70, 184, 160, 0.18);
+      }
+
+      .user-name {
+        color: #2e7d32;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .user-role {
+        color: var(--hga-soft);
+        font-size: 0.95rem;
+        margin-bottom: 22px;
+      }
+
+      .menu-stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .menu-btn {
+        width: 100%;
+        min-height: 40px;
+        border-radius: 6px;
+        border: 1px solid #7dc68b;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(32, 89, 82, 0.1);
+        color: #2a9e4c;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+
+      .menu-btn:hover,
+      .menu-btn:focus-visible {
+        background: linear-gradient(180deg, #ffffff, #eefaf7);
+        box-shadow: 0 8px 14px rgba(32, 89, 82, 0.12);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .content-card {
+        min-height: 360px;
+        padding: 18px 20px 22px;
+      }
+
+      .content-header {
+        color: #2a9e4c;
+        font-size: clamp(1.7rem, 2vw, 2.4rem);
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+
+      .panel {
+        display: none !important;
+      }
+
+      .panel.active {
+        display: block !important;
+      }
+
+      .welcome-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero-note {
+        min-height: 168px;
+        border-radius: 20px;
+        border: 1px solid var(--hga-border);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.88)),
+          linear-gradient(135deg, rgba(121, 201, 111, 0.08), rgba(75, 186, 176, 0.08));
+        padding: 20px 22px;
+      }
+
+      .hero-note p {
+        color: var(--hga-soft);
+        line-height: 1.6;
+        margin: 0;
+        max-width: 58ch;
+      }
+
+      .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .stat-card {
+        border-radius: 18px;
+        border: 1px solid var(--hga-border);
+        background: rgba(246, 252, 251, 0.96);
+        min-height: 110px;
+        padding: 16px 18px;
+      }
+
+      .stat-label {
+        color: var(--hga-primary);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        color: var(--hga-soft);
+        font-size: 0.98rem;
+        line-height: 1.55;
+        word-break: break-word;
+      }
+
+      .service-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .service-card {
+        border-radius: 18px;
+        padding: 16px 18px;
+      }
+
+      .service-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .service-card p {
+        font-size: 0.92rem;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .service-card.success {
+        background: rgba(121, 201, 111, 0.12);
+        border-left: 4px solid var(--hga-accent);
+      }
+
+      .service-card.info {
+        background: rgba(75, 186, 176, 0.12);
+        border-left: 4px solid var(--hga-secondary);
+      }
+
+      .service-card.success h3 {
+        color: #2a9e4c;
+      }
+
+      .service-card.info h3 {
+        color: #2397a5;
+      }
+
+      .service-card p {
+        color: var(--hga-soft);
+      }
+
+      .panel-form-shell {
+        max-width: 720px;
+      }
+
+      .panel-form-title {
+        color: #2a9e4c;
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+
+      #edit form {
+        display: grid;
+        gap: 16px;
+      }
+
+      #edit label {
+        color: var(--hga-primary);
+        display: grid;
+        font-size: 0.92rem;
+        font-weight: 700;
+        gap: 8px;
+      }
+
+      #edit input {
+        border: 1px solid rgba(41, 156, 76, 0.55);
+        border-radius: 12px;
+        min-height: 50px;
+        padding: 0 14px;
+        font-size: 0.98rem;
+        box-shadow: 0 4px 10px rgba(32, 89, 82, 0.08);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      #edit input:focus {
+        outline: none;
+        border-color: var(--hga-secondary);
+        box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.14), 0 4px 10px rgba(32, 89, 82, 0.08);
+      }
+
+      #edit button {
+        width: fit-content;
+        min-width: 180px;
+        min-height: 48px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(90deg, var(--hga-accent), var(--hga-secondary));
+        box-shadow: 0 8px 18px rgba(57, 162, 126, 0.2);
+        color: #fff;
+        font-weight: 700;
+        padding: 0 22px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      #edit button:hover,
+      #edit button:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(57, 162, 126, 0.25);
+        outline: none;
+      }
+
+      .footer-strip {
+        background: rgba(255, 255, 255, 0.94);
+        padding: 16px 0;
+      }
+
+      .footer-strip small {
+        color: #000;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 991.98px) {
+        .profile-stats,
+        .service-row {
+          grid-template-columns: 1fr;
+        }
+
+        .content-card {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .page-main {
+          padding-top: 22px;
+        }
+
+        .topbar-shell {
+          padding: 14px 18px;
+        }
+
+        .brand-link {
+          gap: 12px;
+        }
+
+        .brand-logo {
+          width: 48px;
+          height: 48px;
+        }
+
+        .brand-title {
+          font-size: 1.2rem;
+        }
+
+        .header-actions {
+          gap: 8px;
+        }
+
+        .icon-btn {
+          width: 38px;
+          height: 38px;
+        }
+
+        .sidebar-card,
+        .content-card {
+          border-radius: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body class="hga-home-theme" data-allowed-roles="1,2,4" data-login-page="login.html">
+    <div class="page-shell hga-page-shell">
+      <main class="page-main hga-main-region">
+        <div class="container">
+          <header class="topbar-shell hga-top-bar mb-4 mb-lg-5">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap flex-md-nowrap">
+              <a href="home.html" class="brand-link">
+                <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo" />
+                <span class="brand-title">Perfil</span>
+              </a>
+
+              <div class="header-actions ms-md-auto">
+                <button class="icon-btn" aria-label="Notificaciones" title="Notificaciones">
+                  <i class="bi bi-bell"></i>
+                </button>
+
+                <div class="profile-menu-wrapper">
+                  <button class="icon-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                  </button>
+                  <div class="profile-dropdown" id="profileDropdown">
+                    <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                    <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                  </div>
+                </div>
+
+                <button class="icon-btn menu-icon" aria-label="Menu" title="Menu">
+                  <i class="bi bi-list"></i>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <section class="row g-4 g-lg-5 profile-grid">
+            <div class="col-12 col-lg-3">
+              <aside class="sidebar-card hga-surface-panel">
+                <div class="profile-avatar" aria-hidden="true"></div>
+                <div class="user-name" id="sidebarUserName">Nombre Usuario</div>
+                <div class="user-role">Rol: <span id="sidebarUserRole">Cargando...</span></div>
+
+                <div class="menu-stack">
+                  <button class="menu-btn" data-section="welcome" type="button">Información</button>
+                  <button class="menu-btn" data-section="edit" type="button">Actualizar Datos</button>
+                </div>
+              </aside>
+            </div>
+
+            <div class="col-12 col-lg-9">
+              <section class="content-card hga-surface-panel">
+                <div class="panel active" id="welcome">
+                  <div class="welcome-grid">
+                    <div class="hero-note">
+                      <h1 class="content-header">Bienvenido a tu perfil</h1>
+                      <p>Gestiona tu informacion personal, revisa tus datos principales y mantente al dia con los servicios del Hogar Geriatrico desde un solo lugar.</p>
+                    </div>
+
+                    <div class="profile-stats">
+                      <article class="stat-card">
+                        <div class="stat-label">Nombre</div>
+                        <div class="stat-value" id="welcomeUserName">Cargando...</div>
+                      </article>
+                      <article class="stat-card">
+                        <div class="stat-label">Email</div>
+                        <div class="stat-value" id="welcomeUserEmail">Cargando...</div>
+                      </article>
+                      <article class="stat-card">
+                        <div class="stat-label">Telefono</div>
+                        <div class="stat-value" id="welcomeUserPhone">Cargando...</div>
+                      </article>
+                    </div>
+
+                    <div class="service-row">
+                      <article class="service-card success">
+                        <h3>Proximas citas</h3>
+                        <p>No hay citas programadas por el momento.</p>
+                      </article>
+                      <article class="service-card info">
+                        <h3>Actividades</h3>
+                        <p>Consulta tus actividades y mantente conectado con la rutina del hogar.</p>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel" id="edit">
+                  <div class="panel-form-shell">
+                    <h2 class="panel-form-title">Actualizar datos</h2>
+                    <form action="" method="POST">
+                      <label>Nombre
+                        <input type="text" id="profileInputName" name="nombre" value="" />
+                      </label>
+                      <label>Telefono
+                        <input type="tel" id="profileInputPhone" name="telefono" value="" />
+                      </label>
+                      <label>Email
+                        <input type="email" id="profileInputEmail" name="email" value="" />
+                      </label>
+                      <button type="submit">Actualizar</button>
+                    </form>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="footer-strip hga-footer-strip mt-auto">
+        <div class="container text-center">
+          <small>derechos reservados HGA &copy; 2025 | Hogar Geriátrico</small>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        function splitFullName(fullName) {
+          var normalized = String(fullName || "").trim().replace(/\s+/g, " ");
+          if (!normalized) return { firstName: "", lastName: "" };
+          var parts = normalized.split(" ");
+          if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+          return { firstName: parts.slice(0, -1).join(" "), lastName: parts[parts.length - 1] };
+        }
+
+        function normalizeUser(userData) {
+          var user = userData || {};
+          var parsed = splitFullName(user.name || "");
+          var roleMap = {
+            1: "Administrador",
+            2: "Enfermero",
+            3: "Doctor",
+            4: "Tutor"
+          };
+          var roleName = String(user.rol || user.role || "").trim();
+          if (!roleName) {
+            var roleCode = Number(user.cod_rol || user.role_code || 0);
+            roleName = roleMap[roleCode] || "Tutor";
+          }
+          return {
+            firstName: String(user.nombre || parsed.firstName || "").trim(),
+            lastName: String(user.apellido || parsed.lastName || "").trim(),
+            email: String(user.email || "").trim(),
+            phone: String(user.telefono || "").trim(),
+            fullName: String(user.name || "").trim(),
+            role: roleName
+          };
+        }
+
+        function applyProfile(userData) {
+          var profile = normalizeUser(userData);
+          var fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ").trim() || profile.fullName || "Usuario";
+          var email = profile.email || "No registrado";
+          var phone = profile.phone || "No registrado";
+
+          var sidebarUserName = document.getElementById("sidebarUserName") || document.querySelector(".user-name");
+          var welcomeUserName = document.getElementById("welcomeUserName");
+          var welcomeUserEmail = document.getElementById("welcomeUserEmail");
+          var welcomeUserPhone = document.getElementById("welcomeUserPhone");
+          var profileInputName = document.getElementById("profileInputName");
+          var profileInputEmail = document.getElementById("profileInputEmail");
+          var profileInputPhone = document.getElementById("profileInputPhone");
+          var sidebarUserRole = document.getElementById("sidebarUserRole");
+
+          if (sidebarUserName) sidebarUserName.textContent = fullName;
+          if (welcomeUserName) welcomeUserName.textContent = fullName;
+          if (welcomeUserEmail) welcomeUserEmail.textContent = email;
+          if (welcomeUserPhone) welcomeUserPhone.textContent = phone;
+          if (profileInputName) profileInputName.value = fullName;
+          if (profileInputEmail) profileInputEmail.value = profile.email;
+          if (profileInputPhone) profileInputPhone.value = profile.phone;
+          if (sidebarUserRole) sidebarUserRole.textContent = profile.role || "Tutor";
+        }
+
+        try {
+          var raw = localStorage.getItem("usuario");
+          if (raw) {
+            var storedUser = JSON.parse(raw);
+            applyProfile(storedUser);
+          }
+        } catch (error) {
+          console.warn("No se pudo leer localStorage.usuario", error);
+        }
+
+        try {
+          var token = localStorage.getItem("access_token");
+          if (token) {
+            fetch(window.location.origin + "/api/me", {
+              method: "GET",
+              headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer " + token
+              }
+            })
+              .then(function (response) {
+                if (!response.ok) return null;
+                return response.json();
+              })
+              .then(function (data) {
+                if (data && data.user) {
+                  localStorage.setItem("usuario", JSON.stringify(data.user));
+                  applyProfile(data.user);
+                }
+              })
+              .catch(function () {});
+          }
+        } catch (error) {
+          console.warn("No se pudo actualizar perfil desde API", error);
+        }
+      })();
+    </script>
+    <script src="./js/alerts.js"></script>
+    <script src="./js/role_access.js"></script>
+    <script src="./js/menu_notificacion.js"></script>
+    <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
+    <script src="./js/user.js?v=20260305-3"></script>
+    <script src="./js/user_validate.js?v=20260305-3"></script>
+    <script src="./js/chatbot.js"></script>
+  </body>
+</html>

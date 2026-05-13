@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notificaciones - HGA</title>
+  <script src="./js/access_bootstrap.js" data-allowed-roles="1,2,4" data-login-page="login.html"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/hga-home-shell.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --notif-bg-top: #8fc5c5;
+      --notif-bg-bottom: #d9f0e8;
+      --notif-surface: rgba(255, 255, 255, 0.96);
+      --notif-surface-soft: rgba(255, 255, 255, 0.82);
+      --notif-border: rgba(255, 255, 255, 0.58);
+      --notif-primary: #2e7d32;
+      --notif-primary-strong: #1b5e20;
+      --notif-accent: #5fbf7f;
+      --notif-accent-strong: #417c55;
+      --notif-text: #1f3a33;
+      --notif-muted: rgba(31, 58, 51, 0.72);
+      --notif-panel-soft: #edf8ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--notif-text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.28), transparent 30%),
+        linear-gradient(180deg, var(--notif-bg-top) 0%, #9edcd6 36%, var(--notif-bg-bottom) 100%);
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-shell {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    .navbar-custom {
+      margin-top: 2.2rem;
+      padding: 1rem 1.2rem;
+      background: var(--notif-surface-soft);
+      border: 1px solid var(--notif-border);
+      border-radius: 1.7rem;
+      box-shadow: 0 14px 32px rgba(34, 84, 78, 0.14);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .navbar-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      min-width: 0;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .navbar-brand-text {
+      display: block;
+      color: var(--notif-primary-strong);
+      font-size: clamp(1.4rem, 2vw, 1.95rem);
+      font-weight: 700;
+      line-height: 1.05;
+      margin: 0;
+    }
+
+    .navbar-subtitle {
+      display: block;
+      margin-top: 0.18rem;
+      color: var(--notif-muted);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .navbar-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .navbar-icon-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 999px;
+      color: #16312b;
+      font-size: 1.2rem;
+      transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .navbar-icon-btn:hover,
+    .navbar-icon-btn:focus-visible {
+      background: rgba(63, 192, 204, 0.12);
+      color: var(--notif-primary-strong);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .navbar-icon-btn.is-current {
+      background: rgba(95, 191, 127, 0.18);
+      color: var(--notif-primary-strong);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 1.5rem 0 3rem;
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-nueva-notif {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--notif-primary-strong);
+      border: 1px solid rgba(95, 191, 127, 0.28);
+      border-radius: 999px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      padding: 0.75rem 1.2rem;
+      box-shadow: 0 10px 18px rgba(65, 124, 85, 0.08);
+      transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-nueva-notif:hover,
+    .btn-nueva-notif:focus-visible {
+      background: #e8f5ee;
+      border-color: rgba(95, 191, 127, 0.45);
+      color: var(--notif-primary-strong);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .card-panel {
+      background: var(--notif-surface);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 1.6rem;
+      padding: 1.65rem;
+      box-shadow: 0 20px 44px rgba(33, 89, 82, 0.12);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-copy {
+      max-width: 700px;
+    }
+
+    .panel-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.5rem;
+      color: var(--notif-primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .panel-title {
+      color: var(--notif-primary-strong);
+      font-weight: 700;
+      font-size: clamp(1.7rem, 2vw, 2.15rem);
+      margin: 0;
+      line-height: 1.04;
+    }
+
+    .panel-description {
+      margin: 0.55rem 0 0;
+      color: var(--notif-muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+
+    .search-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+
+    .input-buscar {
+      border-radius: 999px;
+      border: 1px solid rgba(95, 191, 127, 0.3);
+      padding: 0.82rem 1rem;
+      font-size: 0.95rem;
+      width: min(320px, 100%);
+      color: var(--notif-primary-strong);
+      background: rgba(255, 255, 255, 0.94);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-buscar:focus {
+      border-color: rgba(95, 191, 127, 0.52);
+      box-shadow: 0 0 0 3px rgba(95, 191, 127, 0.16);
+    }
+
+    .btn-buscar {
+      background: linear-gradient(135deg, var(--notif-accent-strong), var(--notif-accent));
+      border: none;
+      border-radius: 999px;
+      padding: 0.82rem 1.15rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(65, 124, 85, 0.16);
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn-buscar:hover,
+    .btn-buscar:focus-visible {
+      color: #fff;
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .cards-zone {
+      background: linear-gradient(180deg, #f7faf7 0%, var(--notif-panel-soft) 100%);
+      border: 1px solid rgba(95, 191, 127, 0.18);
+      border-radius: 1.25rem;
+      padding: 1.2rem;
+      min-height: 320px;
+    }
+
+    .notif-card {
+      background: linear-gradient(180deg, #ffffff, #fbfffc);
+      border: 1px solid rgba(95, 191, 127, 0.16);
+      border-radius: 1.05rem;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.85rem;
+      font-size: 0.98rem;
+      color: var(--notif-text);
+      box-shadow: 0 10px 20px rgba(31, 58, 51, 0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .notif-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(31, 58, 51, 0.1);
+    }
+
+    .notif-card.is-unread {
+      border-left: 4px solid var(--notif-accent);
+    }
+
+    .notif-card.is-read {
+      opacity: 0.95;
+    }
+
+    .notif-card .notif-icon {
+      width: 2.65rem;
+      height: 2.65rem;
+      min-width: 2.65rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 1.12rem;
+      color: var(--notif-primary-strong);
+      background: rgba(95, 191, 127, 0.14);
+    }
+
+    .notif-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-title {
+      font-weight: 700;
+      color: var(--notif-primary-strong);
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+      word-break: break-word;
+    }
+
+    .notif-message {
+      color: rgba(31, 58, 51, 0.88);
+      font-size: 0.94rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .notif-card .notif-date {
+      font-size: 0.8rem;
+      color: var(--notif-muted);
+      margin-top: 0.45rem;
+    }
+
+    .notif-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+
+    .notif-badge-read {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.48rem 0.85rem;
+      border-radius: 999px;
+      background: #eef7ef;
+      color: var(--notif-primary-strong);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .notif-actions .btn {
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding-inline: 0.9rem;
+    }
+
+    .notif-card-empty {
+      text-align: center;
+      color: var(--notif-muted);
+      padding: 2.5rem 1rem;
+      font-size: 0.96rem;
+    }
+
+    footer {
+      background: var(--notif-surface-soft);
+      border-top: 1px solid rgba(255, 255, 255, 0.55);
+      text-align: center;
+      padding: 0.9rem;
+      font-size: 0.88rem;
+      color: var(--notif-muted);
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .content-shell {
+        width: calc(100% - 1rem);
+      }
+
+      .navbar-custom {
+        margin-top: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 1.2rem;
+      }
+
+      .navbar-left {
+        gap: 0.8rem;
+      }
+
+      .navbar-brand-text {
+        font-size: 1.3rem;
+      }
+
+      .navbar-subtitle {
+        font-size: 0.82rem;
+      }
+
+      .main-content {
+        padding-top: 1rem;
+      }
+
+      .actions-bar {
+        flex-direction: column;
+      }
+
+      .btn-nueva-notif {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .card-panel {
+        padding: 1.15rem;
+        border-radius: 1.2rem;
+      }
+
+      .panel-header,
+      .search-wrapper,
+      .search-wrapper .d-flex {
+        display: block !important;
+      }
+
+      .search-wrapper .d-flex {
+        width: 100%;
+      }
+
+      .input-buscar,
+      .btn-buscar {
+        width: 100%;
+      }
+
+      .btn-buscar {
+        justify-content: center;
+        margin-top: 0.75rem;
+      }
+
+      .cards-zone {
+        padding: 0.9rem;
+      }
+
+      .notif-card {
+        flex-direction: column;
+      }
+
+      .notif-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="hga-home-theme" data-allowed-roles="1,2,4" data-login-page="login.html">
+  <div class="page-shell hga-page-shell">
+    <div class="hga-top-region">
+    <div class="content-shell">
+      <nav class="navbar-custom hga-top-bar">
+        <a class="navbar-left" href="home.html" aria-label="Ir al inicio">
+          <img src="img/LOGO_HGA.png" alt="Logo HGA" style="border-radius:50%; width:58px; height:58px; object-fit:cover; background:#fff;"/>
+          <div class="brand-copy">
+            <span class="navbar-brand-text">Notificaciones</span>
+            <span class="navbar-subtitle">Centro de avisos y seguimiento del hogar geriátrico</span>
+          </div>
+        </a>
+        <div class="navbar-icons">
+          <button class="navbar-icon-btn is-current" type="button" aria-label="Notificaciones" title="Notificaciones" aria-expanded="false">
+            <i class="bi bi-bell"></i>
+          </button>
+          <button class="navbar-icon-btn" type="button" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+          </button>
+          <button class="navbar-icon-btn" type="button" aria-label="Menú" title="Menú">
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    </div>
+
+    <main class="main-content hga-main-region">
+      <div class="content-shell">
+        <div class="actions-bar">
+          <button class="btn-nueva-notif" id="btnActualizarNotificaciones" type="button">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar listado
+          </button>
+          <button class="btn-nueva-notif" id="btnMarcarTodasLeidas" type="button">
+            <i class="bi bi-check2-all"></i> Marcar todas como leídas
+          </button>
+        </div>
+
+        <div class="card-panel hga-surface-panel">
+          <div class="panel-header">
+            <div class="panel-copy">
+              <div class="panel-eyebrow">
+                <i class="bi bi-bell-fill"></i>
+                <span>Panel principal</span>
+              </div>
+              <h2 class="panel-title">Panel de notificaciones</h2>
+              <p class="panel-description">Consulta avisos recientes, filtra por contenido y marca como leidas las novedades ya revisadas.</p>
+            </div>
+          </div>
+
+          <div class="search-wrapper">
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" class="input-buscar" id="inputBuscar" placeholder="Buscar por mensaje, fecha o remitente" oninput="filtrarNotificaciones()"/>
+              <button class="btn-buscar" type="button" onclick="filtrarNotificaciones()">
+                <i class="bi bi-search"></i> Buscar
+              </button>
+            </div>
+          </div>
+
+          <div class="cards-zone" id="cardsZone">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+  </div>
+
+  <script src="./js/role_access.js"></script>
+  <script src="./js/hga_pagination.js"></script>
+  <script src="./js/menu_notificacion.js"></script>
+  <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
+  <script src="./js/notificaciones.js"></script>
+  <script src="./js/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>HGA</title>
+    <style>
+        :root {
+            --hga-primary: #2a9f4d;
+            --hga-secondary: #56c0b8;
+            --hga-dark: #0e1013;
+            --hga-copy: #4e5b63;
+            --hga-soft: #d9f2ef;
+            --hga-card: #ffffff;
+            --hga-footer: #2f6d95;
+            --hga-border: rgba(27, 42, 53, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: #f7fbfb;
+            color: var(--hga-dark);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        .landing-shell {
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #8fd8d2 0%, #a8e1dc 48%, #dff5f3 100%);
+            padding: 1.25rem 0 4.5rem;
+            position: relative;
+        }
+
+        .hero-section::before {
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.5), transparent 48%);
+            content: "";
+            inset: 0;
+            position: absolute;
+        }
+
+        .hero-section > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-nav {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 1.6rem;
+            box-shadow: 0 12px 30px rgba(20, 62, 67, 0.08);
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            padding: 0.95rem 1.2rem;
+        }
+
+        .brand-mark {
+            align-items: center;
+            display: inline-flex;
+            gap: 0.9rem;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            background: #fff;
+            border-radius: 999px;
+            height: 54px;
+            object-fit: cover;
+            width: 54px;
+        }
+
+        .brand-copy {
+            color: #2b7078;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1.05;
+        }
+
+        .nav-links {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            justify-content: flex-end;
+        }
+
+        .nav-link-pill {
+            border-radius: 999px;
+            color: #2ea4b9;
+            font-size: 0.92rem;
+            font-weight: 700;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-link-pill:hover,
+        .nav-link-pill:focus {
+            background: rgba(86, 192, 184, 0.12);
+            color: #208fa1;
+            transform: translateY(-1px);
+        }
+
+        .hero-content {
+            align-items: center;
+            display: grid;
+            gap: 2.5rem;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+            padding-top: 3.8rem;
+        }
+
+        .hero-copy {
+            max-width: 520px;
+        }
+
+        .hero-title {
+            color: #fff;
+            font-family: "Arial Black", "Trebuchet MS", sans-serif;
+            font-size: clamp(2.6rem, 4vw, 4.4rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.98;
+            margin-bottom: 1rem;
+            text-wrap: balance;
+        }
+
+        .hero-description {
+            color: rgba(255, 255, 255, 0.93);
+            font-size: 1.08rem;
+            line-height: 1.55;
+            margin-bottom: 1.8rem;
+            max-width: 480px;
+        }
+
+        .hero-button {
+            background: #fff;
+            border: 0;
+            border-radius: 0.9rem;
+            box-shadow: 0 10px 24px rgba(42, 159, 77, 0.12);
+            color: var(--hga-primary);
+            display: inline-flex;
+            font-size: 0.95rem;
+            font-weight: 800;
+            padding: 0.9rem 1.45rem;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hero-button:hover,
+        .hero-button:focus {
+            box-shadow: 0 14px 28px rgba(42, 159, 77, 0.16);
+            transform: translateY(-2px);
+        }
+
+        .hero-media {
+            position: relative;
+        }
+
+        .hero-image {
+            border-radius: 0;
+            box-shadow: 0 20px 36px rgba(25, 49, 59, 0.16);
+            display: block;
+            min-height: 420px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .section-block {
+            padding: 5rem 0;
+        }
+
+        .section-heading {
+            font-family: "Arial Black", "Trebuchet MS", sans-serif;
+            font-size: clamp(2.2rem, 3vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-wrap: balance;
+        }
+
+        .section-copy {
+            color: var(--hga-copy);
+            font-size: 1.05rem;
+            line-height: 1.55;
+            margin: 0 auto 2.8rem;
+            max-width: 760px;
+            text-align: center;
+            text-wrap: balance;
+        }
+
+        .feature-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .feature-card,
+        .service-card {
+            background: var(--hga-card);
+            border: 1px solid var(--hga-border);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 22px rgba(10, 20, 26, 0.04);
+        }
+
+        .feature-card {
+            min-height: 230px;
+            padding: 2rem 1.35rem 1.55rem;
+            text-align: center;
+        }
+
+        .feature-icon {
+            align-items: center;
+            background: linear-gradient(135deg, #e6f7f4, #d5f0ed);
+            border-radius: 1rem;
+            color: var(--hga-primary);
+            display: inline-flex;
+            font-size: 1.6rem;
+            font-weight: 900;
+            height: 70px;
+            justify-content: center;
+            margin-bottom: 1.35rem;
+            width: 70px;
+        }
+
+        .feature-title {
+            font-size: 1.85rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.85rem;
+        }
+
+        .feature-text {
+            color: #6b767d;
+            font-size: 1rem;
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .services-section {
+            background: linear-gradient(180deg, #c9efea 0%, #d3f4ef 100%);
+        }
+
+        .services-grid {
+            display: grid;
+            gap: 1.8rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .service-card {
+            min-height: 250px;
+            padding: 1.35rem 1.4rem 1.6rem;
+        }
+
+        .service-badge {
+            align-items: center;
+            background: var(--hga-primary);
+            border-radius: 0.55rem;
+            color: #fff;
+            display: inline-flex;
+            font-size: 1.45rem;
+            font-weight: 900;
+            height: 2.7rem;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            width: 2.7rem;
+        }
+
+        .service-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 0.85rem;
+        }
+
+        .service-text {
+            color: #2f383e;
+            font-size: 1rem;
+            line-height: 1.38;
+            margin-bottom: 1rem;
+        }
+
+        .service-link {
+            color: var(--hga-primary);
+            font-size: 1rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .about-grid {
+            align-items: start;
+            display: grid;
+            gap: 2.8rem;
+            grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+        }
+
+        .about-image {
+            box-shadow: 0 18px 30px rgba(25, 49, 59, 0.1);
+            display: block;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .about-title {
+            font-family: "Arial Black", "Trebuchet MS", sans-serif;
+            font-size: clamp(2rem, 3vw, 3rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.02;
+            margin-bottom: 1.2rem;
+            text-wrap: balance;
+        }
+
+        .about-copy {
+            color: var(--hga-copy);
+            font-size: 1.04rem;
+            line-height: 1.45;
+            margin-bottom: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 1.4rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 1.8rem;
+        }
+
+        .stat-card {
+            background: #bce8e5;
+            border-radius: 0.95rem;
+            min-height: 126px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            color: var(--hga-primary);
+            display: block;
+            font-family: "Arial Black", "Trebuchet MS", sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-label {
+            color: #23404b;
+            font-size: 1rem;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .site-footer {
+            background: var(--hga-footer);
+            color: rgba(255, 255, 255, 0.78);
+            padding: 2.4rem 0 1.2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1.6fr 1fr 1fr 1fr;
+        }
+
+        .footer-brand {
+            color: #fff;
+            font-family: "Arial Black", "Trebuchet MS", sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 0.9rem;
+        }
+
+        .footer-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .footer-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-list li + li {
+            margin-top: 0.75rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.76);
+            text-decoration: none;
+        }
+
+        .footer-link:hover,
+        .footer-link:focus {
+            color: #fff;
+        }
+
+        .copyright {
+            background: #fff;
+            color: #13191d;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 0.8rem 0 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 1199.98px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .hero-content,
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-image {
+                min-height: 320px;
+            }
+
+            .top-nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .nav-links {
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .hero-section {
+                padding-bottom: 3rem;
+            }
+
+            .section-block {
+                padding: 3.5rem 0;
+            }
+
+            .feature-grid,
+            .services-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2.6rem;
+            }
+
+            .feature-title {
+                font-size: 1.55rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-shell">
+        <section class="hero-section" id="inicio">
+            <div class="container py-2 py-lg-3">
+                <nav class="top-nav">
+                    <a href="index.html" class="brand-mark">
+                        <img src="./img/LOGO_HGA.png" alt="Logo HGA" class="brand-logo">
+                        <span class="brand-copy">
+                            <span>Hogar</span>
+                            <span>Geriátrico</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-links">
+                        <a href="register.html" class="nav-link-pill">Registrarse</a>
+                        <a href="login.html" class="nav-link-pill">Iniciar Sesion</a>
+                    </div>
+                </nav>
+
+                <div class="hero-content">
+                    <div class="hero-copy">
+                        <h1 class="hero-title">Un Hogar Feliz para <span class="hero-accent">Todos</span></h1>
+                        <p class="hero-description">Cuidado profesional con calidez humana. Brindamos atención integral y amor a nuestros adultos mayores en un ambiente seguro y familiar.</p>
+                        <a href="#diferenciales" class="hero-button">Conocer más</a>
+                    </div>
+
+                    <div class="hero-media">
+                        <img src="./img/main.jpg" alt="Cuidado profesional a adultos mayores" class="hero-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block bg-white" id="diferenciales">
+            <div class="container">
+                <h2 class="section-heading">Lo que nos hace diferentes</h2>
+                <p class="section-copy">Nuestro compromiso con la excelencia en el cuidado de adultos mayores se refleja en cada aspecto de nuestro servicio.</p>
+
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <div class="feature-icon">A</div>
+                        <h3 class="feature-title">Amor y Calidez</h3>
+                        <p class="feature-text">Tratamos a cada residente como parte de nuestra familia con cercanía, respeto y compañía constante.</p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon">M</div>
+                        <h3 class="feature-title">Atención Médica</h3>
+                        <p class="feature-text">Personal calificado disponible 24/7 para responder con oportunidad a cada necesidad de bienestar.</p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon">R</div>
+                        <h3 class="feature-title">Actividades</h3>
+                        <p class="feature-text">Programas recreativos y terapéuticos personalizados para mantener una vida activa y significativa.</p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon">F</div>
+                        <h3 class="feature-title">Apoyo Familiar</h3>
+                        <p class="feature-text">Mantenemos comunicación cercana con las familias para que siempre se sientan acompañadas y tranquilas.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block services-section" id="servicios">
+            <div class="container">
+                <h2 class="section-heading">Cuidado integral para su tranquilidad</h2>
+                <p class="section-copy">Ofrecemos una amplia gama de servicios diseñados para el bienestar físico, mental y emocional.</p>
+
+                <div class="services-grid">
+                    <article class="service-card">
+                        <span class="service-badge">1</span>
+                        <h3 class="service-title">Atención Médica Especializada</h3>
+                        <p class="service-text">Equipo médico multidisciplinario con enfermeras, médicos generales y especialistas disponibles permanentemente.</p>
+                    </article>
+
+                    <article class="service-card">
+                        <span class="service-badge">2</span>
+                        <h3 class="service-title">Alimentación Nutricional</h3>
+                        <p class="service-text">Menús balanceados diseñados por nutricionistas, adaptados a necesidades dietéticas especiales.</p>
+                    </article>
+
+                    <article class="service-card">
+                        <span class="service-badge">3</span>
+                        <h3 class="service-title">Terapias y Rehabilitación</h3>
+                        <p class="service-text">Fisioterapia, terapia ocupacional y programas de estimulación cognitiva personalizados.</p>
+                    </article>
+
+                    <article class="service-card">
+                        <span class="service-badge">4</span>
+                        <h3 class="service-title">Actividades Recreativas</h3>
+                        <p class="service-text">Talleres de arte, música, jardinería y actividades sociales para mantenerlos activos y felices.</p>
+                    </article>
+
+                    <article class="service-card">
+                        <span class="service-badge">5</span>
+                        <h3 class="service-title">Cuidado Personal</h3>
+                        <p class="service-text">Asistencia en actividades diarias con respeto a la autonomía y dignidad de cada residente.</p>
+                    </article>
+
+                    <article class="service-card">
+                        <span class="service-badge">6</span>
+                        <h3 class="service-title">Apoyo Familiar</h3>
+                        <p class="service-text">Comunicación constante, informes periódicos y acompañamiento a las familias.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block bg-white" id="nosotros">
+            <div class="container">
+                <div class="about-grid">
+                    <div>
+                        <img src="./img/main.jpg" alt="Adultos mayores compartiendo momentos felices" class="about-image">
+                    </div>
+
+                    <div>
+                        <h2 class="about-title">Más de dos décadas cuidando con amor</h2>
+                        <p class="about-copy">En HGA creemos que cada persona merece vivir con dignidad, respeto y alegría en todas las etapas de su vida. Desde 2003, nos hemos dedicado a crear un hogar donde nuestros adultos mayores encuentran no solo cuidado profesional, sino también calidez humana.</p>
+                        <p class="about-copy">Nuestro equipo multidisciplinario está compuesto por profesionales apasionados que entienden las necesidades únicas de cada residente y trabajan incansablemente para su bienestar.</p>
+
+                        <div class="stats-grid">
+                            <article class="stat-card">
+                                <span class="stat-value">20+</span>
+                                <p class="stat-label">Años de experiencia</p>
+                            </article>
+
+                            <article class="stat-card">
+                                <span class="stat-value">100+</span>
+                                <p class="stat-label">Residentes satisfechos</p>
+                            </article>
+
+                            <article class="stat-card">
+                                <span class="stat-value">24/7</span>
+                                <p class="stat-label">Atención disponible</p>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div>
+                        <div class="footer-brand">HGA</div>
+                        <p class="mb-0">Hogar Geriátrico dedicado al cuidado integral y cariñoso de nuestros adultos mayores.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="footer-title">Navegación</h3>
+                        <ul class="footer-list">
+                            <li><a href="#inicio" class="footer-link">Inicio</a></li>
+                            <li><a href="#servicios" class="footer-link">Servicios</a></li>
+                            <li><a href="#nosotros" class="footer-link">Nosotros</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="footer-title">Contacto</h3>
+                        <ul class="footer-list">
+                            <li><a href="tel:+573001234567" class="footer-link">Teléfono: +57 300 123 4567</a></li>
+                            <li><a href="https://wa.me/573001234567" class="footer-link">WhatsApp: +57 300 123 4567</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <div class="copyright">derechos reservados HGA © 2025 | Hogar Geriátrico</div>
+    </div>
+  <script src="./js/chatbot.js"></script>
+</body>
+</html>

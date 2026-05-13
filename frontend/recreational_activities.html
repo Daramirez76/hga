@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Actividades Lúdicas</title>
+  <script src="./js/access_bootstrap.js" data-allowed-roles="1,2,4" data-login-page="login.html"></script>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/hga-home-shell.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+  <style>
+
+    body {
+      min-height: 100vh;
+    }
+
+    .container-main {
+      background: var(--hga-surface);
+      border-radius: var(--hga-radius-xl);
+      box-shadow: var(--hga-shadow);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .panel-informes {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(233, 246, 242, 0.98));
+      border: 1px solid rgba(41, 156, 76, 0.18);
+      border-radius: 1.6rem;
+      padding: 1.25rem;
+    }
+
+    .card-informe {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-informe:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-nuevo-container {
+      margin: 0 0 1rem;
+    }
+
+    .btn-nuevo {
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--hga-primary), var(--hga-secondary));
+      color: white;
+      border: none;
+      padding: 0.8rem 1.3rem;
+      box-shadow: 0 12px 20px rgba(41, 156, 76, 0.18);
+    }
+
+    .btn-nuevo:hover {
+      color: white;
+      filter: brightness(1.03);
+    }
+
+    .panel-form {
+      color: #166e34;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 380px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      display: none;
+      z-index: 999;
+      box-shadow: 0 24px 60px rgba(17, 24, 39, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .panel-form small {
+      color: #4f6f58;
+    }
+
+    .form-actions {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      padding-top: 8px;
+      padding-bottom: 4px;
+    }
+
+    .btn-confirmar {
+      background: linear-gradient(135deg, var(--hga-primary), var(--hga-secondary));
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 999px;
+    }
+
+    .btn-confirmar:hover {
+      color: white;
+      filter: brightness(1.03);
+    }
+
+    /* FILTRO */
+    #filtro {
+      min-width: 200px;
+    }
+
+    .profile-menu-wrapper {
+      position: relative;
+    }
+
+    .profile-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(200, 230, 201, 0.8);
+      border-radius: 14px;
+      box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .profile-menu-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #2e7d32;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .profile-menu-item:hover {
+      background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+      color: #1b5e20;
+    }
+
+    .profile-menu-item + .profile-menu-item {
+      border-top: 1px solid rgba(200, 230, 201, 0.7);
+    }
+
+    @media (max-width: 768px) {
+      #filtro { min-width: 150px; }
+    }
+
+    @media (max-width: 480px) {
+      .container-main { padding: 1rem; }
+      .panel-informes { padding: 1rem; }
+    }
+
+  </style>
+</head>
+<body class="hga-home-theme" data-allowed-roles="1,2,4" data-login-page="login.html">
+  <div class="hga-page-shell">
+    <header class="hga-top-region">
+      <div class="hga-content-shell">
+        <div class="hga-top-bar">
+          <div class="hga-top-bar-inner">
+            <a href="recreational_activities.html" class="hga-brand-link">
+              <img src="img/LOGO_HGA.png" class="hga-brand-logo" alt="Logo">
+              <h1 class="hga-brand-title">Actividades Lúdicas</h1>
+            </a>
+
+            <div class="hga-icon-actions">
+              <button class="hga-icon-btn" aria-label="Notificaciones" title="Notificaciones">
+                <i class="bi bi-bell"></i>
+              </button>
+
+              <div class="profile-menu-wrapper">
+                <button class="hga-icon-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                  <i class="bi bi-person-circle"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                  <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                  <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                </div>
+              </div>
+
+              <button class="hga-icon-btn is-menu" type="button" aria-label="Menú" title="Menú" data-menu-hamburguesa><i class="bi bi-list"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="hga-main-region">
+      <div class="hga-content-shell">
+        <div class="btn-nuevo-container">
+          <button class="btn btn-light btn-nuevo" type="button" onclick="toggleForm()">
+            + Registrar nueva actividad
+          </button>
+        </div>
+
+        <div class="container-main">
+
+    <div class="mb-3">
+      <h2 class="hga-section-title">Actividades lúdicas</h2>
+    </div>
+
+    <div class="panel-informes">
+
+      <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+        <input
+          type="text"
+          id="filtro"
+          class="form-control"
+          style="max-width:250px"
+          placeholder="Buscar por nombre, lugar o residente..."
+        />
+        <button class="btn btn-light" type="button" onclick="filtrarActividades()"><i class="bi bi-search"></i> Buscar</button>
+      </div>
+
+      <!-- LISTA DE ACTIVIDADES -->
+      <div id="lista">
+        <p class="text-center text-muted mb-0">Cargando actividades...</p>
+      </div>
+
+    </div>
+      </div>
+    </main>
+    <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+  </div>
+
+  <!-- ==================== FORMULARIO ==================== -->
+  <form id="activityForm" class="panel-form" novalidate>
+
+    <h6 class="text-center mb-3 text-success">Nueva actividad</h6>
+
+    <label class="form-label small">Fecha</label>
+    <input id="actividadFecha" type="date" class="form-control mb-2" />
+
+    <label class="form-label small">Hora de inicio</label>
+    <input id="actividadHoraInicio" type="time" class="form-control mb-2" />
+
+    <label class="form-label small">Hora de finalización</label>
+    <input id="actividadHoraFin" type="time" class="form-control mb-2" />
+
+    <label class="form-label small">Nombre de la actividad</label>
+    <input id="actividadNombre" class="form-control mb-2" maxlength="50" placeholder="Ingrese el nombre de la actividad" />
+
+    <label class="form-label small">Lugar</label>
+    <input id="actividadLugar" class="form-control mb-2" maxlength="50" placeholder="Ingrese el lugar de la actividad" />
+
+    <label class="form-label small">Código de residente</label>
+    <input id="actividadResidenteId" type="number" min="1" class="form-control mb-2" value="1" />
+
+    <div class="form-actions d-flex justify-content-center gap-2 mt-2">
+      <button type="submit" class="btn btn-confirmar">Confirmar</button>
+      <button type="button" class="btn btn-secondary" id="discardActivityForm">Descartar</button>
+    </div>
+
+  </form>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="./js/alerts.js"></script>
+  <script src="./js/role_access.js"></script>
+  <script src="./js/hga_pagination.js"></script>
+  <script src="./js/menu_notificacion.js"></script>
+  <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
+  <script src="./js/recreational_activities.js"></script>
+  <script src="./js/chatbot.js"></script>
+</body>
+</html>

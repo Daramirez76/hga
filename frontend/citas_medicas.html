@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Citas Médicas</title>
+  <script src="./js/access_bootstrap.js" data-allowed-roles="1,2" data-login-page="login_employees.html"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/hga-home-shell.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <style>
+    :root {
+      --verde-principal: #5fbf7f;
+      --verde-oscuro:    #4da86a;
+      --verde-texto:     #417c55;
+      --verde-borde:     #b3ddbf;
+      --verde-fondo:     #d4edda;
+      --verde-dark:      #2e7d32;
+      --teal:            #6fb1b1;
+      --blanco:          #ffffff;
+      --gris-header:     #eaeaea;
+      --gris-fondo:      #f8f9fa;
+      --gris-texto:      #666666;
+      --sombra:          rgba(0,0,0,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #6fb1b1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--gris-header);
+      border-radius: 30px;
+      padding: 8px 20px;
+      margin: 18px auto;
+      max-width: 820px;
+      width: 92%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      width: 38px;
+      height: 38px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+    }
+
+    .header-title {
+      color: var(--teal);
+      font-size: 20px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #444;
+      transition: background 0.2s;
+    }
+    .icon-btn:hover { background: rgba(0,0,0,0.07); }
+
+    /* ===== PERFIL DROPDOWN ===== */
+    .profile-menu-wrapper { position: relative; }
+
+    .profile-dropdown {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      min-width: 220px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(200,230,201,0.8);
+      border-radius: 14px;
+      box-shadow: 0 12px 24px rgba(46,125,50,0.15);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 100;
+    }
+    .profile-dropdown.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .profile-menu-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--verde-dark);
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: block;
+    }
+    .profile-menu-item:hover { background: #e8f5e9; }
+    .profile-menu-item + .profile-menu-item { border-top: 1px solid rgba(200,230,201,0.7); }
+
+    /* ===== BOTÓN REGISTRAR ===== */
+    .btn-registrar {
+      background: var(--blanco);
+      color: #444;
+      border: 2px solid #ccc;
+      border-radius: 20px;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      margin: 0 0 20px 28px;
+      width: fit-content;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .btn-registrar:hover {
+      background: var(--verde-fondo);
+      border-color: var(--verde-principal);
+      color: var(--verde-texto);
+      transform: translateY(-1px);
+    }
+
+    /* ===== CONTENEDOR ===== */
+    .container-main {
+      max-width: 820px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+      width: 92%;
+      flex: 1;
+    }
+
+    /* ===== CARD EXTERNA ===== */
+    .card-externa {
+      background: var(--blanco);
+      border-radius: 22px;
+      padding: 28px 28px 26px;
+      box-shadow: 0 4px 20px var(--sombra);
+    }
+
+    .card-externa-titulo {
+      color: var(--verde-texto);
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    /* ===== ÁREA VERDE ===== */
+    .area-verde {
+      background: #d4edda;
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 200px;
+    }
+
+    /* ===== BARRA FILTRO ===== */
+    .filtro-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+
+    .filtro-input-wrap {
+      display: none;
+      animation: fadeSlide 0.25s ease;
+    }
+    .filtro-input-wrap.show { display: block; }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateX(10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .filtro-input {
+      border: 2px solid var(--verde-borde);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      outline: none;
+      width: 200px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+    .filtro-input:focus {
+      border-color: var(--verde-principal);
+      box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
+    }
+
+    .btn-filtrar {
+      background: var(--blanco);
+      color: var(--verde-texto);
+      border: 2px solid var(--verde-borde);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-filtrar:hover {
+      background: var(--verde-fondo);
+      border-color: var(--verde-principal);
+    }
+
+    /* ===== TARJETAS CITAS ===== */
+    .cita-item {
+      background: var(--blanco);
+      border-radius: 12px;
+      padding: 13px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      font-size: 13px;
+      color: #444;
+      line-height: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      transition: box-shadow 0.2s, transform 0.2s;
+      animation: slideIn 0.3s ease;
+      cursor: pointer;
+    }
+    .cita-item:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.11);
+      transform: translateY(-1px);
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cita-bullet {
+      color: var(--verde-principal);
+      font-size: 16px;
+      line-height: 20px;
+      flex-shrink: 0;
+    }
+
+    .cita-meta {
+      display: flex;
+      gap: 6px;
+      margin-top: 7px;
+      flex-wrap: wrap;
+    }
+
+    /* Badges con íconos de colores como en la imagen */
+    .cita-badge {
+      border-radius: 10px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-fecha   { background: #fde8e8; color: #b94040; }
+    .badge-hora    { background: #e8f5ee; color: #3a7d57; }
+    .badge-lugar   { background: #e8f5ee; color: #3a7d57; }
+    .badge-codigo  { background: #fff9e0; color: #8a6d00; }
+
+    .sin-resultados {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 20px;
+      font-size: 13px;
+    }
+
+    /* ===== OVERLAY FONDO ===== */
+    .overlay-fondo {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .overlay-fondo.show { display: flex; }
+
+    /* ===== OVERLAY REGISTRAR ===== */
+    .overlay-card {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 20px 24px 18px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+      animation: popUp 0.25s ease;
+    }
+
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(-18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .ov-titulo {
+      color: var(--verde-texto);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--verde-borde);
+    }
+
+    .ov-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .ov-group { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+
+    .ov-label {
+      color: var(--verde-texto);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .ov-input, .ov-input-full {
+      border: 2px solid var(--verde-borde);
+      border-radius: 10px;
+      padding: 6px 8px 6px 28px;
+      font-size: 12px;
+      outline: none;
+      width: 100%;
+      background: var(--gris-fondo);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ov-input-full { font-size: 13px; }
+    .ov-input:focus, .ov-input-full:focus {
+      border-color: var(--verde-principal);
+      box-shadow: 0 0 0 3px rgba(95,191,127,0.2);
+      background: #fff;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      pointer-events: none;
+      color: var(--verde-texto);
+    }
+
+    .ov-divider { height: 1px; background: var(--verde-borde); margin: 4px 0 10px; border: none; }
+    .ov-field { margin-bottom: 10px; }
+
+    .btn-confirmar {
+      background: var(--verde-principal);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, transform 0.15s;
+      margin-bottom: 7px;
+    }
+    .btn-confirmar:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
+
+    .btn-descartar {
+      background: transparent;
+      color: var(--gris-texto);
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-descartar:hover { background: #f5f5f5; border-color: #bbb; }
+
+    /* ===== OVERLAY DETALLE ===== */
+    .detalle-card {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 26px 28px 22px;
+      width: 90%;
+      max-width: 460px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+      animation: popUp 0.25s ease;
+    }
+
+    .detalle-titulo {
+      color: var(--verde-texto);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--verde-borde);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detalle-fila {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+    .detalle-fila:last-of-type { border-bottom: none; }
+    .detalle-icono { font-size: 15px; width: 20px; flex-shrink: 0; margin-top: 1px; }
+    .detalle-key {
+      color: var(--verde-texto);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      min-width: 115px;
+      flex-shrink: 0;
+    }
+    .detalle-val { color: #444; line-height: 18px; }
+
+    .btn-cerrar-detalle {
+      background: var(--verde-principal);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      letter-spacing: 1px;
+      margin-top: 16px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-cerrar-detalle:hover { background: var(--verde-oscuro); transform: translateY(-1px); }
+
+    .detalle-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-detalle-secundario,
+    .btn-detalle-peligro {
+      flex: 1;
+      border-radius: 20px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.6px;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn-detalle-secundario {
+      background: #eef8f1;
+      color: var(--verde-texto);
+      border: 2px solid var(--verde-borde);
+    }
+
+    .btn-detalle-peligro {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-detalle-secundario:hover,
+    .btn-detalle-peligro:hover {
+      transform: translateY(-1px);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--gris-header);
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--gris-texto);
+    }
+
+    @media (max-width: 600px) {
+      .ov-row { flex-direction: column; gap: 8px; }
+      .btn-registrar { margin-left: 16px; }
+      .card-externa { padding: 18px 14px; }
+    }
+  </style>
+</head>
+<body class="hga-home-theme" data-allowed-roles="1,2" data-login-page="login_employees.html">
+  <div class="hga-page-shell">
+  <div class="hga-top-region">
+  <div class="hga-content-shell">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header hga-top-bar">
+    <div class="header-left">
+      <img src="img/LOGO_HGA.png" class="logo-img" alt="Logo HGA"
+           onerror="this.style.background='#6fb1b1';this.style.display='flex';this.alt='HGA';" />
+      <h1 class="header-title">Citas Medicas</h1>
+    </div>
+    <div class="header-icons">
+      <!-- Campana -->
+      <button class="icon-btn" type="button" title="Notificaciones" aria-label="Notificaciones" onclick="window.location.href='notificaciones.html'">
+        <i class="bi bi-bell"></i>
+      </button>
+
+      <!-- Perfil -->
+      <div class="profile-menu-wrapper">
+        <button class="icon-btn" type="button" id="profileMenuButton" title="Perfil" aria-label="Perfil" aria-haspopup="true" aria-expanded="false"><i class="bi bi-person-circle"></i></button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-menu-item" onclick="window.location.href='user.html'">Ver perfil de usuario</button>
+          <button class="profile-menu-item" onclick="window.location.href='login.html'">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <!-- Menú hamburguesa -->
+      <button class="icon-btn" type="button" title="Menú" aria-label="Menú" data-menu-hamburguesa><i class="bi bi-list"></i></button>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- ===== BOTÓN REGISTRAR ===== -->
+  <main class="hga-main-region">
+  <div class="hga-content-shell">
+  <button class="btn-registrar hga-pill-btn" id="btnRegistrarCita" onclick="abrirOverlay()" hidden>
+    <span style="font-size:16px; font-weight:300;">+</span> Registrar nueva Cita
+  </button>
+
+  <div class="container-main">
+    <div class="card-externa hga-surface-panel">
+      <div class="card-externa-titulo">Citas Medicas</div>
+
+      <div class="area-verde">
+        <!-- Barra filtro -->
+        <div class="filtro-bar">
+          <div class="filtro-input-wrap" id="filtroWrap">
+            <input type="text" class="filtro-input" id="filtroInput"
+              placeholder="Buscar en citas..." oninput="filtrarCitas()" />
+          </div>
+          <button class="btn-filtrar" onclick="toggleFiltro()">
+            ⚗ Filtrar
+          </button>
+        </div>
+
+        <!-- Lista citas -->
+        <div id="listaCitas"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </main>
+
+  <!-- ===== OVERLAY REGISTRAR CITA ===== -->
+  <div class="overlay-fondo" id="overlayFondo" onclick="clickFuera(event)">
+    <div class="overlay-card" id="overlayCard">
+      <div class="ov-titulo">📋 Registrar nueva Cita</div>
+
+      <div class="ov-row">
+        <div class="ov-group">
+          <label class="ov-label">• Fecha:</label>
+          <div class="input-wrap">
+            <span class="input-icon">📅</span>
+            <input type="date" class="ov-input" id="regFecha" />
+          </div>
+        </div>
+        <div class="ov-group">
+          <label class="ov-label">• Hora Inicio:</label>
+          <div class="input-wrap">
+            <span class="input-icon">🕐</span>
+            <input type="time" class="ov-input" id="regHoraInicio" />
+          </div>
+        </div>
+        <div class="ov-group">
+          <label class="ov-label">• Hora Fin:</label>
+          <div class="input-wrap">
+            <span class="input-icon">🕐</span>
+            <input type="time" class="ov-input" id="regHoraFin" />
+          </div>
+        </div>
+      </div>
+
+      <hr class="ov-divider" />
+
+      <div class="ov-field">
+        <label class="ov-label">• Codigo Cita:</label>
+        <div class="input-wrap" style="margin-top:3px;">
+          <span class="input-icon">🔖</span>
+          <input type="number" class="ov-input-full" id="regCodCita" min="1" step="1" readonly />
+        </div>
+        <small style="display:block; margin-top:4px; color:#7a8a7f; font-size:10px;">Se completa automáticamente antes de guardar.</small>
+      </div>
+
+      <div class="ov-field">
+        <label class="ov-label">• Nombre Acompañante:</label>
+        <div class="input-wrap" style="margin-top:3px;">
+          <span class="input-icon">👤</span>
+          <input type="text" class="ov-input-full" id="regNombreAcompanante" placeholder="Nombre del acompañante" maxlength="50" />
+        </div>
+      </div>
+
+      <div class="ov-field">
+        <label class="ov-label">• Codigo Residente:</label>
+        <div class="input-wrap" style="margin-top:3px;">
+          <span class="input-icon">👤</span>
+          <input type="number" class="ov-input-full" id="regCodResidente" placeholder="Código del residente" min="1" step="1" />
+        </div>
+      </div>
+
+      <div class="ov-field">
+        <label class="ov-label">• Lugar de la Cita Medica:</label>
+        <div class="input-wrap" style="margin-top:3px;">
+          <span class="input-icon">🏥</span>
+          <input type="text" class="ov-input-full" id="regLugar" placeholder="Lugar de la cita" maxlength="30" />
+        </div>
+      </div>
+
+      <button class="btn-confirmar" onclick="confirmarCita()">CONFIRMAR</button>
+      <button class="btn-descartar" onclick="cerrarOverlay()">DESCARTAR</button>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+
+  <!-- ===== OVERLAY DETALLE CITA ===== -->
+  <div class="overlay-fondo" id="overlayDetalle" onclick="clickFueraDetalle(event)">
+    <div class="detalle-card">
+      <div class="detalle-titulo">
+        <span>Detalle de Cita</span>
+        <button onclick="cerrarDetalle()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#999;line-height:1;">×</button>
+      </div>
+      <div id="detalleContenido"></div>
+      <div class="detalle-actions">
+        <button type="button" class="btn-detalle-secundario" onclick="editarCitaDesdeDetalle()">EDITAR</button>
+        <button type="button" class="btn-detalle-peligro" onclick="eliminarCitaDesdeDetalle()">ELIMINAR</button>
+      </div>
+      <button type="button" class="btn-cerrar-detalle" onclick="cerrarDetalle()">CERRAR</button>
+    </div>
+  </div>
+
+</div>
+
+  <script src="./js/alerts.js"></script>
+  <script src="./js/role_access.js"></script>
+  <script src="./js/hga_pagination.js"></script>
+  <script src="./js/menu_notificacion.js"></script>
+  <script src="./js/menu_usuario.js"></script>
+  <script src="./js/menu_desplegable.js"></script>
+  <script src="./js/cita_validate.js"></script>
+</body>
+</html>

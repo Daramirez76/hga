@@ -1,0 +1,54 @@
+# PHP/Laravel vendor and dependencies
+vendor/
+composer.lock
+node_modules/
+
+# Laravel environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+.codex
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Storage
+storage/
+bootstrap/cache/
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE específicos
+.vscode/settings.json
+.idea/workspace.xml

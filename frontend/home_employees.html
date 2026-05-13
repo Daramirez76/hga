@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./js/access_bootstrap.js" data-allowed-roles="1,2" data-login-page="login_employees.html"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/hga-home-shell.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <title>home_employees</title>
+
+    <style>
+      body {
+        min-height: 100vh;
+      }
+
+      .container-main {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      .panel-calendario,
+      .panel-novedades {
+        background: var(--hga-surface);
+        border-radius: var(--hga-radius-xl);
+        box-shadow: var(--hga-shadow);
+      }
+
+      .panel-calendario {
+        padding: 1.5rem;
+      }
+
+      .panel-heading {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+      }
+
+      .panel-heading h2,
+      .panel-novedades h2 {
+        color: var(--hga-primary);
+        font-size: clamp(1.5rem, 2vw, 1.95rem);
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .panel-heading p,
+      .panel-novedades p {
+        color: var(--hga-soft-text);
+        margin: 0;
+      }
+
+      .calendario-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .dia-nombre {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #2e7d32;
+        background: #c8e6c9;
+        border-radius: 8px;
+        padding: 4px 0;
+      }
+
+      .calendario-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+
+      .celda-dia {
+        background: #fff;
+        border-radius: 10px;
+        min-height: 70px;
+        padding: 6px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        position: relative;
+        border: 1.5px solid transparent;
+      }
+
+      .celda-dia:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-color: #a5d6a7;
+      }
+
+      .celda-dia .num-dia {
+        font-size: 11px;
+        color: #888;
+        font-weight: 600;
+      }
+
+      .celda-dia.hoy {
+        border-color: #4caf50;
+        background: #f1f8f1;
+      }
+
+      .celda-dia.hoy .num-dia {
+        color: #2e7d32;
+      }
+
+      /* ---- NOVEDADES ---- */
+      .panel-novedades {
+        padding: 1.5rem;
+        height: 100%;
+      }
+
+      .panel-novedades h2 {
+        margin-bottom: 0.4rem;
+      }
+
+      .novedad-item {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: #333;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .novedad-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      }
+
+      .novedad-item.vacia {
+        background: #f0f0f0;
+        color: #353333;
+        font-style: italic;
+      }
+
+      /* MENU PERFIL */
+      .profile-menu-wrapper {
+        position: relative;
+      }
+
+      .profile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(200, 230, 201, 0.8);
+        border-radius: 14px;
+        box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+        overflow: hidden;
+        z-index: 10;
+      }
+
+      .profile-menu-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: #2e7d32;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .profile-menu-item:hover {
+        background: linear-gradient(135deg, #e8f5e9, #d9f0ee);
+        color: #1b5e20;
+      }
+
+      .profile-menu-item + .profile-menu-item {
+        border-top: 1px solid rgba(200, 230, 201, 0.7);
+      }
+
+      @media (max-width: 768px) {
+        .celda-dia { min-height: 50px; }
+      }
+
+      @media (max-width: 480px) {
+        .celda-dia { min-height: 40px; padding: 4px; }
+        .dia-nombre { font-size: 10px; }
+      }
+    </style>
+    <link rel="stylesheet" href="css/home_calendar.css" />
+</head>
+<body class="hga-home-theme" data-allowed-roles="1,2" data-login-page="login_employees.html" data-calendar-scope="staff">
+  <div class="hga-page-shell">
+    <header class="hga-top-region">
+      <div class="hga-content-shell">
+        <div class="hga-top-bar">
+          <div class="hga-top-bar-inner">
+            <a href="home_employees.html" class="hga-brand-link">
+              <img src="img/LOGO_HGA.png" class="hga-brand-logo" alt="Logo" />
+              <h1 class="hga-brand-title">Inicio</h1>
+            </a>
+
+            <div class="hga-icon-actions">
+              <button class="hga-icon-btn" aria-label="Notificaciones" title="Notificaciones" type="button">
+                <i class="bi bi-bell"></i>
+              </button>
+
+              <div class="profile-menu-wrapper">
+                <button class="hga-icon-btn" id="profileMenuButton" aria-label="Perfil" title="Perfil" aria-haspopup="true" aria-expanded="false">
+                  <i class="bi bi-person-circle"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                  <button class="profile-menu-item" type="button" id="viewUserProfile">Ver perfil de usuario</button>
+                  <button class="profile-menu-item" type="button" id="logoutUser">Cerrar sesión</button>
+                </div>
+              </div>
+
+              <button class="hga-icon-btn is-menu" type="button" aria-label="Menú" title="Menú" data-menu-hamburguesa>
+                <i class="bi bi-list"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="hga-main-region">
+      <div class="hga-content-shell">
+        <div class="container-main">
+          <div class="row g-4">
+        <div class="col-12 col-lg-8">
+          <div class="panel-calendario">
+            <div class="hga-day-strip mb-3"></div>
+            <div class="panel-heading">
+              <h2 id="calendarHeading">Agenda del hogar</h2>
+            </div>
+            <div class="calendario-toolbar">
+              <button class="calendario-nav-btn" id="btnMesAnterior" type="button" aria-label="Mes anterior">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <span class="calendario-titulo" id="mesActual"></span>
+              <button class="calendario-nav-btn" id="btnMesSiguiente" type="button" aria-label="Mes siguiente">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+            <div class="calendario-header">
+              <div class="dia-nombre">Lunes</div>
+              <div class="dia-nombre">Martes</div>
+              <div class="dia-nombre">Miércoles</div>
+              <div class="dia-nombre">Jueves</div>
+              <div class="dia-nombre">Viernes</div>
+              <div class="dia-nombre">Sábado</div>
+              <div class="dia-nombre">Domingo</div>
+            </div>
+            <div class="calendario-grid" id="calendarioGrid"></div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <div class="panel-novedades">
+            <h2 id="calendarEventsTitle">Eventos del mes</h2>
+            <p class="mb-3" id="calendarEventsDescription">Selecciona un día del calendario para ver su detalle.</p>
+            <div id="listaNovedad" class="lista-novedades">
+              <div class="novedad-item vacia">Cargando eventos del calendario...</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="hga-footer-strip">derechos reservados HGA © 2025 | Hogar Geriátrico</footer>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/role_access.js"></script>
+    <script src="./js/menu_notificacion.js"></script>
+    <script src="./js/menu_usuario.js"></script>
+    <script src="./js/menu_desplegable.js"></script>
+    <script src="./js/home_calendar.js"></script>
+</body>
+</html>
