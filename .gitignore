@@ -1,6 +1,5 @@
 # PHP/Laravel vendor and dependencies
 vendor/
-composer.lock
 node_modules/
 
 # Laravel environment
