@@ -1,4 +1,4 @@
-const HOME_API_ME_ENDPOINT = `${window.location.origin}/api/me`;
+const HOME_API_ME_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
 let googleProfileWizard = null;
 
 function readStoredHomeUser() {

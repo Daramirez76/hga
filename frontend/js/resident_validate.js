@@ -1,6 +1,6 @@
-const RESIDENTES_API_ENDPOINT = `${window.location.origin}/api/residentes`;
-const TUTORES_API_ENDPOINT = `${window.location.origin}/api/tutores`;
-const ME_API_ENDPOINT = `${window.location.origin}/api/me`;
+const RESIDENTES_API_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/residentes`;
+const TUTORES_API_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/tutores`;
+const ME_API_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
 const RESIDENTES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 
 const residentesState = {

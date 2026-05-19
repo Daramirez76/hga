@@ -1,4 +1,4 @@
-const API_BASE = `${window.location.origin}/api/actividades`;
+const API_BASE = `${window.HGA_API_BASE_URL || window.location.origin}/api/actividades`;
 const LOGIN_URL = 'login.html';
 const ACTIVIDADES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 

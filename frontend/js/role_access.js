@@ -2,7 +2,7 @@
   const ROLE_ADMIN = 1;
   const ROLE_NURSE = 2;
   const ROLE_TUTOR = 4;
-  const API_ME_ENDPOINT = `${global.location.origin}/api/me`;
+  const API_ME_ENDPOINT = `${global.HGA_API_BASE_URL || global.location.origin}/api/me`;
   const ROLE_NAMES = {
     [ROLE_ADMIN]: "Administrador",
     [ROLE_NURSE]: "Enfermero",

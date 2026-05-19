@@ -1,4 +1,4 @@
-const CITAS_API_URL = `${window.location.origin}/api/citas`;
+const CITAS_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/citas`;
 const LOGIN_URL = "login.html";
 const CITAS_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 

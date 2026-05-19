@@ -1,4 +1,4 @@
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = window.HGA_API_BASE_URL || window.location.origin;
 const REGISTER_ENDPOINT = `${API_BASE_URL}/api/register`;
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/login`;
 const LOGOUT_ENDPOINT = `${API_BASE_URL}/api/logout`;

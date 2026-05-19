@@ -1,5 +1,5 @@
-const API_ME_ENDPOINT = `${window.location.origin}/api/me`;
-const API_LOGOUT_ENDPOINT = `${window.location.origin}/api/logout`;
+const API_ME_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
+const API_LOGOUT_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/logout`;
 
 const buttons = document.querySelectorAll(".menu-btn");
 const panels = document.querySelectorAll(".panel");

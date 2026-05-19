@@ -3,14 +3,8 @@
  * Modifica esta configuración según tu ambiente
  */
 
-// ⚙️ DESARROLLO (Backend en mismo servidor)
 const API_CONFIG = {
-    // Usa mismo origen para evitar problemas de host/puerto en local y entornos remotos
-    BACKEND_URL: window.location.origin,
-    
-    // Alternativas comunes:
-    // BACKEND_URL: "http://app:8000",           // Docker interno
-    // BACKEND_URL: "https://api.ejemplo.com",  // Producción
+    BACKEND_URL: window.HGA_API_BASE_URL || window.location.origin,
 };
 
 // 🔗 Endpoints de API

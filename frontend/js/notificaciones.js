@@ -342,12 +342,12 @@
 
   function buildNotificationsUrl(page) {
     return global.HgaPagination?.buildUrl
-      ? global.HgaPagination.buildUrl(`${global.location.origin}/api/notificaciones`, {
+      ? global.HgaPagination.buildUrl(`${global.HGA_API_BASE_URL || global.location.origin}/api/notificaciones`, {
           page,
           per_page: NOTIFICATIONS_PAGE_SIZE,
           search: state.searchQuery,
         })
-      : `${global.location.origin}/api/notificaciones?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(NOTIFICATIONS_PAGE_SIZE))}&search=${encodeURIComponent(state.searchQuery)}`;
+      : `${global.HGA_API_BASE_URL || global.location.origin}/api/notificaciones?page=${encodeURIComponent(String(page))}&per_page=${encodeURIComponent(String(NOTIFICATIONS_PAGE_SIZE))}&search=${encodeURIComponent(state.searchQuery)}`;
   }
 
   async function loadNotifications(options = {}) {
@@ -442,7 +442,7 @@
         return;
       }
 
-      const response = await fetch(`${global.location.origin}/api/notificaciones/${encodeURIComponent(id)}/read`, {
+      const response = await fetch(`${global.HGA_API_BASE_URL || global.location.origin}/api/notificaciones/${encodeURIComponent(id)}/read`, {
         method: "PATCH",
         credentials: "same-origin",
         headers: {
@@ -478,11 +478,11 @@
       }
 
       if (service && typeof service.requestJson === "function") {
-        await service.requestJson(`${global.location.origin}/api/notificaciones/read-all`, {
+        await service.requestJson(`${global.HGA_API_BASE_URL || global.location.origin}/api/notificaciones/read-all`, {
           method: "PATCH",
         });
       } else {
-        const response = await fetch(`${global.location.origin}/api/notificaciones/read-all`, {
+        const response = await fetch(`${global.HGA_API_BASE_URL || global.location.origin}/api/notificaciones/read-all`, {
           method: "PATCH",
           credentials: "same-origin",
           headers: {

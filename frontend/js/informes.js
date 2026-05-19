@@ -1,6 +1,6 @@
-const INFORMES_API_URL = `${window.location.origin}/api/informes`;
-const RESIDENTES_API_URL = `${window.location.origin}/api/residentes`;
-const PROFILE_API_URL = `${window.location.origin}/api/me`;
+const INFORMES_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/informes`;
+const RESIDENTES_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/residentes`;
+const PROFILE_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
 const LOGIN_URL = "login.html";
 const INFORMES_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 

@@ -1,4 +1,4 @@
-const API_BASE = `${window.location.origin}/api`;
+const API_BASE = `${window.HGA_API_BASE_URL || window.location.origin}/api`;
 const DASHBOARD_ENDPOINT = '/dashboard';
 const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const PIE_COLORS = ['#8dd3c7', '#f7cf7c', '#9cc7ff', '#f7a8a8', '#c7e89e', '#c8b4f6', '#f3c38f'];

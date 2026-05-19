@@ -1,7 +1,7 @@
 (function (global) {
-  const ACTIVIDADES_API_URL = `${global.location.origin}/api/actividades`;
-  const CITAS_API_URL = `${global.location.origin}/api/citas`;
-  const VISITAS_API_URL = `${global.location.origin}/api/visitas`;
+  const ACTIVIDADES_API_URL = `${global.HGA_API_BASE_URL || global.location.origin}/api/actividades`;
+  const CITAS_API_URL = `${global.HGA_API_BASE_URL || global.location.origin}/api/citas`;
+  const VISITAS_API_URL = `${global.HGA_API_BASE_URL || global.location.origin}/api/visitas`;
 
   const MONTH_NAMES = [
     "Enero",

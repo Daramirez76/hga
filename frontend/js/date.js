@@ -68,7 +68,7 @@ function guardarCita(evento) {
     };
     
     // Enviar petición al servidor
-    fetch('/api/citas', {
+    fetch((window.HGA_API_BASE_URL || window.location.origin) + '/api/citas', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

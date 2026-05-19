@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
+        <script src="./js/api-config.js"></script>
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HGA - Usuario</title>
     <script src="./js/access_bootstrap.js" data-allowed-roles="1,2,4" data-login-page="login.html"></script>
@@ -648,7 +649,7 @@
         try {
           var token = localStorage.getItem("access_token");
           if (token) {
-            fetch(window.location.origin + "/api/me", {
+            fetch((window.HGA_API_BASE_URL || window.location.origin) + "/api/me", {
               method: "GET",
               headers: {
                 "Accept": "application/json",

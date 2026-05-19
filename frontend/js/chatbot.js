@@ -1,7 +1,7 @@
 (() => {
   const LEGACY_STORAGE_KEY = "hga_chatbot_messages";
   const STORAGE_KEY_PREFIX = "hga_chatbot_messages";
-  const CHATBOT_URL = `${window.location.origin}/chatbot-api/chat`;
+  const CHATBOT_URL = window.HGA_CHATBOT_URL || `${window.location.origin}/chatbot-api/chat`;
   const MAX_STORED_MESSAGES = 30;
 
   const state = {

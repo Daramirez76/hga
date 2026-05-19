@@ -1,5 +1,5 @@
 (function (global) {
-  const API_BASE = global.location.origin;
+  const API_BASE = global.HGA_API_BASE_URL || global.location.origin;
   const NOTIFICATIONS_ENDPOINT = `${API_BASE}/api/notificaciones`;
   const VIEW_ALL_LABEL = "Ver todas las notificaciones";
   const VIEW_ALL_HREF = "notificaciones.html";

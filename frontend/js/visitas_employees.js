@@ -17,7 +17,7 @@
   // ║ §1: CONFIG & STATE                                           ║
   // ╚═══════════════════════════════════════════════════════════════╝
 
-  const API_VISITAS = `${window.location.origin}/api/visitas`;
+  const API_VISITAS = `${window.HGA_API_BASE_URL || window.location.origin}/api/visitas`;
   const $ = id => document.getElementById(id);
   const DOM = {}; // Cache de elementos
 

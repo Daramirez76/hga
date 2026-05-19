@@ -1,6 +1,6 @@
-const MEDICAMENTOS_API_BASE = `${window.location.origin}/api/medicamentos`;
-const RESIDENTES_API_BASE = `${window.location.origin}/api/residentes`;
-const PROFILE_API_ENDPOINT = `${window.location.origin}/api/me`;
+const MEDICAMENTOS_API_BASE = `${window.HGA_API_BASE_URL || window.location.origin}/api/medicamentos`;
+const RESIDENTES_API_BASE = `${window.HGA_API_BASE_URL || window.location.origin}/api/residentes`;
+const PROFILE_API_ENDPOINT = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
 const MEDICATION_EMPTY_STATE = '<div class="empty-state">No hay medicamentos registrados.</div>';
 const NOVELTY_EMPTY_STATE = '<div class="empty-state">Sin novedades registradas.</div>';
 const MEDICATION_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;

@@ -1,4 +1,4 @@
-const LOGIN_ENDPOINT = `${globalThis.location.origin}/api/login`;
+const LOGIN_ENDPOINT = `${globalThis.HGA_API_BASE_URL || globalThis.location.origin}/api/login`;
 const DEFAULT_LOGIN_REDIRECT = "home.html";
 const JSON_CONTENT_TYPE = "application/json";
 

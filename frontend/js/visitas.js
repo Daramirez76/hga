@@ -1,7 +1,7 @@
-const VISITAS_API_URL = `${window.location.origin}/api/visitas`;
-const RESIDENTES_API_URL = `${window.location.origin}/api/residentes`;
-const PROFILE_API_URL = `${window.location.origin}/api/me`;
-const NOTIF_API_URL = `${window.location.origin}/api/notificaciones`;
+const VISITAS_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/visitas`;
+const RESIDENTES_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/residentes`;
+const PROFILE_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/me`;
+const NOTIF_API_URL = `${window.HGA_API_BASE_URL || window.location.origin}/api/notificaciones`;
 const LOGIN_URL = "login.html";
 const VISITAS_PAGE_SIZE = window.HgaPagination?.DEFAULT_PAGE_SIZE || 5;
 

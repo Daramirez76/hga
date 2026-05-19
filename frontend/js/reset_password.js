@@ -1,4 +1,4 @@
-const RESET_PASSWORD_ENDPOINT = "/api/user/forgot_password/reset";
+const RESET_PASSWORD_ENDPOINT = (window.HGA_API_URL ? window.HGA_API_URL("/api/user/forgot_password/reset") : "/api/user/forgot_password/reset");
 const DEFAULT_RETURN_TO = "login.html";
 
 document.addEventListener("DOMContentLoaded", () => {

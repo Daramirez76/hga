@@ -4,6 +4,7 @@ import hashlib
 import os
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from schemas.chat import ChatRequest, ChatResponse
 from services.chat_service import ChatAccessDeniedError, ChatService
@@ -11,6 +12,28 @@ from services.rate_limiter import InMemoryRateLimiter
 
 
 app = FastAPI(title="HGA Chatbot")
+
+
+def get_cors_origins() -> list[str]:
+    raw_value = os.getenv("CHATBOT_CORS_ORIGINS", "*").strip()
+    if raw_value == "*":
+        return ["*"]
+
+    return [
+        origin.strip().rstrip("/")
+        for origin in raw_value.split(",")
+        if origin.strip()
+    ]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_cors_origins(),
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 chat_service = ChatService()
 
 
