@@ -6,7 +6,6 @@ use App\Services\googleAuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -56,7 +55,7 @@ class googleAuthController extends Controller
     /**
      * Complete OAuth callback from Google.
      */
-    public function handleGoogleCallback(Request $request): Response|RedirectResponse
+    public function handleGoogleCallback(Request $request): RedirectResponse
     {
         $code = trim((string) $request->query('code', ''));
         $oauthError = trim((string) $request->query('error', ''));
@@ -108,35 +107,28 @@ class googleAuthController extends Controller
             );
         }
 
-        return $this->respondWithFrontendBootstrap(
+        return $this->redirectWithFrontendSuccess(
             $result,
             $successRedirect ?: $this->resolveDefaultGoogleSuccessRedirect()
         );
     }
 
     /**
-     * Return a small bootstrap page that persists the local session and then
-     * sends the browser to the final frontend destination.
+     * Redirect back to the frontend with the generated local JWT. The frontend
+     * persists the session in its own origin.
      *
      * @param array<string, mixed> $payload
      */
-    protected function respondWithFrontendBootstrap(array $payload, string $redirectUrl): Response
+    protected function redirectWithFrontendSuccess(array $payload, string $redirectUrl): RedirectResponse
     {
-        $bootstrapPayload = [
+        return redirect()->away($redirectUrl . '?' . http_build_query([
+            'success' => '1',
+            'message' => (string) ($payload['message'] ?? 'Autenticación con Google completada'),
             'access_token' => (string) ($payload['access_token'] ?? ''),
             'token_type' => (string) ($payload['token_type'] ?? 'Bearer'),
             'expires_in' => (string) ($payload['expires_in'] ?? ''),
-            'user' => is_array($payload['user'] ?? null) ? $payload['user'] : [],
-        ];
-
-        $html = $this->buildBootstrapHtml($bootstrapPayload, $redirectUrl);
-
-        return response($html, 200)
-            ->header('Content-Type', 'text/html; charset=UTF-8')
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-            ->header('Pragma', 'no-cache')
-            ->header('Referrer-Policy', 'no-referrer')
-            ->header('X-Content-Type-Options', 'nosniff')
+            'user' => json_encode($payload['user'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+        ]))
             ->withCookie(Cookie::forget('google_oauth_state'))
             ->withCookie(Cookie::forget('google_oauth_success_redirect'))
             ->withCookie(Cookie::forget('google_oauth_error_redirect'));
@@ -205,6 +197,14 @@ class googleAuthController extends Controller
             $base .= ':' . $parts['port'];
         }
 
+        $path = trim((string) ($parts['path'] ?? ''), '/');
+        if ($path !== '') {
+            $basePath = str_ends_with($path, '.html') ? dirname($path) : $path;
+            if ($basePath !== '.' && $basePath !== '') {
+                $base .= '/' . trim($basePath, '/');
+            }
+        }
+
         return rtrim($base, '/');
     }
 
@@ -225,55 +225,6 @@ class googleAuthController extends Controller
         }
 
         return hash_equals($storedState, $state);
-    }
-
-    protected function buildBootstrapHtml(array $payload, string $redirectUrl): string
-    {
-        $payloadJson = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
-        $redirectJson = json_encode($redirectUrl, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '"/"';
-
-        return <<<HTML
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-    <meta name="referrer" content="no-referrer">
-    <title>Autenticando...</title>
-</head>
-<body>
-<script>
-(function () {
-    const payload = {$payloadJson};
-    const redirectUrl = {$redirectJson};
-
-    if (payload.access_token) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('token_type');
-        localStorage.removeItem('expires_in');
-        localStorage.removeItem('usuario');
-
-        localStorage.setItem('access_token', payload.access_token);
-        localStorage.setItem('authToken', payload.access_token);
-        localStorage.setItem('token_type', payload.token_type || 'Bearer');
-
-        if (payload.expires_in !== '') {
-            localStorage.setItem('expires_in', String(payload.expires_in));
-        }
-
-        if (payload.user && Object.keys(payload.user).length > 0) {
-            localStorage.setItem('usuario', JSON.stringify(payload.user));
-        }
-    }
-
-    window.location.replace(redirectUrl);
-})();
-</script>
-<noscript>La autenticacion se completo, pero necesitas JavaScript para continuar.</noscript>
-</body>
-</html>
-HTML;
     }
 
     protected function makeGoogleOAuthCookie(string $name, string $value, bool $secure): \Symfony\Component\HttpFoundation\Cookie
