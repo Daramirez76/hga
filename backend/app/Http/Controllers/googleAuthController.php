@@ -168,12 +168,11 @@ class googleAuthController extends Controller
         $baseUrl = $this->resolveFrontendBaseUrl($frontendRedirect);
         $sourcePath = (string) parse_url((string) $request->headers->get('referer', ''), PHP_URL_PATH);
         $isEmployeeFlow = Str::contains($sourcePath, 'employees');
-        $successPath = $isEmployeeFlow ? '/home_employees.html' : '/home.html';
-        $errorPath = $isEmployeeFlow ? '/login_employees.html' : '/login.html';
+        $loginPath = $isEmployeeFlow ? '/login_employees.html' : '/login.html';
 
         return [
-            rtrim($baseUrl, '/') . $successPath,
-            rtrim($baseUrl, '/') . $errorPath,
+            rtrim($baseUrl, '/') . $loginPath,
+            rtrim($baseUrl, '/') . $loginPath,
         ];
     }
 
@@ -210,7 +209,7 @@ class googleAuthController extends Controller
 
     protected function resolveDefaultGoogleSuccessRedirect(): string
     {
-        return $this->resolveFrontendBaseUrl() . '/home.html';
+        return $this->resolveDefaultGoogleLoginRedirect();
     }
 
     protected function resolveDefaultGoogleLoginRedirect(): string
