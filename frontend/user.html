@@ -173,8 +173,13 @@
         border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
+      .imagen_perfil {
+        height: 105px;
+        width: 101px; 
+      }
+
       .sidebar-card {
-        padding: 22px 12px 20px;
+        padding: 40px 20px 200px;
         text-align: center;
       }
 
@@ -499,7 +504,7 @@
           <section class="row g-4 g-lg-5 profile-grid">
             <div class="col-12 col-lg-3">
               <aside class="sidebar-card hga-surface-panel">
-                <div class="profile-avatar" aria-hidden="true"></div>
+                <div class="profile-avatar" aria-hidden="true"> <img class="imagen_perfil" src="./img/usuario.svg" alt="imegen usuario.png"</div>
                 <div class="user-name" id="sidebarUserName">Nombre Usuario</div>
                 <div class="user-role">Rol: <span id="sidebarUserRole">Cargando...</span></div>
 
@@ -534,16 +539,7 @@
                       </article>
                     </div>
 
-                    <div class="service-row">
-                      <article class="service-card success">
-                        <h3>Proximas citas</h3>
-                        <p>No hay citas programadas por el momento.</p>
-                      </article>
-                      <article class="service-card info">
-                        <h3>Actividades</h3>
-                        <p>Consulta tus actividades y mantente conectado con la rutina del hogar.</p>
-                      </article>
-                    </div>
+                    
                   </div>
                 </div>
 
